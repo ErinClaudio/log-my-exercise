@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block content %}
+    <div class="container">
+        {% if add_regular_activity %}
+            <h1 class="h3 mb-3 font-weight-normal">Add regular activity</h1>
+        {% else %}
+            <h1 class="h3 mb-3 font-weight-normal">Edit regular activity</h1>
+        {% endif %}
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ wtf.form_field(form.activity_type, class="form-control") }}
+                {% for error in form.activity_type.errors %}
+                    <small class="form-text text-muted">[{{ error }}]</small>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ wtf.form_field(form.title, class="form-control") }}
+                {% for error in form.title.errors %}
+                    <small class="form-text text-muted">[{{ error }}]</small>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ wtf.form_field(form.description, class="form-control") }}
+                {% for error in form.description.errors %}
+                    <small class="form-text text-muted">[{{ error }}]</small>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ wtf.form_field(form.duration, class="form-control") }}
+                {% for error in form.duration.errors %}
+                    <small class="form-text text-muted">[{{ error }}]</small>
+                {% endfor %}
+            </div>
+            <button id="submit" class="btn btn-lg btn-primary btn-block" type="submit">Save</button>
+
+        </form>
+    </div>
+{% endblock %}

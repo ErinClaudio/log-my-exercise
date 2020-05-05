@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+
+        {% if regular_activities %}
+            <h2 class="h3 mb-3 font-weight-normal">Which of these activities have you completed today?</h2>
+
+            <table>
+
+                <tr valign="top">
+                    {% for activity in regular_activities %}
+
+                        <td>
+                            <a class="btn btn-primary btn-lg" role="button"
+                               href="{{ url_for('main.log_activity', activity_id=activity.id) }}">{{ activity.title }} </a>
+                        </td>
+
+                    {% endfor %}
+                </tr>
+            </table>
+        {% else %}
+            <p id="no_reg"> No regular activities. Please <a id="set_up" href="{{ url_for('main.add_regular_activity') }}">set one up</a>.</p>
+        {% endif %}
+    </div>
+{% endblock %}
