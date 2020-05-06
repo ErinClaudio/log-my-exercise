@@ -7,7 +7,12 @@ from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm
 from app.models import User
+from flask import current_app
 
+INDEX_PAGE = 'main.index'
+
+def list_routes():
+    return ['%s' % rule for rule in current_app.url_map.iter_rules()]
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -16,8 +21,9 @@ def login():
     :return: the template to render
     :rtype:
     """
+    print(list_routes())
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for(INDEX_PAGE))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -26,8 +32,12 @@ def login():
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
+        # need to see if next_page exists and is a valid route
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('main.index')
+            next_page = url_for(INDEX_PAGE)
+        elif next_page not in list_routes():
+            next_page = url_for(INDEX_PAGE)
+
         return redirect(next_page)
     return render_template('auth/login.html', title='Sign In', form=form)
 
@@ -40,7 +50,7 @@ def logout():
     :rtype:
     """
     logout_user()
-    return redirect(url_for('main.index'))
+    return redirect(url_for(INDEX_PAGE))
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -51,7 +61,7 @@ def register():
     :rtype:
     """
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for(INDEX_PAGE))
     add_user = True
     form = RegistrationForm()
     if form.validate_on_submit():

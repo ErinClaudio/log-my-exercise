@@ -15,6 +15,13 @@ moment = Moment()
 bootstrap = Bootstrap()
 
 def create_app(config_class=Config):
+    """
+    Starts up the Flask application based on the supplied configuration
+    :param config_class: Configuration to start the app with
+    :type config_class:
+    :return: the Flask app
+    :rtype:
+    """
     app = Flask(__name__)
     app.config.from_object(config_class)
 

@@ -16,10 +16,7 @@ class TestBase(TestCase):
         return app
 
     def setUp(self):
-        #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
-        #self.app = create_app(TestingConfig)
-        #self.app_context = self.app.app_context()
-        #self.app_context.push()
+
         db.drop_all()
         db.create_all()
         # create a test user

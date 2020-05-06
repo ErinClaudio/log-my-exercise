@@ -125,7 +125,6 @@ def delete_regular_activity(id):
 
     return redirect(url_for('main.regular_activities'))
 
-    return render_template(title="Delete Regular Activity")
 
 
 @bp.route('/log_activity/<activity_id>', methods=['GET'])
