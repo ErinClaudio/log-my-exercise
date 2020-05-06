@@ -1,5 +1,3 @@
-from datetime import datetime, timedelta
-import unittest
 
 from flask_testing import TestCase
 
@@ -7,7 +5,7 @@ from flask import abort, url_for
 
 from app import create_app, db
 from app.models import User, RegularActivity, Activity
-from config import Config, TestingConfig
+from config import TestingConfig
 
 class TestBase(TestCase):
 

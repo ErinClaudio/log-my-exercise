@@ -11,9 +11,6 @@ from flask import current_app
 
 INDEX_PAGE = 'main.index'
 
-def list_routes():
-    return ['%s' % rule for rule in current_app.url_map.iter_rules()]
-
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     """
@@ -21,7 +18,6 @@ def login():
     :return: the template to render
     :rtype:
     """
-    print(list_routes())
     if current_user.is_authenticated:
         return redirect(url_for(INDEX_PAGE))
     form = LoginForm()
@@ -31,14 +27,9 @@ def login():
             flash('Invalid username or password')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
-        # need to see if next_page exists and is a valid route
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for(INDEX_PAGE)
-        elif next_page not in list_routes():
-            next_page = url_for(INDEX_PAGE)
+        # going to ignore any next querystring parameter and just send all users to the index page
+        return redirect(url_for(INDEX_PAGE))
 
-        return redirect(next_page)
     return render_template('auth/login.html', title='Sign In', form=form)
 
 
