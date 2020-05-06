@@ -218,7 +218,7 @@ class TestRegistration(TestBase):
 
 class TestActivity(TestBase):
 
-    def test_create_regular_activity_ok(self):
+    def login_user(self):
         self.driver.find_element_by_id("username").send_keys(test_user_username)
         self.driver.find_element_by_id("password").send_keys(
             test_user_password)
@@ -226,6 +226,9 @@ class TestActivity(TestBase):
         time.sleep(3)
         self.driver.find_element_by_id("set_up").click()
         time.sleep(3)
+
+    def test_create_regular_activity_ok(self):
+        self.login_user()
 
         assert url_for('main.add_regular_activity') in self.driver.current_url
 
@@ -259,13 +262,7 @@ class TestActivity(TestBase):
 
 
     def test_create_regular_activity_missing_fields(self):
-        self.driver.find_element_by_id("username").send_keys(test_user_username)
-        self.driver.find_element_by_id("password").send_keys(
-            test_user_password)
-        self.driver.find_element_by_id("submit").click()
-        time.sleep(3)
-        self.driver.find_element_by_id("set_up").click()
-        time.sleep(3)
+        self.login_user()
 
         # title is mandatory
         self.driver.find_element_by_id("description").send_keys(
@@ -304,13 +301,7 @@ class TestActivity(TestBase):
 
     def test_edit_regular_activity(self):
         # create an activity and then edit it
-        self.driver.find_element_by_id("username").send_keys(test_user_username)
-        self.driver.find_element_by_id("password").send_keys(
-            test_user_password)
-        self.driver.find_element_by_id("submit").click()
-        time.sleep(3)
-        self.driver.find_element_by_id("set_up").click()
-        time.sleep(3)
+        self.login_user()
 
         self.driver.find_element_by_id("title").send_keys(
             "title of workout")
@@ -342,13 +333,7 @@ class TestActivity(TestBase):
     def test_delete_regular_activity(self):
         #login, create an activity and then delete it
 
-        self.driver.find_element_by_id("username").send_keys(test_user_username)
-        self.driver.find_element_by_id("password").send_keys(
-            test_user_password)
-        self.driver.find_element_by_id("submit").click()
-        time.sleep(3)
-        self.driver.find_element_by_id("set_up").click()
-        time.sleep(3)
+        self.login_user()
 
         self.driver.find_element_by_id("title").send_keys(
             "title of workout")
@@ -369,13 +354,7 @@ class TestActivity(TestBase):
 
     def test_log_activity(self):
         #create an activity and log it being completed
-        self.driver.find_element_by_id("username").send_keys(test_user_username)
-        self.driver.find_element_by_id("password").send_keys(
-            test_user_password)
-        self.driver.find_element_by_id("submit").click()
-        time.sleep(3)
-        self.driver.find_element_by_id("set_up").click()
-        time.sleep(3)
+        self.login_user()
 
         self.driver.find_element_by_id("title").send_keys(
             "title of workout")
