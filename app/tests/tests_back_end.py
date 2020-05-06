@@ -1,4 +1,4 @@
-
+import unittest
 from flask_testing import TestCase
 
 from flask import abort, url_for
@@ -124,5 +124,3 @@ class TestErrorPages(TestBase):
         response = self.client.get('/500')
         self.assertEqual(response.status_code, 500)
 
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
