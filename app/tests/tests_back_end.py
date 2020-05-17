@@ -10,7 +10,7 @@ from config import TestingConfig
 class TestBase(TestCase):
 
     def create_app(self):
-        app = create_app(TestingConfig)
+        app = create_app('testing')
         return app
 
     def setUp(self):

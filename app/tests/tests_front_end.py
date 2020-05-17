@@ -18,7 +18,7 @@ test_user_password="test_pwd"
 class TestBase(LiveServerTestCase):
 
     def create_app(self):
-        app = create_app(TestingConfig)
+        app = create_app('testing')
         return app
 
     def setUp(self):

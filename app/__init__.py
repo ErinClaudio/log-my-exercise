@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
-from config import Config
+from config import app_config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -14,7 +14,7 @@ login.login_view = 'auth.login'
 moment = Moment()
 bootstrap = Bootstrap()
 
-def create_app(config_class=Config):
+def create_app(config_name='default'):
     """
     Starts up the Flask application based on the supplied configuration
     :param config_class: Configuration to start the app with
@@ -23,7 +23,8 @@ def create_app(config_class=Config):
     :rtype:
     """
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    app.config.from_object(app_config[config_name])
+    app_config[config_name].init_app(app)
 
     db.init_app(app)
     migrate.init_app(app, db)
