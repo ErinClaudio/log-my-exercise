@@ -1,8 +1,8 @@
 
-
 cwd:= $(shell pwd)
 
 MODULE := logmyexercise.py
+MY_SECRET := $(shell python -c 'import os; print(os.urandom(16))')
 
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
@@ -11,7 +11,7 @@ NC='\033[0m' # No Color
 TAG := $(shell git describe --tags --always --dirty)
 
 run:
-	@flask run $(MODULE)
+	@flask run
 
 test:
 # pytest is not generating coverage data files for some reason
@@ -37,11 +37,20 @@ version:
 .PHONY: clean test
 
 clean:
-	@rm -rf .pytest_cache __pycache__ tests/__pycache__ .coverage tests/.pytest_cache coverage.xml
-
-package:
-
+	@echo "removing old files"
+	@rm -rf .pytest_cache __pycache__ tests/__pycache__ .coverage tests/.pytest_cache
+	@rm -f coverage.xml
 
 deploy:
-# deploys the package to aws lambda
+# sets the environment variables, upgrades the database and then deploys the code
+# currently uses the staging configuration inside config.py on EB
+# this controls the database to use
+	@echo "Deploying to EB"
+	@eb setenv FLASK_APP=$(MODULE) FLASK_CONFIG=$(FLASK_CONFIG) AUTH0_CLIENT_ID=$(AUTH0_CLIENT_ID) AUTH0_CLIENT_SECRET=$(AUTH0_CLIENT_SECRET) AUTH0_CLIENT_DOMAIN=$(AUTH0_CLIENT_DOMAIN) FLASK_SECRET_KEY=$(MY_SECRET) STAGING_DATABASE_URL=$(STAGING_DATABASE_URL)
+	@flask db upgrade
+	@eb deploy
+	@eb open
+
+
+
 
