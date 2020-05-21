@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 
 from app.models import User
 
+
 class LoginForm(FlaskForm):
     """
     Defines the login form
@@ -22,7 +23,8 @@ class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    password2 = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password',message='Passwords must match')])
+    password2 = PasswordField('Confirm Password',
+                              validators=[DataRequired(), EqualTo('password', message='Passwords must match')])
     submit = SubmitField('Register')
 
     def validate_username(self, username):
@@ -48,6 +50,3 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address')
-
-
-

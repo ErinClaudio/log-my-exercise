@@ -11,9 +11,6 @@
                     {% if user.last_seen %}
                         Last seen on: {{ moment(user.last_seen).format('LLL') }}<br>{% endif %}
                     <br>
-                    {% if user == current_user %}
-                        <a class="btn btn-primary" href="{{ url_for('main.edit_profile') }}">Edit your profile</a>
-                    {% endif %}
                 </td>
             </tr>
         </table>

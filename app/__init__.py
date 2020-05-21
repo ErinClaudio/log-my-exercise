@@ -1,18 +1,22 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
-from config import app_config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_moment import Moment
 
+from authlib.integrations.flask_client import OAuth
+from config import app_config
 
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
-login.login_view = 'auth.login'
+login.login_view = 'auth.login_new'
 moment = Moment()
 bootstrap = Bootstrap()
+
+oauth = OAuth()
+
 
 def create_app(config_name='default'):
     """
@@ -32,12 +36,26 @@ def create_app(config_name='default'):
     bootstrap.init_app(app)
     moment.init_app(app)
 
+    oauth.init_app(app)
+    oauth.register(
+        'auth0',
+        client_id=app.config['AUTH0_CLIENT_ID'],
+        client_secret=app.config['AUTH0_CLIENT_SECRET'],
+        api_base_url=app.config['AUTH0_CLIENT_DOMAIN'],
+        access_token_url=app.config['AUTH0_CLIENT_DOMAIN'] + '/oauth/token',
+        authorize_url=app.config['AUTH0_CLIENT_DOMAIN'] + '/authorize',
+        client_kwargs={
+            'scope': 'openid profile email',
+        },
+    )
+
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
     from app.auth import bp as auth_bp
-    app.register_blueprint(auth_bp,url_prefix='/auth')
+    app.register_blueprint(auth_bp, url_prefix='/auth')
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
     return app
+
 
 from app import models

@@ -3,8 +3,7 @@ from datetime import datetime
 
 from flask import render_template, flash, redirect, url_for
 from flask import request
-from flask_login import current_user, login_user, login_required, logout_user
-from werkzeug.urls import url_parse
+from flask_login import current_user, login_required
 
 from app import db
 from app.main import bp
@@ -40,7 +39,6 @@ def index():
         return redirect(url_for('main.index'))
 
     return render_template('index.html', title='Home', form=form, regular_activities=activities)
-
 
 
 @bp.route('/user/<username>')
@@ -79,7 +77,7 @@ def regular_activities():
 @login_required
 def add_regular_activity():
     form = ActivityForm()
-    add_regular_activity = True
+    is_add_regular_activity = True
     if form.validate_on_submit():
         activity = RegularActivity(title=form.title.data, description=form.description.data,
                                    type=int(form.activity_type.data), duration=form.duration.data,
@@ -89,13 +87,13 @@ def add_regular_activity():
         flash('Your regular activity is recorded')
         return redirect(url_for('main.regular_activities'))
     return render_template('activity/edit_regularactivity.html', user=user, form=form,
-                           add_regular_activity=add_regular_activity)
+                           is_add_regular_activity=is_add_regular_activity)
 
 
 @bp.route('/edit_regular_activity/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_regular_activity(id):
-    add_regular_activity = False
+    is_add_regular_activity = False
     regular_activity = RegularActivity.query.get_or_404(id)
     form = ActivityForm(obj=regular_activity)
     if form.validate_on_submit():
@@ -111,7 +109,7 @@ def edit_regular_activity(id):
     form.description.data = regular_activity.description
     form.activity_type.data = regular_activity.type
     form.duration.data = regular_activity.duration
-    return render_template('activity/edit_regularactivity.html', add_regular_activity=add_regular_activity,
+    return render_template('activity/edit_regularactivity.html', is_add_regular_activity=is_add_regular_activity,
                            user=user, form=form, title="Edit Regular Activity")
 
 
@@ -126,8 +124,7 @@ def delete_regular_activity(id):
     return redirect(url_for('main.regular_activities'))
 
 
-
-@bp.route('/log_activity/<activity_id>', methods=['GET'])
+@bp.route('/log_activity/<int:activity_id>', methods=['GET'])
 @login_required
 def log_activity(activity_id):
     # get hold of the regular activity for this user

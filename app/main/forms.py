@@ -24,9 +24,11 @@ class EditProfileForm(FlaskForm):
 
 
 class ActivityForm(FlaskForm):
-    title = StringField('Title *', validators=[DataRequired(),Length(min=0, max=50)])
+    title = StringField('Title *', validators=[DataRequired(), Length(min=0, max=50)])
     description = TextAreaField('Description (optional)', validators=[Length(min=0, max=300)])
-    activity_type = SelectField('Type *', choices=[('1', 'Workout'), ('2', 'Yoga')], validators=[AnyOf(['1','2'])])
-    duration = IntegerField('Duration (mins) *', validators=[DataRequired(),NumberRange(0,999,message="Please enter a number between 0 and 999")])
+    activity_type = SelectField('Type *', choices=[('1', 'Workout'), ('2', 'Yoga')], validators=[AnyOf(['1', '2'])])
+    duration = IntegerField('Duration (mins) *',
+                            validators=[DataRequired(),
+                                        NumberRange(0, 999, message="Please enter a number between 0 and 999")])
     timestamp = DateTimeField('Date of Activity', default=datetime.today, validators=[DataRequired()])
     submit = SubmitField('Save')
