@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_moment import Moment
+from flask_wtf.csrf import CSRFProtect
 
 from authlib.integrations.flask_client import OAuth
 from config import app_config
@@ -14,6 +15,7 @@ login = LoginManager()
 login.login_view = 'auth.login_new'
 moment = Moment()
 bootstrap = Bootstrap()
+csrf = CSRFProtect()
 
 oauth = OAuth()
 
@@ -35,6 +37,7 @@ def create_app(config_name='default'):
     login.init_app(app)
     bootstrap.init_app(app)
     moment.init_app(app)
+    csrf.init_app(app)
 
     oauth.init_app(app)
     oauth.register(

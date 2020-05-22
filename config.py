@@ -4,6 +4,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
     SECRET_KEY = os.environ.get('FLASK_SECRET_KEY') or 'you-will-never-guess'
+    WTF_CSRF_SECRET_KEY = os.environ.get('CSRF_SECRET_KEY') or SECRET_KEY
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     AUTH0_CLIENT_ID = os.environ.get('AUTH0_CLIENT_ID')
@@ -24,7 +25,6 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     LIVESERVER_PORT = 8943
-    # SERVER_NAME= "localhost.domain"
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'test_app.db')
 
 

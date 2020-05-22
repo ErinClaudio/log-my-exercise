@@ -1,41 +1,21 @@
-import pytest
 
-from app import create_app, db
+
+from app import db
 from app.models import User, Activity, RegularActivity
-
-@pytest.fixture(scope='module')
-def test_client():
-    testing_app = create_app('testing')
-    testing_client = testing_app.test_client(use_cookies=True)
-
-    ctx = testing_app.app_context()
-    ctx.push()
-
-    yield testing_client
-
-    ctx.pop()
-
-
-@pytest.fixture(scope='module')
-def init_database():
-    db.drop_all()
-    db.create_all()
-    user = User(username="test_user")
-    user.set_password("test_user")
-    db.session.add(user)
-    db.session.commit()
-
-    yield db
-
-    db.drop_all()
+from app.tests import conftest
 
 
 def test_user_model(test_client, init_database):
     assert User.query.count() == 1
 
 
+def test_user_repr(test_client, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    assert "User" in repr(u)
+
+
 def test_regular_activity(test_client, init_database):
-    u = User.query.filter_by(username='test_user').first()
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     activity = RegularActivity(type=1,
                                title='Regular Activity',
                                user_id=u.id,
@@ -53,17 +33,18 @@ def test_regular_activity(test_client, init_database):
     assert RegularActivity.query.filter_by(user_id=u.id).count() == 1
 
 
-def test_daily_activity(test_client, init_database):
+def test_regular_activity_repr(test_client, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    load_activity = RegularActivity.query.filter_by(user_id=u.id).first()
+    assert "Activity" in repr(load_activity)
+
+
+def test_daily_activity(test_client, init_database, add_regular_activity):
     # create a regular activity and use this to
     # create the new activity
     # link to the test user created
-    u = User.query.filter_by(username='test_user').first()
-    regular_activity = RegularActivity(type=1,
-                                       title='Regular Activity',
-                                       user_id=u.id,
-                                       description="Some description",
-                                       duration=23)
-    db.session.add(regular_activity)
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
     activity = regular_activity.create_activity()
     db.session.add(activity)
     db.session.commit()
@@ -74,3 +55,5 @@ def test_daily_activity(test_client, init_database):
     assert activity.user_id == regular_activity.user_id
 
     assert Activity.query.filter_by(user_id=u.id).count() == 1
+
+    assert "Regular Activity" in repr(activity)

@@ -54,6 +54,16 @@ class TestLogin(TestBase):
         no_activity_msg = self.driver.find_element_by_id("no_reg").text
         assert "No regular activities" in no_activity_msg
 
+        # try and access the login page, should remain on the index page as now logged in
+        self.driver.get(self.get_server_url() + "/auth/login")
+        no_activity_msg = self.driver.find_element_by_id("no_reg").text
+        assert "No regular activities" in no_activity_msg
+
+        # try and access the register page, should remain on the index page as now logged in
+        self.driver.get(self.get_server_url() + "/auth/register")
+        no_activity_msg = self.driver.find_element_by_id("no_reg").text
+        assert "No regular activities" in no_activity_msg
+
     def test_login_missing_username(self):
         # Fill in login form
         self.driver.get(self.get_server_url() + "/auth/login")
@@ -126,6 +136,7 @@ class TestRegistration(TestBase):
         # Assert that there are now 2 users in the database
         # 1 is created in the setup
         self.assertEqual(User.query.count(), 2)
+
 
     def test_registration_missing_fields(self):
         # Click register menu link

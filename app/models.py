@@ -35,7 +35,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return '<user {}>'.format(self.username)
+        return '<User {}>'.format(self.username)
 
 
 class Activity(db.Model):
@@ -69,4 +69,4 @@ class RegularActivity(db.Model):
                         user_id=self.user_id)
 
     def __repr__(self):
-        return '<RegularActivity {}'.format(self.type)
+        return '<Regular Activity {}'.format(self.type)
