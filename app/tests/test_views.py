@@ -66,3 +66,8 @@ def test_delete_regular_activity_view(test_client):
 def test_log_activity_view(test_client):
     response = test_client.get('/log_activity/1')
     assert response.status_code == 302
+
+
+def test_log_activity_view(test_client):
+    response = test_client.get('exercise_log')
+    assert response.status_code == 302

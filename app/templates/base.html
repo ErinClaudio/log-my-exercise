@@ -30,7 +30,10 @@
                 </li>
             {% else %}
                 <li class="nav-item">
-                    <a id="regular_activities_link" class="nav-link" href="{{ url_for('main.regular_activities') }}">My Regular Activities</a>
+                    <a id="my_log_link" class="nav-link" href="{{ url_for('main.exercise_log') }}">My Exercise Log</a>
+                </li>
+                <li class="nav-item">
+                    <a id="regular_activities_link" class="nav-link" href="{{ url_for('main.regular_activities') }}">My Regular Exercises</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"

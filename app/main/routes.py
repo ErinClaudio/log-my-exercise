@@ -5,11 +5,15 @@ from flask import render_template, flash, redirect, url_for
 from flask import request
 from flask_login import current_user, login_required
 
+from sqlalchemy import desc
+
 from app import db
 from app.main import bp
 
 from app.main.forms import ActivityForm, EditProfileForm
 from app.models import Activity, RegularActivity, User
+
+ACTIVITIES_LOOKUP = {1: 'Workout', 2: 'Yoga'}
 
 
 @bp.before_request
@@ -67,7 +71,6 @@ def edit_profile():
 @bp.route('/regular_activities', methods=['GET', 'POST'])
 @login_required
 def regular_activities():
-    ACTIVITIES_LOOKUP = {1: 'Workout', 2: 'Yoga'}
     activities = RegularActivity.query.filter_by(user_id=current_user.get_id()).all()
     return render_template('activity/regularactivities.html', user=user, regular_activities=activities,
                            activities_lookup=ACTIVITIES_LOOKUP)
@@ -140,3 +143,13 @@ def log_activity(activity_id):
     else:
         flash('Error: Activity does not exist')
     return redirect(url_for('main.index'))
+
+
+@bp.route('/exercise_log', methods=['GET'])
+@login_required
+def exercise_log():
+    activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
+
+    return render_template('activity/view_log.html',
+                           user=user, activities=activities,
+                           activities_lookup=ACTIVITIES_LOOKUP, title="View Exercise Log")

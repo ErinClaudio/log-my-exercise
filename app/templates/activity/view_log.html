@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <h1 class="h3 mb-3 font-weight-normal">My exercises</h1>
+        {% if activities %}
+            <div class="table-responsive">
+                <table id="activity_list" class="table table-hover table-responsive">
+                    <caption>Exercise Log</caption>
+                    <thead class="thead-light">
+                    <tr>
+                        <th scope="col" class="th-sm">Date</th>
+                        <th scope="col" class="th-sm">Type</th>
+                        <th scope="col" class="th-lg">Title</th>
+                        <th scope="col" class="th-sm">Duration</th>
+                    </tr>
+                    </thead>
+                    {% for activity in activities %}
+                        <tr>
+                            <td>{{ moment(activity.timestamp).format('MMMM Do, h:mm') }}</td>
+                            <td>{{ activities_lookup[activity.type] }}</td>
+                            <td>{{ activity.title }}</td>
+                            <td>{{ activity.duration }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+    {% endif %}
+    </div>
+{% endblock %}
