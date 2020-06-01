@@ -51,6 +51,17 @@ def create_app(config_name='default'):
             'scope': 'openid profile email',
         },
     )
+    oauth.register(
+        'strava',
+        client_id=app.config['STRAVA_CLIENT_ID'],
+        client_secret=app.config['STRAVA_CLIENT_SECRET'],
+        api_base_url=app.config['STRAVA_CLIENT_DOMAIN'],
+        access_token_url=app.config['STRAVA_CLIENT_DOMAIN'] + '/oauth/token',
+        authorize_url=app.config['STRAVA_CLIENT_DOMAIN'] + '/oauth/authorize',
+        client_kwargs={
+            'scope': 'read,activity:read,activity:write',
+        },
+    )
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)

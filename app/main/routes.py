@@ -1,7 +1,7 @@
 
 from datetime import datetime
 
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, current_app
 from flask import request
 from flask_login import current_user, login_required
 
@@ -9,9 +9,10 @@ from sqlalchemy import desc
 
 from app import db
 from app.main import bp
+from app.services import strava
 
 from app.main.forms import ActivityForm, EditProfileForm
-from app.models import Activity, RegularActivity, User
+from app.models import Activity, RegularActivity, User, StravaAthlete
 
 ACTIVITIES_LOOKUP = {1: 'Workout', 2: 'Yoga'}
 
@@ -49,8 +50,12 @@ def index():
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
+    strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id()).first()
+    is_strava = True
+    if not strava_athlete:
+        is_strava = False
 
-    return render_template('auth/user.html', user=user)
+    return render_template('auth/user.html', user=user, is_strava=is_strava)
 
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])
@@ -137,8 +142,17 @@ def log_activity(activity_id):
 
     if regular_activity is not None:
         activity = regular_activity.create_activity()
+        if request.args.get('local_time'):
+            activity.local_timestamp = datetime.fromtimestamp(int(request.args.get('local_time')))
+        else:
+            activity.local_timestamp = datetime.utcnow()
         db.session.add(activity)
         db.session.commit()
+        if current_app.config['CALL_STRAVA_API']:
+            # first check to see if this user is integrated with strava or not
+            strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id()).first()
+            if strava_athlete:
+                strava.create_activity(activity.id)
         flash('Well done on completing {} today'.format(regular_activity.title))
     else:
         flash('Error: Activity does not exist')

@@ -46,8 +46,9 @@ deploy:
 # currently uses the staging configuration inside config.py on EB
 # this controls the database to use
 	@echo "Deploying to EB"
+	FLASK_CONFIG := 'staging'
 	@eb setenv FLASK_APP=$(MODULE) FLASK_CONFIG=$(FLASK_CONFIG) AUTH0_CLIENT_ID=$(AUTH0_CLIENT_ID) AUTH0_CLIENT_SECRET=$(AUTH0_CLIENT_SECRET) AUTH0_CLIENT_DOMAIN=$(AUTH0_CLIENT_DOMAIN) FLASK_SECRET_KEY=$(MY_SECRET) STAGING_DATABASE_URL=$(STAGING_DATABASE_URL)
-	@flask db upgrade
+	#@flask db upgrade
 	@eb deploy
 	@eb open
 

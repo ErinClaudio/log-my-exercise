@@ -12,6 +12,14 @@
                         Last seen on: {{ moment(user.last_seen).format('LLL') }}<br>{% endif %}
                     <br>
                 </td>
+                <td>
+                    Strava Integration
+                    {% if is_strava %}
+                        Your exercise logs are being uploaded to Strava automatically
+                    {%  else %}
+                        <a class="btn btn-primary btn-lg btn-login btn-block" id="strava_link" href="{{ url_for('auth.strava_authorize') }}">Go to Strava</a>
+                    {% endif %}
+                </td>
             </tr>
         </table>
 

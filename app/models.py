@@ -45,6 +45,7 @@ class Activity(db.Model):
     description = db.Column(db.String(300))
     duration = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    local_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
@@ -70,3 +71,19 @@ class RegularActivity(db.Model):
 
     def __repr__(self):
         return '<Regular Activity {}'.format(self.type)
+
+
+class StravaAthlete(db.Model):
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    athlete_id = db.Column(db.Integer)
+    scope = db.Column(db.String(50))
+    access_token = db.Column(db.String(50))
+    access_token_expires_at = db.Column(db.Integer)
+    access_token_expires_in = db.Column(db.Integer)
+    refresh_token = db.Column(db.String(50))
+    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Integer, default=1)
+
+    def __repr__(self):
+        return '<StravaAthlete {}'.format(self.athlete_id)

@@ -365,6 +365,3 @@ class TestActivity(TestBase):
         assert cols[1].text == "Workout"
         assert cols[2].text == "title of workout"
         assert cols[3].text == "10"
-
-
-
