@@ -1,10 +1,10 @@
 import json
 from datetime import datetime
+from unittest.mock import Mock, patch
 
 from app import db
-from app.models import User, StravaAthlete
+from app.models import User, StravaAthlete, Activity
 from app.tests import conftest
-from app.auth import strava
 from app.services import strava as ss
 
 
@@ -33,7 +33,6 @@ def test_strava_athlete_model(test_client, init_database):
     authorize_details = json.loads(conftest.STRAVA_RESPONSE_EXAMPLE)
     scope = 'activity:write'
     strava_athlete = ss.create_strava_athlete(authorize_details, u.id, scope)
-    print(type(strava_athlete.access_token_expires_at))
 
     db.session.add(strava_athlete)
     db.session.commit()
@@ -50,18 +49,44 @@ def test_strava_athlete_model(test_client, init_database):
 
     assert "StravaAthlete" in repr(strava_athlete)
 
-
 def test_refresh_access_token(test_client, init_database):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
-    authorize_details = json.loads(conftest.STRAVA_RESPONSE_EXAMPLE)
-    scope = 'activity:write'
-    strava_athlete = ss.create_strava_athlete(authorize_details, u.id, scope)
+    with patch('app.services.strava.OAuth2Session') as mock_oauth:
 
-    db.session.add(strava_athlete)
-    db.session.commit()
-    # as a dummy token has been written with an expiry date in the future then the strava API shoudl not be called
-    # and the same access token is returned
-    # new_token = ss.refresh_access_token(u.id)
+        authorize_details = json.loads(conftest.STRAVA_RESPONSE_EXAMPLE)
+        scope = 'activity:write'
+        strava_athlete = ss.create_strava_athlete(authorize_details, u.id, scope)
 
-    # assert new_token == authorize_details['ACCESS_TOKEN']
+        db.session.add(strava_athlete)
+        db.session.commit()
+
+        # mock the refresh_token call
+        new_tokens = json.loads(conftest.STRAVA_REFRESH_EXAMPLE)
+        mock_oauth.return_value = Mock()
+        mock_oauth.return_value.refresh_token.return_value = new_tokens
+        new_token = ss.refresh_access_token(u.id)
+
+        assert new_token is not None
+        assert new_token == new_tokens['access_token']
+
+
+def test_create_activity(test_client, init_database, add_strava_athlete, add_activity):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    a = Activity.query.filter_by(user_id=u.id).first()
+    mock_refresh_token_patcher = patch('app.services.strava.refresh_access_token')
+    # need to mock the refresh token method inside the service
+    mock_oauth = mock_refresh_token_patcher.start()
+    mock_oauth.return_value.refresh_token = "token"
+
+    # then mock the requests call to Strava
+    mock_requests_patched = patch('app.services.strava.requests.post')
+    mock_requests = mock_requests_patched.start()
+    mock_requests.return_value.status_code = 200
+
+    status = ss.create_activity(a.id)
+    assert status == 200
+
+
+    mock_refresh_token_patcher.stop()
+    mock_requests_patched.stop()

@@ -12,6 +12,7 @@ def test_user_model(test_client, init_database):
 def test_user_repr(test_client, init_database):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     assert "User" in repr(u)
+    assert "User" in str(u)
 
 
 def test_regular_activity(test_client, init_database):
@@ -32,6 +33,7 @@ def test_regular_activity(test_client, init_database):
 
     assert RegularActivity.query.filter_by(user_id=u.id).count() == 1
     assert "Activity" in repr(load_activity)
+    assert "Activity" in str(load_activity)
 
 
 def test_daily_activity_local_time(test_client, init_database, add_regular_activity):
@@ -59,4 +61,5 @@ def test_daily_activity_local_time(test_client, init_database, add_regular_activ
     assert activity.timestamp == load_activity.timestamp
 
     assert "Regular Activity" in repr(activity)
+    assert "Regular Activity" in str(activity)
 

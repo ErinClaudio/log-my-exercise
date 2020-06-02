@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
+import json
 import pytest
 
 from flask import abort
 
 from app import create_app, db
-from app.models import User, RegularActivity
-
+from app.models import User, RegularActivity, Activity, StravaAthlete
+from app.services import strava as ss
 
 # define some test data to be used in tests
 TEST_USER_USERNAME = 'test_user'
@@ -23,6 +24,9 @@ EXPIRES_AT_SECS = int(EXPIRES_AT_DATE.timestamp())
 STRAVA_RESPONSE_EXAMPLE = '{"token_type": "Bearer", "expires_at":' + '"' + str(EXPIRES_AT_SECS) + '"' + ', "expires_in": "21390", ' \
                    '"refresh_token": "767bdc6899", "access_token": "d188074a", ' \
                    '"athlete": {"id": "123456", "name":"my name"}}'
+
+STRAVA_REFRESH_EXAMPLE = '{"token_type": "Bearer", "expires_at":' + '"' + str(EXPIRES_AT_SECS) + '"' + ', "expires_in": "21390", ' \
+                   '"refresh_token": "867bdc6899", "access_token": "e188074a"}'
 
 
 @pytest.fixture(scope='module')
@@ -88,3 +92,35 @@ def add_regular_activity():
                                duration=23)
     db.session.add(activity)
     db.session.commit()
+
+
+@pytest.fixture(scope='function')
+def add_activity():
+
+    u = User.query.filter_by(username='test_user').first()
+    activity = RegularActivity(type=1,
+                               title='Regular Activity',
+                               user_id=u.id,
+                               description="Some description",
+                               duration=23)
+    db.session.add(activity)
+    db.session.commit()
+
+    regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
+
+    activity = regular_activity.create_activity()
+    db.session.add(activity)
+    db.session.commit()
+
+
+@pytest.fixture(scope='function')
+def add_strava_athlete():
+    u = User.query.filter_by(username=TEST_USER_USERNAME).first()
+
+    authorize_details = json.loads(STRAVA_RESPONSE_EXAMPLE)
+    scope = 'activity:write'
+    strava_athlete = ss.create_strava_athlete(authorize_details, u.id, scope)
+
+    db.session.add(strava_athlete)
+    db.session.commit()
+

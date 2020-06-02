@@ -80,6 +80,7 @@ def refresh_access_token(user_id):
         client_id=my_config.STRAVA_CLIENT_ID,
         client_secret=my_config.STRAVA_CLIENT_SECRET)
 
+    print(new_token)
     # save it to the database
     strava_athlete.access_token = new_token['access_token']
     strava_athlete.access_token_expires_at = int(new_token['expires_at'])
@@ -139,6 +140,4 @@ def create_activity(activity_id):
     response = requests.post(url, headers=headers, data=data)
 
     # check the response, if there has been an error then need to log this
-    print(response.status_code)
-    print(response.json)
     return response.status_code
