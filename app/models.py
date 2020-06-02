@@ -14,6 +14,9 @@ def load_user(id):
 
 
 class User(UserMixin, db.Model):
+    """
+    A user of the application
+    """
     id = db.Column(db.Integer, primary_key=True)
     social_id = db.Column(db.String(64), nullable=True, unique=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -35,10 +38,16 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return '<User: {} {}>'.format(self.id, self.username)
+
+    def __str__(self):
+        return '<User: id={} username={}>'.format(self.id, self.username)
 
 
 class Activity(db.Model):
+    """
+    An activity that has been performed
+    """
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer)
     title = db.Column(db.String(50))
@@ -49,10 +58,21 @@ class Activity(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return '<Activity {}'.format(self.title)
+        return '<Activity {} {} {} {} {} {} {} {}'.format(self.id, self.type, self.title,
+                                                          self.description, self.duration, self.timestamp,
+                                                          self.local_timestamp, self.user_id)
+
+    def __str__(self):
+        return '<Activity id={} type={} title={} description={} duration={} ' \
+               'time={} local_time={} user+{}'.format(self.id, self.type, self.title,
+                                                      self.description, self.duration, self.timestamp,
+                                                      self.local_timestamp, self.user_id)
 
 
 class RegularActivity(db.Model):
+    """
+    Defines an activity that is performed on a regular basis
+    """
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer)
     title = db.Column(db.String(50))
@@ -70,10 +90,20 @@ class RegularActivity(db.Model):
                         user_id=self.user_id)
 
     def __repr__(self):
-        return '<Regular Activity {}'.format(self.type)
+        return '<Regular Activity: {} {} {} {} {} {}'.format(self.title, self.description, self.type,
+                                                             self.duration, self.time, self.user_id)
+
+    def __str__(self):
+        return '<Regular Activity: title={} description={} ' \
+               'type={} duration={} time={} used={}'.format(self.title, self.description, self.type,
+                                                            self.duration, self.time, self.user_id)
 
 
 class StravaAthlete(db.Model):
+    """
+    Defines an athlete inside Strava. Includes the token details required to access their details via the
+    Strava API
+    """
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     athlete_id = db.Column(db.Integer)
     scope = db.Column(db.String(50))
@@ -86,4 +116,26 @@ class StravaAthlete(db.Model):
     is_active = db.Column(db.Integer, default=1)
 
     def __repr__(self):
-        return '<StravaAthlete {}'.format(self.athlete_id)
+        """
+        Returns a string representation of the StravaAthlete.
+        Purposefully doesn't show the token specifics in case they are logged
+        :return: string representation of this object
+        :rtype:
+        """
+        return '<StravaAthlete: {} {} {} {} {} {} {} {}'.format(self.user_id, self.athlete_id, self.scope,
+                                                                self.access_token_expires_at,
+                                                                self.access_token_expires_in,
+                                                                self.created_date, self.last_updated, self.is_active)
+
+    def __str__(self):
+        """
+        Returns a string representation of the StravaAthlete.
+        Purposefully doesn't show the token specifics in case they are logged
+        :return: string representation of this object
+        :rtype:
+        """
+        return '<StravaAthlete: id={} strava_id={} scopoe={} ' \
+               'expires_at={} expires_in={} created={} ' \
+               'updated={} is_Active={}'.format(self.user_id, self.athlete_id, self.scope,
+                                                self.access_token_expires_at, self.access_token_expires_in,
+                                                self.created_date, self.last_updated, self.is_active)

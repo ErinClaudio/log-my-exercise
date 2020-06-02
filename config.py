@@ -11,11 +11,11 @@ class Config(object):
     AUTH0_CLIENT_SECRET = os.environ.get('AUTH0_CLIENT_SECRET')
     AUTH0_CLIENT_DOMAIN = os.environ.get('AUTH0_CLIENT_DOMAIN')
 
-    STRAVA_CLIENT_ID = os.environ.get('STRAVA_CLIENT_ID')
-    STRAVA_CLIENT_SECRET = os.environ.get('STRAVA_CLIENT_SECRET')
-    STRAVA_CLIENT_DOMAIN = os.environ.get('STRAVA_CLIENT_DOMAIN')
+    STRAVA_CLIENT_ID = os.environ.get('STRAVA_CLIENT_ID') or ''
+    STRAVA_CLIENT_SECRET = os.environ.get('STRAVA_CLIENT_SECRET') or ''
+    STRAVA_CLIENT_DOMAIN = os.environ.get('STRAVA_CLIENT_DOMAIN') or 'http://www.strava.com'
 
-    CALL_STRAVA_API = False
+    CALL_STRAVA_API = os.environ.get('CALL_STRAVA_API') or False
 
     # staticmethod
     def init_app(app):
@@ -25,7 +25,6 @@ class Config(object):
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_ECHO = True
-    CALL_STRAVA_API = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
 
 

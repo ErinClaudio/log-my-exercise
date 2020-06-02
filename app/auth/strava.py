@@ -72,8 +72,6 @@ def strava_callback():
             strava_athlete.refresh_token = new_strava_athlete.refresh_token
             strava_athlete.last_updated = new_strava_athlete.last_updated
             db.session.commit()
-        print("access token expires at", strava_athlete.access_token_expires_at)
-        print("expires in", strava_athlete.access_token_expires_in / 60)
     else:
         flash('Please ensure you agree to sharing your data with LogMyExercise.')
         return redirect(url_for('main.user', username=current_user.username))
