@@ -38,7 +38,7 @@ It's a standard Flask app with a database backend. To install and run locally:
 * Register an app with Strava if you'd like Strava integration
 * Set-up the required environment variables on your machine or server. These are listed in the config.py file. These are used to manage secrets and other runtime configurations.
 * Install the necessary Python packages described in requirements.txt. Best if you create a virtual environment and activate it.
-* The environment variable FLASK_CONFIG controls which configiration in config.py will be used.
+* The environment variable FLASK_CONFIG controls which configuration in config.py will be used.
 * Install the database tables. This can be done via `flask db upgrade`. It's dependent on the environment variables used to store the path to the database being configured correctly.
 * To run, execute `flask run` and you should see flask starting and giving the URL to access
 
@@ -48,17 +48,21 @@ To run them execute `Make test` on the command line.
 You can also run various linters by entering `Make lint`. These will provide some errors due to the way Flask works.
 
 # How to use?
-You can take this code and run on a server via mechanisms such as Docker or AWS Elastic Beanstalk.
+You can take this code and run on a server via mechanisms such as Docker or AWS Elastic Beanstalk. 
+
+The Makefile contains a `deploy` command that deploys the application to Elastic Beanstalk. To use this, you will need to have installed and configured the necessary AWS CLI tools and registered an account with AWS.
 
 # Contribute
 Feedback and contributions are welcome. 
 
 # To dos
+* Make the Strava API call to save an activity asynchronous
 * Improve the tests by introducing mocks
 * Improve the UI
 * Ability for a user to disable the Strava integration
 * Callback for Strava to disable the Strava integration for a user. Required to make this productionised with Strava.
+* A dedicated mobile app
 
 # License
-This is licensed under an Apache licence
+This is licensed under an Apache licence.
 

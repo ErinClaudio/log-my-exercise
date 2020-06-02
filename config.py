@@ -3,18 +3,22 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config(object):
+    # Flask specifics
     SECRET_KEY = os.environ.get('FLASK_SECRET_KEY') or 'you-will-never-guess'
     WTF_CSRF_SECRET_KEY = os.environ.get('CSRF_SECRET_KEY') or SECRET_KEY
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # details provided by Auth0 following registration of an app
     AUTH0_CLIENT_ID = os.environ.get('AUTH0_CLIENT_ID')
     AUTH0_CLIENT_SECRET = os.environ.get('AUTH0_CLIENT_SECRET')
     AUTH0_CLIENT_DOMAIN = os.environ.get('AUTH0_CLIENT_DOMAIN')
 
+    # details provided by Strava following registration of an app
     STRAVA_CLIENT_ID = os.environ.get('STRAVA_CLIENT_ID') or ''
     STRAVA_CLIENT_SECRET = os.environ.get('STRAVA_CLIENT_SECRET') or ''
     STRAVA_CLIENT_DOMAIN = os.environ.get('STRAVA_CLIENT_DOMAIN') or 'http://www.strava.com'
 
+    # toggles saving exercises to strava
     CALL_STRAVA_API = os.environ.get('CALL_STRAVA_API') or False
 
     # staticmethod
