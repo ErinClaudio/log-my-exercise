@@ -2,7 +2,12 @@
 
 def test_homepage_view(test_client):
     response = test_client.get('/')
-    assert response.status_code == 302
+    assert response.status_code == 200
+
+
+def test_welcome_view(test_client):
+    response = test_client.get('/welcome')
+    assert response.status_code == 200
 
 
 def test_index_view(test_client):
