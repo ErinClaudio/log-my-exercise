@@ -23,8 +23,12 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
-
 @bp.route('/', methods=['GET', 'POST'])
+@bp.route('/welcome', methods=['GET'])
+def welcome():
+    return render_template('welcome.html', title='Welcome')
+
+
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():

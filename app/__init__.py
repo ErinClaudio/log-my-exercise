@@ -12,7 +12,7 @@ from config import app_config
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
-login.login_view = 'auth.login_new'
+login.login_view = 'main.welcome'
 moment = Moment()
 bootstrap = Bootstrap()
 csrf = CSRFProtect()

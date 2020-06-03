@@ -64,6 +64,21 @@ def register():
     return render_template('auth/register.html', title='Register', form=form, add_user=add_user)
 
 
+@bp.route('/sign-up', methods=['GET', 'POST'])
+def sign_up():
+    """
+    Allows a user to sign-up for an account, renders a simple page
+    which then sends them to Auth0
+    :return:
+    :rtype:
+    """
+    if current_user.is_authenticated:
+        return redirect(url_for(INDEX_PAGE))
+    redirect_uri = url_for('auth.oauth_callback', _external=True)
+    extra_params = {"screen_hint":"signup"}
+    return oauth.auth0.authorize_redirect(redirect_uri)
+
+
 @bp.route('/authorize')
 def oauth_authorize():
     """
@@ -141,7 +156,7 @@ def logout_new():
     """
     logout_user()
     params = {
-        'returnTo': url_for('main.index', _external=True),
+        'returnTo': url_for('main.welcome', _external=True),
         'client_id': current_app.config['AUTH0_CLIENT_ID']
     }
     return redirect(oauth.auth0.api_base_url + '/v2/logout?' + urlencode(params))

@@ -113,8 +113,8 @@ class TestRegistration(TestBase):
 
     def test_registration_ok(self):
         # Click register menu link
-        self.driver.get(self.get_server_url() + "/auth/login")
-        self.driver.find_element_by_id("register_link").click()
+        self.driver.get(self.get_server_url() + "/auth/register")
+        # self.driver.find_element_by_id("register_link").click()
 
         # Fill in registration form
         self.driver.find_element_by_id("email").send_keys("test@test.com")
@@ -140,8 +140,8 @@ class TestRegistration(TestBase):
 
     def test_registration_missing_fields(self):
         # Click register menu link
-        self.driver.get(self.get_server_url() + "/auth/login")
-        self.driver.find_element_by_id("register_link").click()
+        self.driver.get(self.get_server_url() + "/auth/register")
+        # self.driver.find_element_by_id("register_link").click()
 
         # Fill in registration form, leave out username
         self.driver.find_element_by_id("email").send_keys("test12@test.com")
@@ -157,8 +157,8 @@ class TestRegistration(TestBase):
 
 
     def test_registration_mismatch_password(self):
-        self.driver.get(self.get_server_url() + "/auth/login")
-        self.driver.find_element_by_id("register_link").click()
+        self.driver.get(self.get_server_url() + "/auth/register")
+       #  self.driver.find_element_by_id("register_link").click()
 
         # Fill in registration form, leave out username
         self.driver.find_element_by_id("email").send_keys("test12@test.com")
@@ -175,8 +175,8 @@ class TestRegistration(TestBase):
         assert "Passwords must match" in error_message
 
     def test_registration_duplicate_username(self):
-        self.driver.get(self.get_server_url() + "/auth/login")
-        self.driver.find_element_by_id("register_link").click()
+        self.driver.get(self.get_server_url() + "/auth/register")
+       # self.driver.find_element_by_id("register_link").click()
 
         # Fill in registration form, use same username as user already setup
         self.driver.find_element_by_id("email").send_keys("test12@test.com")
@@ -193,8 +193,8 @@ class TestRegistration(TestBase):
         assert "Please use a different username" in error_message
 
     def test_registration_duplicate_email(self):
-        self.driver.get(self.get_server_url() + "/auth/login")
-        self.driver.find_element_by_id("register_link").click()
+        self.driver.get(self.get_server_url() + "/auth/register")
+        # self.driver.find_element_by_id("register_link").click()
 
         # Fill in registration form, use same email as user already setup
         self.driver.find_element_by_id("email").send_keys(test_user_email)
