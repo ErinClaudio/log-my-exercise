@@ -5,7 +5,7 @@ import requests
 from authlib.integrations.requests_client import OAuth2Session
 
 from app import db
-from app.models import StravaAthlete, Activity
+from app.models import StravaAthlete, Activity, StravaEvent
 from app.main import routes
 from config import app_config
 
@@ -104,40 +104,60 @@ def create_activity(activity_id):
     # get the activity
     activity = Activity.query.filter_by(id=activity_id).first()
 
-    # now get a valid token for the associated user
-    access_token = refresh_access_token(user_id=activity.user_id)
+    if activity:
+        # now get a valid token for the associated user
+        access_token = refresh_access_token(user_id=activity.user_id)
 
-    # can now call the API, token needs to be in the header
-    # Authorization: Bearer #{access_token} header.
-    # POST /activities
-    # Base URL: www.strava.com/api/v3
-    # in the form, need:
-    # name
-    # type
-    # start_date_local - ISO 8601 formatted date time
-    # elapsed_time in seconds
-    # description - optional
-    # distance - optional
-    # trainer - set to 1 as a trainer activity
-    # commute - set to 1 as commute
-    # responses are 201 along with detail, 4xx or 5xx means an error
+        url = 'https://www.strava.com/api/v3/activities'
+        headers = {'Authorization': 'Bearer {}'.format(access_token)}
 
-    # the database stores the activity time in UTC time
-    # need to think about converting this to local time?
-    # does the strava API tell us the user's timezone, if so, could use that
+        local_time = activity.local_timestamp
+        data = {'name': activity.title,
+                'type': routes.ACTIVITIES_LOOKUP[activity.type],
+                'start_date_local': local_time.isoformat(),
+                'elapsed_time': activity.duration * 60,  # need to convert to seconds, stored in db as minutes
+                'description': activity.description}
 
-    # finally, call the Strava API to create the activity
-    url = 'https://www.strava.com/api/v3/activities'
-    headers = {'Authorization': 'Bearer {}'.format(access_token)}
+        response = requests.post(url, headers=headers, data=data)
+        strava_athlete = StravaAthlete.query.filter_by(user_id=activity.user_id).first()
+        log_strava_event(strava_athlete.athlete_id, "Activity")
 
-    local_time = activity.local_timestamp
-    data = {'name': activity.title,
-            'type': routes.ACTIVITIES_LOOKUP[activity.type],
-            'start_date_local': local_time.isoformat(),
-            'elapsed_time': activity.duration * 60,  # need to convert to seconds, stored in db as minutes
-            'description': activity.description}
+        # check the response, if there has been an error then need to log this
+        return response.status_code
+    # return an error code if the athlete doesn't exist
+    return 400
 
-    response = requests.post(url, headers=headers, data=data)
 
-    # check the response, if there has been an error then need to log this
-    return response.status_code
+def deauthorize_athlete(athlete_id):
+    """
+    deauthorize the strava athlete so the integration won't be used
+    :param athlete_id: the athlete
+    :type athlete_id: int
+    :param event_time: the time it was called
+    :type event_time: int
+    :return: bopolean indicating success or not
+    :rtype:
+    """
+    athlete = StravaAthlete.query.filter_by(athlete_id=athlete_id).first()
+    if athlete:
+        athlete.is_active = 0
+        athlete.last_updated = datetime.utcnow()
+        db.session.commit()
+        log_strava_event(athlete_id, "Deauthorize")
+        return True
+    return False
+
+
+def log_strava_event(athlete_id, action):
+    """
+    Logs that the Strava API is called for this athlete in some way.
+    :param athlete_id: strava athlete_id
+    :type athlete_id: int
+    :param event: one of 'Deauthorize', 'Authorize', 'Activity'
+    :type event: string
+    :return:
+    :rtype:
+    """
+    strava_event = StravaEvent(athlete_id=athlete_id, action=action, timestamp=datetime.utcnow())
+    db.session.add(strava_event)
+    db.session.commit()

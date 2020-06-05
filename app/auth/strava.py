@@ -1,6 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_required
 
+
 from app import db, oauth
 from app.auth import bp
 from app.models import StravaAthlete
@@ -71,10 +72,12 @@ def strava_callback():
             strava_athlete.access_token_expires_in = new_strava_athlete.access_token_expires_in
             strava_athlete.refresh_token = new_strava_athlete.refresh_token
             strava_athlete.last_updated = new_strava_athlete.last_updated
+            strava_athlete.is_active = 1
             db.session.commit()
     else:
         flash('Please ensure you agree to sharing your data with LogMyExercise.')
         return redirect(url_for('main.user', username=current_user.username))
 
     flash('Thank you for granting access to your Strava details.')
+    ss.log_strava_event(strava_athlete.athlete_id, 'Authorize')
     return redirect(url_for('main.user', username=current_user.username))

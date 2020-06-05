@@ -139,3 +139,19 @@ class StravaAthlete(db.Model):
                'updated={} is_Active={}'.format(self.user_id, self.athlete_id, self.scope,
                                                 self.access_token_expires_at, self.access_token_expires_in,
                                                 self.created_date, self.last_updated, self.is_active)
+
+
+class StravaEvent(db.Model):
+    """
+        Defines an event occurring with Strava
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    athlete_id = db.Column(db.Integer)
+    action = db.Column(db.String(20))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<StravaEvent: {} {} {}'.format(self.athlete_id, self.action, self.timestamp)
+
+    def __str__(self):
+        return '<StravaEvent: {} {} {}'.format(self.athlete_id, self.action, self.timestamp)

@@ -23,6 +23,7 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
+
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/welcome', methods=['GET'])
 def welcome():
@@ -54,7 +55,7 @@ def index():
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id()).first()
+    strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
     is_strava = True
     if not strava_athlete:
         is_strava = False
@@ -154,7 +155,7 @@ def log_activity(activity_id):
         db.session.commit()
         if current_app.config['CALL_STRAVA_API']:
             # first check to see if this user is integrated with strava or not
-            strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id()).first()
+            strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
             if strava_athlete:
                 strava.create_activity(activity.id)
         flash('Well done on completing {} today'.format(regular_activity.title))

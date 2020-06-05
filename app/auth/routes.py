@@ -75,7 +75,7 @@ def sign_up():
     if current_user.is_authenticated:
         return redirect(url_for(INDEX_PAGE))
     redirect_uri = url_for('auth.oauth_callback', _external=True)
-    extra_params = {"screen_hint":"signup"}
+    # extra_params = {"screen_hint":"signup"}, shoudl be able to pass this in to authorize_redirect but it errors
     return oauth.auth0.authorize_redirect(redirect_uri)
 
 
