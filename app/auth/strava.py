@@ -6,6 +6,7 @@ from app import db, oauth
 from app.auth import bp
 from app.models import StravaAthlete
 from app.services import strava as ss
+from app.auth.forms import StravaIntegrationForm
 
 
 @bp.route('login_strava')
@@ -18,7 +19,7 @@ def strava_login():
 def strava_authorize():
     """
     Calls strava to allow this application access to the strava profile of the user
-    :return: redirects to the auth0 website
+    :return: redirects to the strava website
     :rtype:
     """
 
@@ -45,6 +46,11 @@ def strava_callback():
 
     if error == 'access_denied':
         flash('Strava: Access Denied')
+        return redirect(url_for('main.user', username=current_user.username))
+
+    if len(code) == 0:
+        # error as strava should return a code
+        flash('Strava: Invalid response')
         return redirect(url_for('main.user', username=current_user.username))
 
     if 'activity:read' in scope and 'activity:write' in scope:
@@ -80,4 +86,62 @@ def strava_callback():
 
     flash('Thank you for granting access to your Strava details.')
     ss.log_strava_event(strava_athlete.athlete_id, 'Authorize')
+    return redirect(url_for('main.user', username=current_user.username))
+
+
+def user_strava_deauthorize(strava_athlete):
+    """
+    User doesn't want to integrate with Strava anymore
+    Assumes there is a Strava record as this user is already integrated with Strava
+    :return:
+    :rtype:
+    """
+    result = ss.tell_strava_deauth(strava_athlete)
+    if result:
+        flash('LogMyExercise will no longer update Strava on your behalf')
+    else:
+        flash('There has been an error')
+
+    return redirect(url_for('main.user', username=current_user.username))
+
+
+@bp.route('/update_strava_integration', methods=['POST'])
+@login_required
+def update_strava_integration():
+    """
+    updates the Strava integration based on user preferences
+    will either end the user to strava to authorise integration or
+    ask the user to de-authorise it
+    :return:
+    :rtype:
+    """
+    form = StravaIntegrationForm()
+
+    is_integrated = form.is_integrated.data
+    # compare this to the value saved previously
+    # if it has changed then make the update
+    # either turn on or turn off
+    strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id()).first()
+
+    if strava_athlete:
+        # check to see if the new response is different or not
+        if is_integrated:
+            if strava_athlete.is_active == 0:
+                print('need to re-authorise')
+                return redirect(url_for('auth.strava_authorize'))
+        else:
+            if strava_athlete.is_active == 1:
+                # deauthorize the athlete
+                print('de-auth')
+                user_strava_deauthorize(strava_athlete)
+    else:
+        # no record
+        if is_integrated:
+            # need to go through the approval process
+            print('approval needed')
+            return redirect(url_for('auth.strava_authorize'))
+
+    # if we are here then nothing to do
+    print("nothing to do")
+    flash("Changes have been saved")
     return redirect(url_for('main.user', username=current_user.username))

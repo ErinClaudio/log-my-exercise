@@ -161,3 +161,28 @@ def log_strava_event(athlete_id, action):
     strava_event = StravaEvent(athlete_id=athlete_id, action=action, timestamp=datetime.utcnow())
     db.session.add(strava_event)
     db.session.commit()
+
+
+def tell_strava_deauth(strava_athlete):
+    """
+    sends a command to strava informing them of the deauthorisation of this user
+    :param strava_athlete: the strava athlete
+    :type strava_athlete:
+    :return: True if Strava acknowledged success, False otherwise
+    :rtype: boolean
+    """
+    access_token = refresh_access_token(user_id=strava_athlete.user_id)
+
+    url = 'https://www.strava.com/oauth/deauthorize'
+    params = {'access_token': access_token}
+
+    response = requests.post(url, params=params)
+    print("status code is:", response.status_code)
+    print("response is", response.json())
+    if response.status_code == 200:
+        # all okay
+        log_strava_event(strava_athlete.athlete_id, "Deauthorize from site")
+        deauthorize_athlete(strava_athlete.athlete_id)
+        return True
+    # something wrong
+    return False

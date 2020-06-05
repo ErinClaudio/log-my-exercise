@@ -13,6 +13,7 @@ from app.services import strava
 
 from app.main.forms import ActivityForm, EditProfileForm
 from app.models import Activity, RegularActivity, User, StravaAthlete
+from app.auth.forms import StravaIntegrationForm
 
 ACTIVITIES_LOOKUP = {1: 'Workout', 2: 'Yoga'}
 
@@ -60,7 +61,9 @@ def user(username):
     if not strava_athlete:
         is_strava = False
 
-    return render_template('auth/user.html', user=user, is_strava=is_strava)
+    form = StravaIntegrationForm()
+    form.is_integrated.data = is_strava
+    return render_template('auth/user.html', user=user, is_strava=is_strava, strava_form=form)
 
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])

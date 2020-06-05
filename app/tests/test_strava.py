@@ -1,6 +1,7 @@
 import json
 import os
 
+from unittest import mock
 from unittest.mock import Mock, patch
 
 from app import db
@@ -51,6 +52,7 @@ def test_strava_athlete_model(test_client, init_database):
 
     assert "StravaAthlete" in repr(strava_athlete)
 
+
 def test_refresh_access_token(test_client, init_database):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
@@ -89,6 +91,7 @@ def test_create_activity(test_client, init_database, add_strava_athlete, add_act
     status = ss.create_activity(a.id)
     assert status == 200
 
+
 def test_create_activity_invalid_id(test_client, init_database, add_strava_athlete, add_activity):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     a = Activity.query.filter_by(user_id=u.id).first()
@@ -105,6 +108,7 @@ def test_create_activity_invalid_id(test_client, init_database, add_strava_athle
     status = ss.create_activity(-2)
     assert status == 400
 
+
 def test_deauthorize_athlete(test_client, init_database, add_strava_athlete):
     # tests the strava de-authorization works
     user = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
@@ -115,10 +119,12 @@ def test_deauthorize_athlete(test_client, init_database, add_strava_athlete):
     ss.deauthorize_athlete(athlete.athlete_id)
     assert athlete.is_active == 0
 
+
 def test_deauthorize_athlete_invalid_id(test_client, init_database, add_strava_athlete):
     # tests the strava de-authorization rejects an invalid id
     status = ss.deauthorize_athlete(-1)
     assert status == False
+
 
 def test_deauthorize_athlete_view(test_client, init_database, add_strava_athlete):
     # call the view to deauthorize
@@ -143,6 +149,7 @@ def test_deauthorize_athlete_view(test_client, init_database, add_strava_athlete
     athlete = StravaAthlete.query.filter_by(user_id=user.id).first()
     assert athlete.is_active == 0
 
+
 def test_deauthorize_athlete_view_invalid_id(test_client, init_database, add_strava_athlete):
     # call the view to deauthorize
     # simulate the POST that Strava API will send through
@@ -158,6 +165,7 @@ def test_deauthorize_athlete_view_invalid_id(test_client, init_database, add_str
     }, follow_redirects=True)
     # still get 200 even if invalid id
     assert response.status_code == 200
+
 
 def test_deauthorize_athlete_view_invalid_data(test_client, init_database, add_strava_athlete):
     # call the view to deauthorize
@@ -175,6 +183,7 @@ def test_deauthorize_athlete_view_invalid_data(test_client, init_database, add_s
     }, follow_redirects=True)
     # missing data so expect a 400
     assert response.status_code == 400
+
 
 def test_deauthorize_athlete_view_invalid_object(test_client, init_database, add_strava_athlete):
     # call the view to deauthorize
@@ -264,3 +273,103 @@ def test_subscription_validation_request_invalid(test_client):
     assert response.is_json is True
     response_json = response.get_json()
     assert response_json['error'] == 'invalid params'
+
+
+def test_strava_callback_access_denied(test_client, init_database,):
+    # fails as user is not logged in and so no current_user
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    user = mock.MagicMock()
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value = user
+        current_user.return_value.id = u.id
+
+        params = {'code': 'ABCDEF', 'scope': 'activity:read', 'error': 'access_denied'}
+        response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
+        assert "Strava: Access Denied" in str(response.data)
+
+
+def test_strava_callback_invalid_write_scope(test_client, init_database,):
+    # fails as user is not logged in and so no current_user
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    user = mock.MagicMock()
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value = user
+        current_user.return_value.id = u.id
+
+        params = {'code': 'ABCDEF', 'scope': 'activity:read', 'error': ''}
+        response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
+        assert "Please ensure you agree to sharing your data" in str(response.data)
+
+
+def test_strava_callback_invalid_read_scope(test_client, init_database,):
+    # fails as user is not logged in and so no current_user
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    user = mock.MagicMock()
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value = user
+        current_user.return_value.id = u.id
+
+        params = {'code': 'ABCDEF', 'scope': 'activity:write', 'error': ''}
+        response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
+        assert "Please ensure you agree to sharing your data" in str(response.data)
+
+
+def test_strava_callback_invalid_code(test_client, init_database,):
+    # fails as user is not logged in and so no current_user
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    user = mock.MagicMock()
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value = user
+        current_user.return_value.id = u.id
+
+        params = {'code': '', 'scope': 'activity:write', 'error': ''}
+        response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
+        assert "Invalid response" in str(response.data)
+
+
+def test_user_strava_deauthorize(test_client, init_database, add_strava_athlete):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+
+    assert athlete.is_active == 1
+    mock_refresh_token_patcher = patch('app.services.strava.refresh_access_token')
+    # need to mock the refresh token method inside the service
+    mock_oauth = mock_refresh_token_patcher.start()
+    mock_oauth.return_value.refresh_token = "token"
+
+    # then mock the requests call to Strava
+    mock_requests_patched = patch('app.services.strava.requests.post')
+    mock_requests = mock_requests_patched.start()
+    mock_requests.return_value.status_code = 200
+
+    status = ss.tell_strava_deauth(athlete)
+    assert status is True
+
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+    assert athlete.is_active == 0
+
+
+def test_user_strava_deauthorize_fail(test_client, init_database, add_strava_athlete):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+
+    assert athlete.is_active == 1
+    mock_refresh_token_patcher = patch('app.services.strava.refresh_access_token')
+    # need to mock the refresh token method inside the service
+    mock_oauth = mock_refresh_token_patcher.start()
+    mock_oauth.return_value.refresh_token = "token"
+
+    # then mock the requests call to Strava
+    mock_requests_patched = patch('app.services.strava.requests.post')
+    mock_requests = mock_requests_patched.start()
+    mock_requests.return_value.status_code = 400
+
+    status = ss.tell_strava_deauth(athlete)
+    assert status is False
+
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+    assert athlete.is_active == 1
