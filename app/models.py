@@ -54,7 +54,7 @@ class Activity(db.Model):
     description = db.Column(db.String(300))
     duration = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    local_timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    local_timestamp = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
@@ -87,6 +87,7 @@ class RegularActivity(db.Model):
                         type=self.type,
                         duration=self.duration,
                         timestamp=datetime.utcnow(),
+                        local_timestamp=datetime.utcnow(),
                         user_id=self.user_id)
 
     def __repr__(self):

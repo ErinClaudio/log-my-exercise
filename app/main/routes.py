@@ -52,6 +52,11 @@ def index():
     return render_template('index.html', title='Home', form=form, regular_activities=activities)
 
 
+@bp.route('/privacy', methods=['GET'])
+def privacy():
+    return render_template('privacypolicy.html', title='Privacy Policy')
+
+
 @bp.route('/user/<username>')
 @login_required
 def user(username):
@@ -154,6 +159,7 @@ def log_activity(activity_id):
             activity.local_timestamp = datetime.fromtimestamp(int(request.args.get('local_time')))
         else:
             activity.local_timestamp = datetime.utcnow()
+        print("local time is: ", activity.local_timestamp)
         db.session.add(activity)
         db.session.commit()
         if current_app.config['CALL_STRAVA_API']:

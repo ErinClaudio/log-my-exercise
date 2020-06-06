@@ -1,3 +1,4 @@
+import time
 
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
@@ -341,6 +342,7 @@ class TestActivity(TestBase):
         #create an activity and log it being completed
         self.login_user()
 
+
         self.driver.find_element_by_id("title").send_keys(
             "title of workout")
         self.driver.find_element_by_id("description").send_keys(
@@ -352,6 +354,7 @@ class TestActivity(TestBase):
         self.driver.find_element_by_id("home_link").click()
 
         self.driver.find_element_by_link_text("title of workout").click()
+
         success_message = self.driver.find_element_by_class_name("list-group-item").text
         assert "Well done on completing" in success_message
 

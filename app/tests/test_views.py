@@ -76,3 +76,8 @@ def test_log_activity_view(test_client):
 def test_view_all_logs(test_client):
     response = test_client.get('exercise_log')
     assert response.status_code == 302
+
+
+def test_view_privacy(test_client):
+    response = test_client.get('/privacy')
+    assert response.status_code == 200
