@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from app import db
-from app.models import User, Activity, RegularActivity
+from app.models import User, Activity, RegularActivity, StravaAthlete
 from app.tests import conftest
 
 
@@ -62,4 +62,39 @@ def test_daily_activity_local_time(test_client, init_database, add_regular_activ
 
     assert "Regular Activity" in repr(activity)
     assert "Regular Activity" in str(activity)
+
+
+def test_strava_athlete(test_client, init_database):
+    # create a strava athlete
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    current_time = datetime.utcnow()
+    strava_athlete = StravaAthlete(user_id=u.id,
+                                   athlete_id=123,
+                                   scope="read",
+                                   access_token="ABCDEF",
+                                   access_token_expires_at=100000,
+                                   access_token_expires_in=100,
+                                   refresh_token="ZXCVB",
+                                   created_date=current_time,
+                                   last_updated=current_time,
+                                   is_active=1)
+    db.session.add(strava_athlete)
+    db.session.commit()
+
+    load_strava_athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+    assert StravaAthlete.query.filter_by(user_id=u.id).count() == 1
+
+    assert load_strava_athlete.athlete_id == strava_athlete.athlete_id
+    assert load_strava_athlete.scope == strava_athlete.scope
+    assert load_strava_athlete.access_token == strava_athlete.access_token
+    assert load_strava_athlete.access_token_expires_at == strava_athlete.access_token_expires_at
+    assert load_strava_athlete.access_token_expires_in == strava_athlete.access_token_expires_in
+    assert load_strava_athlete.refresh_token == strava_athlete.refresh_token
+    assert load_strava_athlete.created_date == strava_athlete.created_date
+    assert load_strava_athlete.last_updated == strava_athlete.last_updated
+    assert load_strava_athlete.is_active == strava_athlete.is_active
+
+    assert "StravaAthlete" in repr(load_strava_athlete)
+    assert "StravaAthlete" in str(load_strava_athlete)
+
 

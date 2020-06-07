@@ -15,6 +15,7 @@ from app.services import strava as ss
 # define some test data to be used in tests
 TEST_USER_USERNAME = 'test_user'
 TEST_USER_PASSWORD = 'test_password'
+TEST_USER_EMAIL = 'test@test.com'
 
 TEST_REGULAR_ACTIVITY1 = RegularActivity(
     type=1,
@@ -28,6 +29,11 @@ EXPIRES_AT_SECS = int(EXPIRES_AT_DATE.timestamp())
 STRAVA_RESPONSE_EXAMPLE = '{"token_type": "Bearer", "expires_at":' + '"' + str(EXPIRES_AT_SECS) + '"' + ', "expires_in": "21390", ' \
                    '"refresh_token": "767bdc6899", "access_token": "d188074a", ' \
                    '"athlete": {"id": "123456", "name":"my name"}}'
+
+STRAVA_RESPONSE_EXAMPLE_AS_DICT = {"token_type": "Bearer", "expires_at": EXPIRES_AT_SECS, "expires_in": "21390", \
+                   "refresh_token": "767bdc6899", "access_token": "d188074a", \
+                   "athlete": {"id": "123456", "name":"my name"}}
+
 
 STRAVA_REFRESH_EXAMPLE = '{"token_type": "Bearer", "expires_at":' + '"' + str(EXPIRES_AT_SECS) + '"' + ', "expires_in": "21390", ' \
                    '"refresh_token": "867bdc6899", "access_token": "e188074a"}'
@@ -111,6 +117,34 @@ def test_client():
 
 
 @pytest.fixture(scope='function')
+def test_client_csrf():
+    """
+    sets up a client to use in the tests
+    :return:
+    :rtype:
+    """
+    testing_app = create_app('testing')
+
+    # set-up some error routes
+    @testing_app.route('/403')
+    def forbidden_error():
+        abort(403)
+
+    @testing_app.route('/500')
+    def internal_server_error():
+        abort(500)
+
+    testing_app.test_client_class = FlaskClient
+    testing_client = testing_app.test_client()
+
+    ctx = testing_app.app_context()
+    ctx.push()
+
+    yield testing_client
+
+    ctx.pop()
+
+@pytest.fixture(scope='function')
 def init_database():
     """
     sets up the database ready for the tests
@@ -120,7 +154,7 @@ def init_database():
     """
     db.drop_all()
     db.create_all()
-    user = User(username=TEST_USER_USERNAME)
+    user = User(username=TEST_USER_USERNAME, email=TEST_USER_EMAIL)
     user.set_password(TEST_USER_PASSWORD)
     db.session.add(user)
     db.session.commit()

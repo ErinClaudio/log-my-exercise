@@ -41,7 +41,7 @@ class User(UserMixin, db.Model):
         return '<User: {} {}>'.format(self.id, self.username)
 
     def __str__(self):
-        return '<User: id={} username={}>'.format(self.id, self.username)
+        return '<User: id={} username={}> email={}'.format(self.id, self.username, self.email)
 
 
 class Activity(db.Model):

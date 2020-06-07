@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import flash, redirect, url_for, request
 from flask_login import current_user, login_required
 
 
@@ -7,11 +7,6 @@ from app.auth import bp
 from app.models import StravaAthlete
 from app.services import strava as ss
 from app.auth.forms import StravaIntegrationForm
-
-
-@bp.route('login_strava')
-def strava_login():
-    return render_template('auth/strava_access.html', title='Strava Sign-Up')
 
 
 @bp.route('/strava_authorize')
@@ -24,7 +19,6 @@ def strava_authorize():
     """
 
     redirect_uri = url_for('auth.strava_callback', _external=True)
-
     return oauth.strava.authorize_redirect(redirect_uri)
 
 
@@ -46,14 +40,15 @@ def strava_callback():
 
     if error == 'access_denied':
         flash('Strava: Access Denied')
-        return redirect(url_for('main.user', username=current_user.username))
+        return redirect(url_for('main.user'))
 
     if len(code) == 0:
         # error as strava should return a code
         flash('Strava: Invalid response')
-        return redirect(url_for('main.user', username=current_user.username))
+        return redirect(url_for('main.user'))
 
     if 'activity:read' in scope and 'activity:write' in scope:
+
         access_token = oauth.strava.authorize_access_token(code=code,
                                                            grant_type='authorization_code',
                                                            client_id=oauth.strava.client_id,
@@ -66,6 +61,7 @@ def strava_callback():
         strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id()).first()
         if not strava_athlete:
             # create the record
+            print(access_token)
             strava_athlete = ss.create_strava_athlete(access_token, current_user.get_id(), scope)
             db.session.add(strava_athlete)
             db.session.commit()
@@ -82,11 +78,11 @@ def strava_callback():
             db.session.commit()
     else:
         flash('Please ensure you agree to sharing your data with LogMyExercise.')
-        return redirect(url_for('main.user', username=current_user.username))
+        return redirect(url_for('main.user'))
 
     flash('Thank you for granting access to your Strava details.')
     ss.log_strava_event(strava_athlete.athlete_id, 'Authorize')
-    return redirect(url_for('main.user', username=current_user.username))
+    return redirect(url_for('main.user'))
 
 
 def user_strava_deauthorize(strava_athlete):
@@ -102,7 +98,7 @@ def user_strava_deauthorize(strava_athlete):
     else:
         flash('There has been an error')
 
-    return redirect(url_for('main.user', username=current_user.username))
+    return redirect(url_for('main.user'))
 
 
 @bp.route('/update_strava_integration', methods=['POST'])
@@ -127,21 +123,18 @@ def update_strava_integration():
         # check to see if the new response is different or not
         if is_integrated:
             if strava_athlete.is_active == 0:
-                print('need to re-authorise')
                 return redirect(url_for('auth.strava_authorize'))
         else:
+            print("deauth the athlete")
             if strava_athlete.is_active == 1:
                 # deauthorize the athlete
-                print('de-auth')
                 user_strava_deauthorize(strava_athlete)
     else:
         # no record
         if is_integrated:
             # need to go through the approval process
-            print('approval needed')
             return redirect(url_for('auth.strava_authorize'))
 
     # if we are here then nothing to do
-    print("nothing to do")
     flash("Changes have been saved")
-    return redirect(url_for('main.user', username=current_user.username))
+    return redirect(url_for('main.user'))

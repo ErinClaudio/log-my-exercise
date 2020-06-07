@@ -57,10 +57,11 @@ def privacy():
     return render_template('privacypolicy.html', title='Privacy Policy')
 
 
-@bp.route('/user/<username>')
+@bp.route('/user')
 @login_required
-def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
+def user():
+    user = User.query.filter_by(id=current_user.get_id()).first_or_404()
+
     strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
     is_strava = True
     if not strava_athlete:
@@ -111,11 +112,11 @@ def add_regular_activity():
                            is_add_regular_activity=is_add_regular_activity)
 
 
-@bp.route('/edit_regular_activity/<int:id>', methods=['GET', 'POST'])
+@bp.route('/edit_regular_activity/<int:activity_id>', methods=['GET', 'POST'])
 @login_required
-def edit_regular_activity(id):
+def edit_regular_activity(activity_id):
     is_add_regular_activity = False
-    regular_activity = RegularActivity.query.get_or_404(id)
+    regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
     form = ActivityForm(obj=regular_activity)
     if form.validate_on_submit():
         regular_activity.title = form.title.data
@@ -123,7 +124,7 @@ def edit_regular_activity(id):
         regular_activity.type = int(form.activity_type.data)
         regular_activity.duration = form.duration.data
         db.session.commit()
-        flash('You have successfully edited your regular activity')
+        flash('Saved changes to your regular activity')
         return redirect(url_for('main.regular_activities'))
 
     form.title.data = regular_activity.title
@@ -134,13 +135,13 @@ def edit_regular_activity(id):
                            user=user, form=form, title="Edit Regular Activity")
 
 
-@bp.route('/delete_regular_activity/<int:id>', methods=['GET', 'POST'])
+@bp.route('/delete_regular_activity/<int:activity_id>', methods=['GET'])
 @login_required
-def delete_regular_activity(id):
-    regular_activity = RegularActivity.query.get_or_404(id)
+def delete_regular_activity(activity_id):
+    regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
     db.session.delete(regular_activity)
     db.session.commit()
-    flash('You have successfully deleted the regular activity')
+    flash('Deleted the regular activity')
 
     return redirect(url_for('main.regular_activities'))
 
@@ -151,7 +152,7 @@ def log_activity(activity_id):
     # get hold of the regular activity for this user
     # join on the user id to check this activity really does belong to this user
     # then copy across the data and save it
-    regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id()).filter_by(id=activity_id).first()
+    regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
 
     if regular_activity is not None:
         activity = regular_activity.create_activity()

@@ -316,7 +316,7 @@ class TestActivity(TestBase):
 
         # Assert success message is shown
         success_message = self.driver.find_element_by_class_name("list-group-item").text
-        assert "You have successfully edited your regular activity" in success_message
+        assert "Saved changes" in success_message
 
     def test_delete_regular_activity(self):
         #login, create an activity and then delete it
@@ -335,7 +335,7 @@ class TestActivity(TestBase):
 
         # Assert success message is shown
         success_message = self.driver.find_element_by_class_name("list-group-item").text
-        assert "You have successfully deleted the regular activity" in success_message
+        assert "Deleted" in success_message
 
 
     def test_log_activity(self):

@@ -47,7 +47,7 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <a id="profile_link" class="dropdown-item"
-                           href="{{ url_for('main.user', username=current_user.username) }}">Profile</a>
+                           href="{{ url_for('main.user') }}">Profile</a>
                         <a id="logout_link" class="dropdown-item" href="{{ url_for('auth.logout_new') }}">Logout</a>
                     </div>
                 </li>

@@ -10,7 +10,6 @@ from app.models import User
 INDEX_PAGE = 'main.index'
 
 
-@bp.route('/login', methods=['GET', 'POST'])
 def login():
     """
     Allows a user to log into the application
@@ -32,7 +31,6 @@ def login():
     return render_template('auth/login.html', title='Sign In', form=form)
 
 
-@bp.route('/logout')
 def logout():
     """
     logs the user out of the application
@@ -43,7 +41,6 @@ def logout():
     return redirect(url_for(INDEX_PAGE))
 
 
-@bp.route('/register', methods=['GET', 'POST'])
 def register():
     """
     allows a new user to register with the application

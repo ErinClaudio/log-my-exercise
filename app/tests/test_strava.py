@@ -1,7 +1,6 @@
 import json
 import os
 
-from unittest import mock
 from unittest.mock import Mock, patch
 
 from app import db
@@ -279,10 +278,9 @@ def test_strava_callback_access_denied(test_client, init_database,):
     # fails as user is not logged in and so no current_user
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
-    user = mock.MagicMock()
     with patch('flask_login.utils._get_user') as current_user:
-        current_user.return_value = user
         current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
 
         params = {'code': 'ABCDEF', 'scope': 'activity:read', 'error': 'access_denied'}
         response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
@@ -293,10 +291,9 @@ def test_strava_callback_invalid_write_scope(test_client, init_database,):
     # fails as user is not logged in and so no current_user
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
-    user = mock.MagicMock()
     with patch('flask_login.utils._get_user') as current_user:
-        current_user.return_value = user
         current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
 
         params = {'code': 'ABCDEF', 'scope': 'activity:read', 'error': ''}
         response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
@@ -307,10 +304,9 @@ def test_strava_callback_invalid_read_scope(test_client, init_database,):
     # fails as user is not logged in and so no current_user
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
-    user = mock.MagicMock()
     with patch('flask_login.utils._get_user') as current_user:
-        current_user.return_value = user
         current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
 
         params = {'code': 'ABCDEF', 'scope': 'activity:write', 'error': ''}
         response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
@@ -321,10 +317,9 @@ def test_strava_callback_invalid_code(test_client, init_database,):
     # fails as user is not logged in and so no current_user
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
-    user = mock.MagicMock()
     with patch('flask_login.utils._get_user') as current_user:
-        current_user.return_value = user
         current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
 
         params = {'code': '', 'scope': 'activity:write', 'error': ''}
         response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
@@ -373,3 +368,168 @@ def test_user_strava_deauthorize_fail(test_client, init_database, add_strava_ath
 
     athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
     assert athlete.is_active == 1
+
+
+def test_user_strava_refresh_token_scope_not_correct(test_client, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('authlib.integrations.flask_client.OAuth') as mock_oauth:
+        with patch('flask_login.utils._get_user') as current_user:
+            current_user.return_value.id = u.id
+            current_user.return_value.get_id.return_value = u.id
+
+            mock_oauth.return_value.authorize_access_token = conftest.STRAVA_RESPONSE_EXAMPLE
+            params = {'code': 'ABCDEF', 'scope': 'activity:write,activity:write', 'error': ''}
+            response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
+
+            assert "Please ensure you agree to sharing" in str(response.data)
+
+
+def test_user_strava_refresh_token_new(test_client, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+
+    assert athlete is None
+
+    with patch('app.oauth.strava.authorize_access_token') as mock_oauth:
+        with patch('flask_login.utils._get_user') as current_user:
+            current_user.return_value.id = u.id
+            current_user.return_value.get_id.return_value = u.id
+            mock_oauth.return_value = conftest.STRAVA_RESPONSE_EXAMPLE_AS_DICT
+            params = {'code': 'ABCDEF', 'scope': 'activity:read,activity:write', 'error': ''}
+            response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
+
+            # this should be valid and so a new strava athlete is created
+            athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+            assert athlete is not None
+            assert athlete.is_active == 1
+            assert athlete.athlete_id == 123456
+            assert "Thank you" in str(response.data)
+
+def test_user_strava_refresh_token_existing(test_client, init_database, add_strava_athlete):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+
+    assert athlete is not None
+
+    with patch('app.oauth.strava.authorize_access_token') as mock_oauth:
+        with patch('flask_login.utils._get_user') as current_user:
+            current_user.return_value.id = u.id
+            current_user.return_value.get_id.return_value = u.id
+            mock_oauth.return_value = conftest.STRAVA_RESPONSE_EXAMPLE_AS_DICT
+            params = {'code': 'ABCDEF', 'scope': 'activity:read,activity:write', 'error': ''}
+            response = test_client.get('/auth/strava_callback', query_string=params, follow_redirects=True)
+
+            # this should be valid and so a new strava athlete is created
+            athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+            assert athlete is not None
+            assert athlete.is_active == 1
+            assert athlete.athlete_id == 123456
+
+            assert "Thank you" in str(response.data)
+
+def test_strava_authorize(test_client, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client.get('/auth/strava_authorize')
+        assert response.status_code == 302
+        assert "www.strava.com" in response.headers['Location']
+
+
+def test_strava_integration_on(test_client_csrf, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
+            is_integrated=True,
+            csrf_token=test_client_csrf.csrf_token))
+        assert response.status_code == 302
+        assert "/auth/strava_authorize" in response.headers['Location']
+
+
+def test_strava_integration_already_on(test_client_csrf, init_database, add_strava_athlete):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
+            is_integrated=True,
+            csrf_token=test_client_csrf.csrf_token))
+        assert response.status_code == 302
+        assert "/user" in response.headers['Location']
+
+
+def test_strava_integration_off(test_client_csrf, init_database, add_strava_athlete):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+    athlete.is_active = 0
+    db.session.commit()
+
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
+            is_integrated=True,
+            csrf_token=test_client_csrf.csrf_token))
+        assert response.status_code == 302
+        assert "/strava_authorize" in response.headers['Location']
+
+
+def test_strava_turn_integration_off(test_client_csrf, init_database, add_strava_athlete):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+
+    assert athlete.is_active == 1
+    with patch('app.services.strava.requests.post') as mock_requests:
+        mock_requests.return_value.status_code = 200
+        with patch('app.services.strava.OAuth2Session') as mock_oauth:
+            new_tokens = json.loads(conftest.STRAVA_REFRESH_EXAMPLE)
+            mock_oauth.return_value = Mock()
+            mock_oauth.return_value.refresh_token.return_value = new_tokens
+            with patch('flask_login.utils._get_user') as current_user:
+                current_user.return_value.id = u.id
+                current_user.return_value.get_id.return_value = u.id
+
+                response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
+                    csrf_token=test_client_csrf.csrf_token))
+
+                assert response.status_code == 302
+
+                print(str(response.data))
+                athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+                assert athlete.is_active == 0
+
+
+def test_strava_turn_integration_off_bad_strava(test_client_csrf, init_database, add_strava_athlete):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+
+    assert athlete.is_active == 1
+    with patch('app.services.strava.requests.post') as mock_requests:
+        mock_requests.return_value.status_code = 401
+        with patch('app.services.strava.OAuth2Session') as mock_oauth:
+            new_tokens = json.loads(conftest.STRAVA_REFRESH_EXAMPLE)
+            mock_oauth.return_value = Mock()
+            mock_oauth.return_value.refresh_token.return_value = new_tokens
+            with patch('flask_login.utils._get_user') as current_user:
+                current_user.return_value.id = u.id
+                current_user.return_value.get_id.return_value = u.id
+
+                response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
+                    csrf_token=test_client_csrf.csrf_token))
+
+                assert response.status_code == 302
+                athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+                assert athlete.is_active == 1
+

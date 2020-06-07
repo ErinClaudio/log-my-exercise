@@ -24,10 +24,10 @@
                             <td>{{ activity.duration }}</td>
                             <td>{{ activity.description }}</td>
                             <td colspan="2">
-                                <a id="edit_activity_link" href="{{ url_for('main.edit_regular_activity',id=activity.id) }}"><i
+                                <a id="edit_activity_link" href="{{ url_for('main.edit_regular_activity',activity_id=activity.id) }}"><i
                                         class="fas fa-edit" aria-hidden="true"></i>Edit</a>
                                 &nbsp;
-                                <a id="delete_activity_link" href="{{ url_for('main.delete_regular_activity',id=activity.id) }}"><i
+                                <a id="delete_activity_link" href="{{ url_for('main.delete_regular_activity',activity_id=activity.id) }}"><i
                                         class="fas fa-trash" aria-hidden="true"></i>Delete</a>
                             </td>
                         </tr>

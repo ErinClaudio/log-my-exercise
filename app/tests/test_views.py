@@ -44,7 +44,7 @@ def test_edit_profile_view(test_client):
 
 
 def test_view_profile_view(test_client):
-    response = test_client.get('/user/name')
+    response = test_client.get('/user')
     assert response.status_code == 302
 
 
