@@ -12,6 +12,7 @@
                         <th scope="col" class="th-sm">Type</th>
                         <th scope="col" class="th-lg">Title</th>
                         <th scope="col" class="th-sm">Duration</th>
+                        <th scope="col" class="th-sm"></th>
                     </tr>
                     </thead>
                     {% for activity in activities %}
@@ -20,6 +21,8 @@
                             <td>{{ activities_lookup[activity.type] }}</td>
                             <td>{{ activity.title }}</td>
                             <td>{{ activity.duration }}</td>
+                            <td> <a id="delete_activity_link" href="{{ url_for('main.delete_activity',activity_id=activity.id) }}"><i
+                                        class="fas fa-trash" aria-hidden="true"></i>&nbsp;</a></td>
                         </tr>
                     {% endfor %}
                 </table>

@@ -364,7 +364,7 @@ class TestActivity(TestBase):
 
         assert len(rows) == 2
         cols = rows[1].find_elements_by_tag_name("td")
-        assert len(cols) == 4
+        assert len(cols) == 5
         assert cols[1].text == "Workout"
         assert cols[2].text == "title of workout"
         assert cols[3].text == "10"

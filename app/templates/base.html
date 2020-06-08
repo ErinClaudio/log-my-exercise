@@ -16,7 +16,9 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a id="main" class="navbar-brand" href="{{ url_for('main.welcome') }}"> <img style="max-width:40px" src="/static/img/logo_icon_small.png" alt="logo">Log My Exercise</a>
+    <a id="main" class="navbar-brand" href="{{ url_for('main.welcome') }}"> <img style="max-width:40px"
+                                                                                 src="/static/img/logo_icon_small.png"
+                                                                                 alt="logo">Log My Exercise</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
             aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -27,18 +29,19 @@
                 <li class="nav-item">
                     <a id="login_link" class="nav-link" href="{{ url_for('auth.oauth_authorize') }}">Login</a>
                 </li>
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a id="register_link" class="nav-link" href="{{ url_for('auth.sign_up') }}">Sign Up</a>
                 </li>
             {% else %}
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a id="home_link" class="nav-link" href="{{ url_for('main.index') }}">Log It!</a>
                 </li>
                 <li class="nav-item">
                     <a id="my_log_link" class="nav-link" href="{{ url_for('main.exercise_log') }}">My Exercise Log</a>
                 </li>
                 <li class="nav-item">
-                    <a id="regular_activities_link" class="nav-link" href="{{ url_for('main.regular_activities') }}">My Regular Exercises</a>
+                    <a id="regular_activities_link" class="nav-link" href="{{ url_for('main.regular_activities') }}">My
+                        Regular Exercises</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
@@ -78,6 +81,7 @@
 <br>
 <hr>
 <footer>
-    <div class="container">(c) 2020 | <a href="{{ url_for('main.privacy') }}">Privacy Policy</a></div>
+    <div class="container">(c) 2020 | <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>|
+        <a href="{{ url_for('main.disclaimer') }}">Disclaimer</a></div>
 </footer>
 </html>

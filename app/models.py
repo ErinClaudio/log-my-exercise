@@ -96,7 +96,7 @@ class RegularActivity(db.Model):
 
     def __str__(self):
         return '<Regular Activity: title={} description={} ' \
-               'type={} duration={} time={} used={}'.format(self.title, self.description, self.type,
+               'type={} duration={} time={} user id={}'.format(self.title, self.description, self.type,
                                                             self.duration, self.time, self.user_id)
 
 

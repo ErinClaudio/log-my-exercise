@@ -30,5 +30,4 @@ class ActivityForm(FlaskForm):
     duration = IntegerField('Duration (mins) *',
                             validators=[DataRequired(),
                                         NumberRange(0, 999, message="Please enter a number between 0 and 999")])
-    timestamp = DateTimeField('Date of Activity', default=datetime.today, validators=[DataRequired()])
     submit = SubmitField('Save')

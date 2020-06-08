@@ -57,6 +57,11 @@ def privacy():
     return render_template('privacypolicy.html', title='Privacy Policy')
 
 
+@bp.route('/disclaimer', methods=['GET'])
+def disclaimer():
+    return render_template('disclaimer.html', title='Disclaimer')
+
+
 @bp.route('/user')
 @login_required
 def user():
@@ -103,7 +108,8 @@ def add_regular_activity():
     if form.validate_on_submit():
         activity = RegularActivity(title=form.title.data, description=form.description.data,
                                    type=int(form.activity_type.data), duration=form.duration.data,
-                                   regular_athlete=current_user)
+                                   time=datetime.utcnow(),
+                                   user_id=current_user.get_id())
         db.session.add(activity)
         db.session.commit()
         flash('Your regular activity is recorded')
@@ -123,6 +129,7 @@ def edit_regular_activity(activity_id):
         regular_activity.description = form.description.data
         regular_activity.type = int(form.activity_type.data)
         regular_activity.duration = form.duration.data
+        regular_activity.time = datetime.utcnow()
         db.session.commit()
         flash('Saved changes to your regular activity')
         return redirect(url_for('main.regular_activities'))
@@ -159,7 +166,7 @@ def log_activity(activity_id):
         if request.args.get('local_time'):
             activity.local_timestamp = datetime.fromtimestamp(int(request.args.get('local_time')))
         else:
-            activity.local_timestamp = datetime.utcnow()
+            activity.local_timestamp = activity.timestamp
         print("local time is: ", activity.local_timestamp)
         db.session.add(activity)
         db.session.commit()
@@ -177,6 +184,33 @@ def log_activity(activity_id):
 @bp.route('/exercise_log', methods=['GET'])
 @login_required
 def exercise_log():
+    """
+    shows the history of all activities performed by the user
+    :return:
+    :rtype:
+    """
+    activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
+
+    return render_template('activity/view_log.html',
+                           user=user, activities=activities,
+                           activities_lookup=ACTIVITIES_LOOKUP, title="View Exercise Log")
+
+
+@bp.route('/delete_activity/<int:activity_id>', methods=['GET'])
+@login_required
+def delete_activity(activity_id):
+    """
+    deletes the given activity
+    :param activity_id: activity to delete
+    :type activity_id: int
+    :return: a 404 page if the activity doesn't exist for this user or the exercise log page on successful delete
+    :rtype:
+    """
+    activity = Activity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
+    db.session.delete(activity)
+    db.session.commit()
+    flash('Deleted the activity')
+
     activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
 
     return render_template('activity/view_log.html',
