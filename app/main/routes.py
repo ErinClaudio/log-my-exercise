@@ -77,7 +77,6 @@ def user():
     return render_template('auth/user.html', user=user, is_strava=is_strava, strava_form=form)
 
 
-@bp.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     add_user = False

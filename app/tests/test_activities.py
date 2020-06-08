@@ -234,3 +234,34 @@ def test_delete_regular_activity(test_client_csrf, init_database, add_regular_ac
         assert response.status_code == 302
         regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
         assert regular_activity is None
+
+
+def test_regular_activities(test_client_csrf, init_database, add_regular_activity):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client_csrf.get('regular_activities')
+
+        assert response.status_code == 200
+        assert "Regular Activity" in str(response.data)
+        assert "23" in str(response.data)
+
+
+def test_exercise_log(test_client_csrf, init_database, add_regular_activity, add_activity):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client_csrf.get('exercise_log')
+
+        assert response.status_code == 200
+        assert "Regular Activity" in str(response.data)
+        assert "23" in str(response.data)
+
+
+
