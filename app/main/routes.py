@@ -62,6 +62,11 @@ def disclaimer():
     return render_template('disclaimer.html', title='Disclaimer')
 
 
+@bp.route('/cookies', methods=['GET'])
+def cookies():
+    return render_template('cookies.html', title='Disclaimer')
+
+
 @bp.route('/user')
 @login_required
 def user():

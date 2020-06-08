@@ -88,6 +88,16 @@ def test_view_privacy(test_client):
     assert response.status_code == 200
 
 
-def test_view_privacy(test_client):
+def test_view_disclaimer(test_client):
     response = test_client.get('/disclaimer')
+    assert response.status_code == 200
+
+
+def test_view_disclaimer(test_client):
+    response = test_client.get('/cookies')
+    assert response.status_code == 200
+
+
+def test_view_site_log(test_client):
+    response = test_client.get('/static/img/Titlewithlogo.png')
     assert response.status_code == 200

@@ -262,6 +262,3 @@ def test_exercise_log(test_client_csrf, init_database, add_regular_activity, add
         assert response.status_code == 200
         assert "Regular Activity" in str(response.data)
         assert "23" in str(response.data)
-
-
-
