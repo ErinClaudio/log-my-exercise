@@ -20,6 +20,11 @@ ACTIVITIES_LOOKUP = {1: 'Workout', 2: 'Yoga'}
 
 @bp.before_request
 def before_request():
+    """
+    Tracks the date/time the user last logged in and used the application
+    :return:
+    :rtype:
+    """
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
@@ -28,12 +33,22 @@ def before_request():
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/welcome', methods=['GET'])
 def welcome():
+    """
+    shows the welcome page
+    :return:
+    :rtype:
+    """
     return render_template('welcome.html', title='Welcome')
 
 
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
+    """
+    shows the user's regular activities in order for them to log it
+    :return:
+    :rtype:
+    """
     if current_user.is_authenticated:
         activities = RegularActivity.query.filter_by(user_id=current_user.get_id()).all()
 
@@ -54,22 +69,42 @@ def index():
 
 @bp.route('/privacy', methods=['GET'])
 def privacy():
+    """
+    shows the privacy page
+    :return:
+    :rtype:
+    """
     return render_template('privacypolicy.html', title='Privacy Policy')
 
 
 @bp.route('/disclaimer', methods=['GET'])
 def disclaimer():
+    """
+    shows the disclaimer page
+    :return:
+    :rtype:
+    """
     return render_template('disclaimer.html', title='Disclaimer')
 
 
 @bp.route('/cookies', methods=['GET'])
 def cookies():
+    """
+    shows the cookie page
+    :return:
+    :rtype:
+    """
     return render_template('cookies.html', title='Disclaimer')
 
 
 @bp.route('/user')
 @login_required
 def user():
+    """
+    shows the user's profile
+    :return:
+    :rtype:
+    """
     user = User.query.filter_by(id=current_user.get_id()).first_or_404()
 
     strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
@@ -84,6 +119,11 @@ def user():
 
 @login_required
 def edit_profile():
+    """
+    allows the user to edit their profile
+    :return:
+    :rtype:
+    """
     add_user = False
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
@@ -99,6 +139,11 @@ def edit_profile():
 @bp.route('/regular_activities', methods=['GET', 'POST'])
 @login_required
 def regular_activities():
+    """
+    shows the user's regular activities
+    :return:
+    :rtype:
+    """
     activities = RegularActivity.query.filter_by(user_id=current_user.get_id()).all()
     return render_template('activity/regularactivities.html', user=user, regular_activities=activities,
                            activities_lookup=ACTIVITIES_LOOKUP)
@@ -107,6 +152,11 @@ def regular_activities():
 @bp.route('/add_regular_activities', methods=['GET', 'POST'])
 @login_required
 def add_regular_activity():
+    """
+    creates a new regular activity
+    :return:
+    :rtype:
+    """
     form = ActivityForm()
     is_add_regular_activity = True
     if form.validate_on_submit():
@@ -125,6 +175,13 @@ def add_regular_activity():
 @bp.route('/edit_regular_activity/<int:activity_id>', methods=['GET', 'POST'])
 @login_required
 def edit_regular_activity(activity_id):
+    """
+    edits a regular activity
+    :param activity_id: activity to edit
+    :type activity_id: int
+    :return:
+    :rtype:
+    """
     is_add_regular_activity = False
     regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
     form = ActivityForm(obj=regular_activity)
@@ -149,6 +206,13 @@ def edit_regular_activity(activity_id):
 @bp.route('/delete_regular_activity/<int:activity_id>', methods=['GET'])
 @login_required
 def delete_regular_activity(activity_id):
+    """
+    deletes a regular activity
+    :param activity_id: activity to delete
+    :type activity_id: int
+    :return:
+    :rtype:
+    """
     regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
     db.session.delete(regular_activity)
     db.session.commit()
@@ -160,14 +224,20 @@ def delete_regular_activity(activity_id):
 @bp.route('/log_activity/<int:activity_id>', methods=['GET'])
 @login_required
 def log_activity(activity_id):
-    # get hold of the regular activity for this user
-    # join on the user id to check this activity really does belong to this user
-    # then copy across the data and save it
+    """
+    logs that a particular exercise has been done
+    :param activity_id: regular activity to log
+    :type activity_id: int
+    :return:
+    :rtype:
+    """
     regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
 
     if regular_activity is not None:
         activity = regular_activity.create_activity()
+        print("local_time:", request.args.get('local_time'))
         if request.args.get('local_time'):
+            print("local_time:", request.args.get('local_time'))
             activity.local_timestamp = datetime.fromtimestamp(int(request.args.get('local_time')))
         else:
             activity.local_timestamp = activity.timestamp
@@ -190,6 +260,7 @@ def log_activity(activity_id):
 def exercise_log():
     """
     shows the history of all activities performed by the user
+    newest activity is shown first
     :return:
     :rtype:
     """
