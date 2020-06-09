@@ -242,6 +242,7 @@ def log_activity(activity_id):
         else:
             activity.local_timestamp = activity.timestamp
         print("local time is: ", activity.local_timestamp)
+        print("utc time is", activity.timestamp)
         db.session.add(activity)
         db.session.commit()
         if current_app.config['CALL_STRAVA_API']:
