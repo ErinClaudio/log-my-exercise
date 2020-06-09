@@ -17,6 +17,6 @@ def get_local_time_iso(user_tz='UTC'):
         local_tz = pytz.timezone(user_tz)
     except pytz.exceptions.UnknownTimeZoneError:
         pass
-    current_date_utc = datetime.utcnow()
-    current_date_local = local_tz.localize(current_date_utc)
-    return current_date_local.isoformat()
+
+    print('local tz as iso', datetime.now(local_tz).isoformat())
+    return datetime.now(local_tz).isoformat()
