@@ -92,8 +92,6 @@ def test_create_activity(test_client, init_database, add_strava_athlete, add_act
 
 
 def test_create_activity_invalid_id(test_client, init_database, add_strava_athlete, add_activity):
-    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
-    a = Activity.query.filter_by(user_id=u.id).first()
     mock_refresh_token_patcher = patch('app.services.strava.refresh_access_token')
     # need to mock the refresh token method inside the service
     mock_oauth = mock_refresh_token_patcher.start()
@@ -122,7 +120,7 @@ def test_deauthorize_athlete(test_client, init_database, add_strava_athlete):
 def test_deauthorize_athlete_invalid_id(test_client, init_database, add_strava_athlete):
     # tests the strava de-authorization rejects an invalid id
     status = ss.deauthorize_athlete(-1)
-    assert status == False
+    assert not status
 
 
 def test_deauthorize_athlete_view(test_client, init_database, add_strava_athlete):
@@ -532,4 +530,3 @@ def test_strava_turn_integration_off_bad_strava(test_client_csrf, init_database,
                 assert response.status_code == 302
                 athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
                 assert athlete.is_active == 1
-

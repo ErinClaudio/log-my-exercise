@@ -11,11 +11,20 @@
           content="Easily track your regular exercise routines. Be inspired by other routines recommended by our community"/>
 
 
-    <title>Exercise Logger</title>
+    <title>Log My Exercise</title>
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
     {{ moment.include_jquery() }}
     {{ moment.include_moment() }}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.31/moment-timezone.js"
+            integrity="sha256-dWmHGsnrX5SD7KolfPMFQCt8DoDmkrAONz+rCsChg9E=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.31/moment-timezone-with-data-2012-2022.min.js"
+            integrity="sha256-J3t/BAGqnl57qtjKVL6IipkuPjImp2hkXeiiwNYELLw=" crossorigin="anonymous"></script>
+
+
     <script src="https://kit.fontawesome.com/e6fa600115.js" crossorigin="anonymous"></script>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 

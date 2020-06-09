@@ -1,11 +1,12 @@
 from datetime import datetime
 from hashlib import md5
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
 
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db
 from app import login
+from app.services import utils
 
 
 @login.user_loader
@@ -56,17 +57,35 @@ class Activity(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     local_timestamp = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    iso_timestamp = db.Column(db.String(50))
+
+    def set_local_time(self, local_time=None, tz='UTC'):
+        """
+        sets the local time and the iso timestamp of this activity
+        :param local_time: the activity time according to the user's location
+        :type local_time: string
+        :param tz: the timezone of the user
+        :type tz: string
+        :return:
+        :rtype:
+        """
+        if local_time:
+            self.local_timestamp = datetime.fromtimestamp(int(local_time))
+        else:
+            self.local_timestamp = self.timestamp
+        self.iso_timestamp = utils.get_local_time_iso(tz)
 
     def __repr__(self):
-        return '<Activity {} {} {} {} {} {} {} {}'.format(self.id, self.type, self.title,
-                                                          self.description, self.duration, self.timestamp,
-                                                          self.local_timestamp, self.user_id)
+        return '<Activity {} {} {} {} {} {} {} {} {}'.format(self.id, self.type, self.title,
+                                                             self.description, self.duration, self.timestamp,
+                                                             self.local_timestamp, self.user_id, self.iso_timestamp)
 
     def __str__(self):
         return '<Activity id={} type={} title={} description={} duration={} ' \
-               'time={} local_time={} user+{}'.format(self.id, self.type, self.title,
-                                                      self.description, self.duration, self.timestamp,
-                                                      self.local_timestamp, self.user_id)
+               'time={} local_time={} user={} iso_time={}'.format(self.id, self.type, self.title,
+                                                                  self.description, self.duration, self.timestamp,
+                                                                  self.local_timestamp, self.user_id,
+                                                                  self.iso_timestamp)
 
 
 class RegularActivity(db.Model):
@@ -97,7 +116,7 @@ class RegularActivity(db.Model):
     def __str__(self):
         return '<Regular Activity: title={} description={} ' \
                'type={} duration={} time={} user id={}'.format(self.title, self.description, self.type,
-                                                            self.duration, self.time, self.user_id)
+                                                               self.duration, self.time, self.user_id)
 
 
 class StravaAthlete(db.Model):
@@ -135,7 +154,7 @@ class StravaAthlete(db.Model):
         :return: string representation of this object
         :rtype:
         """
-        return '<StravaAthlete: id={} strava_id={} scopoe={} ' \
+        return '<StravaAthlete: id={} strava_id={} scope={} ' \
                'expires_at={} expires_in={} created={} ' \
                'updated={} is_Active={}'.format(self.user_id, self.athlete_id, self.scope,
                                                 self.access_token_expires_at, self.access_token_expires_in,

@@ -4,6 +4,8 @@
     <div class="container">
 
         <script>
+            tz = moment.tz.guess();
+            zones = moment.tz.zonesForCountry('US');
             if (window.attachEvent) {
                 window.attachEvent('onload', add_current_date);
             } else {
@@ -28,7 +30,8 @@
                         // Redirect instead with JavaScript
                         const current_time = new Date()
                         const seconds = Math.round(current_time.getTime() / 1000);
-                        window.location.href = elements[i].href + '?local_time=' + seconds;
+                        const tz = moment.tz.guess();
+                        window.location.href = elements[i].href + '?local_time=' + seconds + '&tz=' + tz;
                     }, false);
                 }
             }

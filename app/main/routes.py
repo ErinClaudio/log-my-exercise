@@ -105,7 +105,7 @@ def user():
     :return:
     :rtype:
     """
-    user = User.query.filter_by(id=current_user.get_id()).first_or_404()
+    my_user = User.query.filter_by(id=current_user.get_id()).first_or_404()
 
     strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
     is_strava = True
@@ -114,7 +114,7 @@ def user():
 
     form = StravaIntegrationForm()
     form.is_integrated.data = is_strava
-    return render_template('auth/user.html', user=user, is_strava=is_strava, strava_form=form)
+    return render_template('auth/user.html', user=my_user, is_strava=is_strava, strava_form=form)
 
 
 @login_required
@@ -235,14 +235,7 @@ def log_activity(activity_id):
 
     if regular_activity is not None:
         activity = regular_activity.create_activity()
-        print("local_time:", request.args.get('local_time'))
-        if request.args.get('local_time'):
-            print("local_time:", request.args.get('local_time'))
-            activity.local_timestamp = datetime.fromtimestamp(int(request.args.get('local_time')))
-        else:
-            activity.local_timestamp = activity.timestamp
-        print("local time is: ", activity.local_timestamp)
-        print("utc time is", activity.timestamp)
+        activity.set_local_time(request.args.get('local_time'), request.args.get('tz'))
         db.session.add(activity)
         db.session.commit()
         if current_app.config['CALL_STRAVA_API']:

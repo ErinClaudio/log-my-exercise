@@ -210,4 +210,3 @@ def add_strava_athlete():
 
     db.session.add(strava_athlete)
     db.session.commit()
-

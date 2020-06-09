@@ -1,4 +1,3 @@
-import time
 
 from flask_testing import LiveServerTestCase
 from selenium import webdriver

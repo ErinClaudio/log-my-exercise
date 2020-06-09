@@ -73,7 +73,7 @@ def test_log_activity_view(test_client):
     assert response.status_code == 302
 
 
-def test_delete_regular_activity_view(test_client):
+def test_delete_activity_view(test_client):
     response = test_client.get('/delete_activity/1')
     assert response.status_code == 302
 
@@ -93,7 +93,7 @@ def test_view_disclaimer(test_client):
     assert response.status_code == 200
 
 
-def test_view_disclaimer(test_client):
+def test_view_cookies(test_client):
     response = test_client.get('/cookies')
     assert response.status_code == 200
 

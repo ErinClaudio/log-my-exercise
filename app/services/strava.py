@@ -111,10 +111,16 @@ def create_activity(activity_id):
         url = 'https://www.strava.com/api/v3/activities'
         headers = {'Authorization': 'Bearer {}'.format(access_token)}
 
-        local_time = activity.local_timestamp
+        # if the timestamp has been saved then use this over converting the other one
+        # issues with server tz so better to use the timestamp at the point the activity record was created
+        if activity.iso_timestamp:
+            local_time = activity.iso_timestamp
+        else:
+            local_time = activity.local_timestamp.isoformat()
+
         data = {'name': activity.title,
                 'type': routes.ACTIVITIES_LOOKUP[activity.type],
-                'start_date_local': local_time.isoformat(),
+                'start_date_local': local_time,
                 'elapsed_time': activity.duration * 60,  # need to convert to seconds, stored in db as minutes
                 'description': activity.description}
 
@@ -123,6 +129,9 @@ def create_activity(activity_id):
         log_strava_event(strava_athlete.athlete_id, "Activity")
 
         # check the response, if there has been an error then need to log this
+        if response.status_code != 200:
+            print(response.status_code)
+            print(response.json())
         return response.status_code
     # return an error code if the athlete doesn't exist
     return 400
