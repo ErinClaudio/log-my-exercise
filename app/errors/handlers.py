@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, current_app
 from app.errors import bp
 from app import db
 
@@ -24,5 +24,15 @@ def internal_error(error):
     """
     shown on a general error
     """
+    current_app.logger.error('Server Error: {}'.format(error))
     db.session.rollback()
+    return render_template('errors/500.html'), 500
+
+
+@bp.app_errorhandler(Exception)
+def unhandled_exception(e):
+    """
+    an unknown error has occurred
+    """
+    current_app.logger.error('Unhandled Exception: {}'.format(e))
     return render_template('errors/500.html'), 500

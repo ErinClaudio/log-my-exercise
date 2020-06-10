@@ -1,6 +1,8 @@
 import json
 import os
+import logging
 
+from requests import Response
 from unittest.mock import Mock, patch
 
 from app import db
@@ -74,6 +76,27 @@ def test_refresh_access_token(test_client, init_database):
         assert new_token == new_tokens['access_token']
 
 
+def test_refresh_access_token_none(test_client, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('app.services.strava.OAuth2Session') as mock_oauth:
+
+        authorize_details = json.loads(conftest.STRAVA_RESPONSE_EXAMPLE)
+        scope = 'activity:write'
+        strava_athlete = ss.create_strava_athlete(authorize_details, u.id, scope)
+
+        db.session.add(strava_athlete)
+        db.session.commit()
+
+        # mock the refresh_token call
+        mock_oauth.return_value = Mock()
+        mock_oauth.return_value.refresh_token.return_value = None
+        new_token = ss.refresh_access_token(u.id)
+
+        assert new_token is None
+
+
+
 def test_create_activity(test_client, init_database, add_strava_athlete, add_activity):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     a = Activity.query.filter_by(user_id=u.id).first()
@@ -91,6 +114,25 @@ def test_create_activity(test_client, init_database, add_strava_athlete, add_act
     assert status == 200
 
 
+def test_create_activity_failed_token(test_client, init_database, add_strava_athlete, add_activity):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    a = Activity.query.filter_by(user_id=u.id).first()
+    mock_refresh_token_patcher = patch('app.services.strava.refresh_access_token')
+    # need to mock the refresh token method inside the service
+    mock_oauth = mock_refresh_token_patcher.start()
+    mock_oauth.return_value = None
+
+    # then mock the requests call to Strava
+    mock_requests_patched = patch('app.services.strava.requests.post')
+    mock_requests = mock_requests_patched.start()
+    mock_requests.return_value.status_code = 200
+
+    status = ss.create_activity(a.id)
+    # still get a valid status even if the activity couldn't be saved
+    # because of an invalid token
+    assert status == 200
+
+
 def test_create_activity_invalid_id(test_client, init_database, add_strava_athlete, add_activity):
     mock_refresh_token_patcher = patch('app.services.strava.refresh_access_token')
     # need to mock the refresh token method inside the service
@@ -103,7 +145,7 @@ def test_create_activity_invalid_id(test_client, init_database, add_strava_athle
     mock_requests.return_value.status_code = 200
 
     status = ss.create_activity(-2)
-    assert status == 400
+    assert status == 200
 
 
 def test_deauthorize_athlete(test_client, init_database, add_strava_athlete):
@@ -178,8 +220,8 @@ def test_deauthorize_athlete_view_invalid_data(test_client, init_database, add_s
         'owner_id': -1,
         'subscription_id': 1
     }, follow_redirects=True)
-    # missing data so expect a 400
-    assert response.status_code == 400
+    # missing data so expect a 200
+    assert response.status_code == 200
 
 
 def test_deauthorize_athlete_view_invalid_object(test_client, init_database, add_strava_athlete):
@@ -195,8 +237,8 @@ def test_deauthorize_athlete_view_invalid_object(test_client, init_database, add
         'owner_id': -1,
         'subscription_id': 1
     }, follow_redirects=True)
-    # missing data so expect a 400
-    assert response.status_code == 400
+    # missing data so expect a 200
+    assert response.status_code == 200
 
 
 def test_deauthorize_athlete_view_invalid_auth_value(test_client, init_database, add_strava_athlete):
@@ -212,8 +254,8 @@ def test_deauthorize_athlete_view_invalid_auth_value(test_client, init_database,
         'owner_id': -1,
         'subscription_id': 1
     }, follow_redirects=True)
-    # expect a 400 if the authorized has the wrong value
-    assert response.status_code == 400
+    # expect a 200 if the authorized has the wrong value
+    assert response.status_code == 200
 
 
 def test_is_valid_strava_challenge_params(test_client):
@@ -404,6 +446,7 @@ def test_user_strava_refresh_token_new(test_client, init_database):
             assert athlete.athlete_id == 123456
             assert "Thank you" in str(response.data)
 
+
 def test_user_strava_refresh_token_existing(test_client, init_database, add_strava_athlete):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
@@ -425,6 +468,7 @@ def test_user_strava_refresh_token_existing(test_client, init_database, add_stra
             assert athlete.athlete_id == 123456
 
             assert "Thank you" in str(response.data)
+
 
 def test_strava_authorize(test_client, init_database):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
@@ -504,18 +548,22 @@ def test_strava_turn_integration_off(test_client_csrf, init_database, add_strava
 
                 assert response.status_code == 302
 
-                print(str(response.data))
                 athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
                 assert athlete.is_active == 0
 
 
-def test_strava_turn_integration_off_bad_strava(test_client_csrf, init_database, add_strava_athlete):
+def test_strava_turn_integration_off_bad_strava(test_client_csrf, init_database, add_strava_athlete, caplog):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
 
     assert athlete.is_active == 1
+
     with patch('app.services.strava.requests.post') as mock_requests:
-        mock_requests.return_value.status_code = 401
+        successful_response = Mock(Response)
+        successful_response.status_code = 401
+        successful_response.json.return_value = {'hello': 'world'}
+        mock_requests.return_value = successful_response
+
         with patch('app.services.strava.OAuth2Session') as mock_oauth:
             new_tokens = json.loads(conftest.STRAVA_REFRESH_EXAMPLE)
             mock_oauth.return_value = Mock()
@@ -530,3 +578,4 @@ def test_strava_turn_integration_off_bad_strava(test_client_csrf, init_database,
                 assert response.status_code == 302
                 athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
                 assert athlete.is_active == 1
+                # should be an error in the log

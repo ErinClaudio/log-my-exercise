@@ -105,7 +105,10 @@ def test_client():
     def internal_server_error():
         abort(500)
 
-    # testing_app.test_client_class = FlaskClient
+    @testing_app.route('/general_exception')
+    def general_server_error():
+        raise Exception('A general exception')
+
     testing_client = testing_app.test_client()
 
     ctx = testing_app.app_context()

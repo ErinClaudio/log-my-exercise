@@ -18,5 +18,4 @@ def get_local_time_iso(user_tz='UTC'):
     except pytz.exceptions.UnknownTimeZoneError:
         pass
 
-    print('local tz as iso', datetime.now(local_tz).isoformat())
     return datetime.now(local_tz).isoformat()

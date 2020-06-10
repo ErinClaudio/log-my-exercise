@@ -1,3 +1,5 @@
+import yaml
+
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
@@ -5,6 +7,8 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_moment import Moment
 from flask_wtf.csrf import CSRFProtect
+
+from logging import config
 
 from authlib.integrations.flask_client import OAuth
 from config import app_config
@@ -31,6 +35,15 @@ def create_app(config_name='default'):
     app = Flask(__name__)
     app.config.from_object(app_config[config_name])
     app_config[config_name].init_app(app)
+
+    with open("log_config.yaml", 'rt') as f:
+        config_data = yaml.safe_load(f.read())
+        config.dictConfig(config_data)
+
+    app.logger.debug('starting the app')
+    app.logger.info('starting the app')
+    app.logger.warning('starting the app')
+    app.logger.error('starting the app')
 
     db.init_app(app)
     migrate.init_app(app, db)

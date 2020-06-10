@@ -61,7 +61,6 @@ def strava_callback():
         strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id()).first()
         if not strava_athlete:
             # create the record
-            print(access_token)
             strava_athlete = ss.create_strava_athlete(access_token, current_user.get_id(), scope)
             db.session.add(strava_athlete)
             db.session.commit()
@@ -125,7 +124,6 @@ def update_strava_integration():
             if strava_athlete.is_active == 0:
                 return redirect(url_for('auth.strava_authorize'))
         else:
-            print("deauth the athlete")
             if strava_athlete.is_active == 1:
                 # deauthorize the athlete
                 user_strava_deauthorize(strava_athlete)

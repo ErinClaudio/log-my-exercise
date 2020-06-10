@@ -1,6 +1,6 @@
 import os
 
-from flask import request, jsonify
+from flask import request, jsonify, current_app
 
 from app.api import bp
 from app.services import strava as ss
@@ -35,7 +35,7 @@ def subscription_validation(my_request):
     :type challenge: string
     :param token: the provided token
     :type token: string
-    :return:
+    :return: status code and json to return
     :rtype:
     """
     # need to check the parameters
@@ -48,6 +48,8 @@ def subscription_validation(my_request):
         # send a 200 and a application/json message of
         # { “hub.challenge”:”15f7d1a91c1f40f8a748fd134752feb3” }
         return 200, jsonify({'hub.challenge': challenge})
+    current_app.logger.error(
+        'Strava bad challenge params: mode {}, challenge {}, token {}'.format(mode, challenge, token))
     return 400, jsonify({'error': 'invalid params'})
 
 
@@ -64,7 +66,7 @@ def strava_deauthorize():
     # aspect_type - one of "create", "update" or "delete"
     # updates - is a hash -  for app deauthorizations, always an "authorized":"false"
     # owner_id - the athlete's ID
-    # subscription_id - the push subscription id receiving the evnet
+    # subscription_id - the push subscription id receiving the event
     # event_time - the time the event occurred
 
     # Subscription callback endpoint must acknowledge the POST of each new event with a status code of 200 OK
@@ -86,13 +88,15 @@ def strava_deauthorize():
     athlete = int(data['owner_id'])
     updates = data['updates']
 
-    if object_type and object_type == 'athlete' and updates\
+    if object_type and object_type == 'athlete' and updates \
             and 'authorized' in updates:
         # athlete has deauthorized the app
         if updates['authorized'] == 'false':
             status = ss.deauthorize_athlete(athlete)
-        # if status is anything other than True, need to log this as an error and retry
+            if not status:
+                current_app.logger.error('Unable to deauthorize athlete')
             return '', 200
 
-    # return something about badly formed POST
-    return '', 400
+    # return something about badly formed response from Strava
+    current_app.logger.error('Strava error deauthorizing athlete: {}'.format(data))
+    return '', 200
