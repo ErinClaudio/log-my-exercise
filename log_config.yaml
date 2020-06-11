@@ -24,3 +24,9 @@ handlers:
 root:  # Loggers are organized in hierarchy - this is the root logger config
   level: ERROR
   handlers: [console, file]  # Attaches both handler defined above
+
+loggers:  # Defines descendants of root logger
+  app:  # Logger for "app"
+    level: INFO
+    handlers: [file]  # Will only use "file" handler defined above
+    propagate: no  # Will
