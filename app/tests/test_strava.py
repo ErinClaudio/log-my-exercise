@@ -174,13 +174,13 @@ def test_deauthorize_athlete_view(test_client, init_database, add_strava_athlete
     updates = {'authorized': 'false'}
     # requests.post(url, json=my_data)
     assert athlete.is_active == 1
-    response = test_client.post('/api/strava/deauthorize', json={
+    response = test_client.post('/api/strava/callback', json={
         'object_type': 'athlete',
         'object_id': athlete.athlete_id,
         'aspect_type': 'update',
         'updates': updates,
         'owner_id': athlete.athlete_id,
-        'subscription_id': 1
+        'subscription_id': os.getenv('STRAVA_SUBSCRIPTION_ID')
     }, follow_redirects=True)
 
     assert response.status_code == 200
@@ -194,13 +194,13 @@ def test_deauthorize_athlete_view_invalid_id(test_client, init_database, add_str
     # simulate the POST that Strava API will send through
     updates = {'authorized': 'false'}
 
-    response = test_client.post('/api/strava/deauthorize', json={
+    response = test_client.post('/api/strava/callback', json={
         'object_type': 'athlete',
         'object_id': -1,
         'aspect_type': 'update',
         'updates': updates,
         'owner_id': -1,
-        'subscription_id': 1
+        'subscription_id': os.getenv('STRAVA_SUBSCRIPTION_ID')
     }, follow_redirects=True)
     # still get 200 even if invalid id
     assert response.status_code == 200
@@ -212,13 +212,13 @@ def test_deauthorize_athlete_view_invalid_data(test_client, init_database, add_s
     updates = {'authorized111': 'false'}
     response = test_client.get('', follow_redirects=True)
 
-    response = test_client.post('/api/strava/deauthorize', json={
+    response = test_client.post('/api/strava/callback', json={
         'object_type': 'athlete',
         'object_id': -1,
         'aspect_type': 'update',
         'updates': updates,
         'owner_id': -1,
-        'subscription_id': 1
+        'subscription_id': os.getenv('STRAVA_SUBSCRIPTION_ID')
     }, follow_redirects=True)
     # missing data so expect a 200
     assert response.status_code == 200
@@ -229,13 +229,13 @@ def test_deauthorize_athlete_view_invalid_object(test_client, init_database, add
     # simulate the POST that Strava API will send through
     updates = {'authorized111': 'false'}
 
-    response = test_client.post('/api/strava/deauthorize', json={
+    response = test_client.post('/api/strava/callback', json={
         'object_type': 'ghghg',
         'object_id': -1,
         'aspect_type': 'update',
         'updates': updates,
         'owner_id': -1,
-        'subscription_id': 1
+        'subscription_id': os.getenv('STRAVA_SUBSCRIPTION_ID')
     }, follow_redirects=True)
     # missing data so expect a 200
     assert response.status_code == 200
@@ -246,15 +246,32 @@ def test_deauthorize_athlete_view_invalid_auth_value(test_client, init_database,
     # simulate the POST that Strava API will send through
     updates = {'authorized': 'hfghg'}
 
-    response = test_client.post('/api/strava/deauthorize', json={
+    response = test_client.post('/api/strava/callback', json={
         'object_type': 'athlete',
         'object_id': -1,
         'aspect_type': 'update',
         'updates': updates,
         'owner_id': -1,
-        'subscription_id': 1
+        'subscription_id': os.getenv('STRAVA_SUBSCRIPTION_ID')
     }, follow_redirects=True)
     # expect a 200 if the authorized has the wrong value
+    assert response.status_code == 200
+
+
+def test_deauthorize_athlete_view_invalid_subscription_id(test_client, init_database, add_strava_athlete):
+    # call the view to deauthorize
+    # simulate the POST that Strava API will send through
+    updates = {'authorized': 'false'}
+
+    response = test_client.post('/api/strava/callback', json={
+        'object_type': 'athlete',
+        'object_id': 1,
+        'aspect_type': 'update',
+        'updates': updates,
+        'owner_id': 1,
+        'subscription_id': 0
+    }, follow_redirects=True)
+    # expect a 200 if the subscription_id has the wrong value
     assert response.status_code == 200
 
 
@@ -294,7 +311,7 @@ def test_subscription_validation_request(test_client):
     token = os.getenv('STRAVA_VERIFY_TOKEN')
 
     params = {'hub.mode': 'subscribe', 'hub.challenge': '15f7d1a91c1f40f8a748fd134752feb3', 'hub.verify_token':token}
-    response = test_client.get('/api/strava/deauthorize', query_string=params)
+    response = test_client.get('/api/strava/callback', query_string=params)
 
     assert response.status_code == 200
     assert response.is_json is True
@@ -306,7 +323,7 @@ def test_subscription_validation_request_invalid(test_client):
     token = os.getenv('STRAVA_VERIFY_TOKEN')
 
     params = {'hub.mode': 'subscribe123', 'hub.challenge': 'my_challenge', 'hub.verify_token':token}
-    response = test_client.get('/api/strava/deauthorize', query_string=params)
+    response = test_client.get('/api/strava/callback', query_string=params)
 
     assert response.status_code == 400
     assert response.is_json is True

@@ -15,9 +15,10 @@ def is_valid_strava_challenge_params(mode, challenge, token):
     :type challenge:
     :param token: the token, should match the one provided to Strava
     :type token:
-    :return:
-    :rtype:
+    :return: True if the values are expected, False otherwise
+    :rtype: Boolean
     """
+    current_app.logger.info('strava challenge {} {} {}'.format(mode, challenge, token))
     if mode == "subscribe" and \
             len(challenge) > 0 and \
             token == os.getenv("STRAVA_VERIFY_TOKEN"):
@@ -53,8 +54,8 @@ def subscription_validation(my_request):
     return 400, jsonify({'error': 'invalid params'})
 
 
-@bp.route('/strava/deauthorize', methods=['GET', 'POST'])
-def strava_deauthorize():
+@bp.route('/strava/callback', methods=['GET', 'POST'])
+def strava_callback():
     """
     callback function used by strava when an athlete deauthorizes the integration
     needs to be set-up in Strava as a hook
@@ -77,16 +78,27 @@ def strava_deauthorize():
     # call a function to update the athlete
     # return 200 status
 
-    # if this method was called via a GET then its validating the callback address
+    # if this method was called via a GET then Strava is validating the callback address
     # handle this differently
     if request.method == 'GET':
+        current_app.logger.info('Strava callback GET received')
         status, response = subscription_validation(request)
         return response, status
 
+    # Strava is sending an update about an athlete
+    # We only care about deauthorisation
     data = request.get_json(force=True)
     object_type = data['object_type']
     athlete = int(data['owner_id'])
     updates = data['updates']
+    subscription_id = data['subscription_id']
+
+    current_app.logger.info('Strava callback data {}'.format(data))
+
+    if os.getenv('STRAVA_SUBSCRIPTION_ID') != subscription_id:
+        # reject the request
+        current_app.logger.error('Invalid subscription id {}'.format(subscription_id))
+        return '', 200
 
     if object_type and object_type == 'athlete' and updates \
             and 'authorized' in updates:
