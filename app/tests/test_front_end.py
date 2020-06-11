@@ -246,11 +246,13 @@ class TestActivity(TestBase):
 
         self.assertEqual(len(rows), 2)
         cols = rows[1].find_elements_by_tag_name("td")
-        self.assertEqual(len(cols), 5)
+        self.assertEqual(len(cols), 6)
         self.assertEqual(cols[0].text, "Workout")
         self.assertEqual(cols[1].text, "title of workout")
-        self.assertEqual(cols[3].text, "a description")
         self.assertEqual(cols[2].text, "10")
+        self.assertEqual(cols[3].text, "")
+        self.assertEqual(cols[4].text, "a description")
+
 
 
     def test_create_regular_activity_missing_fields(self):
@@ -363,7 +365,7 @@ class TestActivity(TestBase):
 
         assert len(rows) == 2
         cols = rows[1].find_elements_by_tag_name("td")
-        assert len(cols) == 5
+        assert len(cols) == 6
         assert cols[1].text == "Workout"
         assert cols[2].text == "title of workout"
         assert cols[3].text == "10"

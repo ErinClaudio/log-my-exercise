@@ -12,6 +12,7 @@
                         <th scope="col" class="th-sm">Type</th>
                         <th scope="col" class="th-lg">Title</th>
                         <th scope="col" class="th-sm">Duration</th>
+                        <th scope="col" class="th-sm">Distance</th>
                         <th scope="col" class="th-sm"></th>
                     </tr>
                     </thead>
@@ -21,6 +22,10 @@
                             <td>{{ activities_lookup[activity.type] }}</td>
                             <td>{{ activity.title }}</td>
                             <td>{{ activity.duration }}</td>
+                            <td>{% if activity.distance %}
+                                {{ activity.distance | round(2) }}
+                                {% endif %}
+                            </td>
                             <td> <a id="delete_activity_link" href="{{ url_for('main.delete_activity',activity_id=activity.id) }}"><i
                                         class="fas fa-trash" aria-hidden="true"></i>&nbsp;</a></td>
                         </tr>

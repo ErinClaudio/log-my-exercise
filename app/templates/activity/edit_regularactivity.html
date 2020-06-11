@@ -33,6 +33,12 @@
                     <small class="form-text text-muted">[{{ error }}]</small>
                 {% endfor %}
             </div>
+            <div class="form-group">
+                {{ wtf.form_field(form.distance, class="form-control") }}
+                {% for error in form.distance.errors %}
+                    <small class="form-text text-muted">[{{ error }}]</small>
+                {% endfor %}
+            </div>
             <button id="submit" class="btn btn-lg btn-primary btn-block" type="submit">Save</button>
 
         </form>

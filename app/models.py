@@ -54,6 +54,7 @@ class Activity(db.Model):
     title = db.Column(db.String(50))
     description = db.Column(db.String(300))
     duration = db.Column(db.Integer)
+    distance = db.Column(db.Numeric)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     local_timestamp = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -97,6 +98,7 @@ class RegularActivity(db.Model):
     title = db.Column(db.String(50))
     description = db.Column(db.String(300))
     duration = db.Column(db.Integer)
+    distance = db.Column(db.Numeric)
     time = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
@@ -105,6 +107,7 @@ class RegularActivity(db.Model):
                         description=self.description,
                         type=self.type,
                         duration=self.duration,
+                        distance=self.distance,
                         timestamp=datetime.utcnow(),
                         local_timestamp=datetime.utcnow(),
                         user_id=self.user_id)

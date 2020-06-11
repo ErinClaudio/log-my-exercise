@@ -98,6 +98,6 @@ def test_view_cookies(test_client):
     assert response.status_code == 200
 
 
-def test_view_site_log(test_client):
+def test_view_site_logo(test_client):
     response = test_client.get('/static/img/Titlewithlogo.png')
     assert response.status_code == 200

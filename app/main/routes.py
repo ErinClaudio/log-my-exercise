@@ -10,12 +10,13 @@ from sqlalchemy import desc
 from app import db
 from app.main import bp
 from app.services import strava
+from app.main import ACTIVITIES_LOOKUP
 
 from app.main.forms import ActivityForm, EditProfileForm
 from app.models import Activity, RegularActivity, User, StravaAthlete
 from app.auth.forms import StravaIntegrationForm
 
-ACTIVITIES_LOOKUP = {1: 'Workout', 2: 'Yoga'}
+# ACTIVITIES_LOOKUP = {1: 'Workout', 2: 'Yoga', 3: 'Bicycle Ride', 4: 'Run', 5: 'Walk'}
 
 
 @bp.before_request
@@ -163,6 +164,7 @@ def add_regular_activity():
         activity = RegularActivity(title=form.title.data, description=form.description.data,
                                    type=int(form.activity_type.data), duration=form.duration.data,
                                    time=datetime.utcnow(),
+                                   distance=form.distance.data,
                                    user_id=current_user.get_id())
         db.session.add(activity)
         db.session.commit()
@@ -191,6 +193,7 @@ def edit_regular_activity(activity_id):
         regular_activity.type = int(form.activity_type.data)
         regular_activity.duration = form.duration.data
         regular_activity.time = datetime.utcnow()
+        regular_activity.distance = form.distance.data
         db.session.commit()
         flash('Saved changes to your regular activity')
         return redirect(url_for('main.regular_activities'))

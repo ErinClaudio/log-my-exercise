@@ -185,6 +185,24 @@ def add_regular_activity():
 
 
 @pytest.fixture(scope='function')
+def add_regular_activity_distance():
+    """
+    adds a regular activity to the database linked to the test user
+    :return:
+    :rtype:
+    """
+    u = User.query.filter_by(username='test_user').first()
+    activity = RegularActivity(type=3,
+                               title='Regular Activity',
+                               user_id=u.id,
+                               description="Some description",
+                               duration=23,
+                               distance=3.2)
+    db.session.add(activity)
+    db.session.commit()
+
+
+@pytest.fixture(scope='function')
 def add_activity():
 
     u = User.query.filter_by(username='test_user').first()

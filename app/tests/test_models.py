@@ -21,6 +21,7 @@ def test_regular_activity(test_client, init_database):
                                title='Regular Activity',
                                user_id=u.id,
                                description="Some description",
+                               distance=2.2,
                                duration=23)
     db.session.add(activity)
     db.session.commit()
@@ -30,6 +31,7 @@ def test_regular_activity(test_client, init_database):
     assert activity.title == load_activity.title
     assert activity.description == load_activity.description
     assert activity.duration == load_activity.duration
+    assert activity.distance == load_activity.distance
 
     assert RegularActivity.query.filter_by(user_id=u.id).count() == 1
     assert "Activity" in repr(load_activity)
@@ -53,6 +55,7 @@ def test_daily_activity_local_time_present(test_client, init_database, add_regul
     assert activity.title == load_activity.title
     assert activity.description == load_activity.description
     assert activity.duration == load_activity.duration
+    assert activity.distance == load_activity.distance
     assert activity.user_id == load_activity.user_id
     assert activity.local_timestamp == load_activity.local_timestamp
     assert load_activity.iso_timestamp is not None

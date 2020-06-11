@@ -1,4 +1,5 @@
 from datetime import datetime
+import decimal
 
 from unittest.mock import patch
 
@@ -22,6 +23,26 @@ def test_create_activity_no_local_time(test_client_csrf, init_database, add_regu
         assert activity.title == regular_activity.title
         assert activity.description == regular_activity.description
         assert activity.duration == regular_activity.duration
+        assert activity.local_timestamp == activity.timestamp
+
+
+def test_create_activity_distance(test_client_csrf, init_database, add_regular_activity_distance):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client_csrf.get('/log_activity/'+str(regular_activity.id))
+        assert response.status_code == 302
+        activity = Activity.query.filter_by(user_id=u.id).first()
+        assert activity is not None
+        assert activity.type == regular_activity.type
+        assert activity.title == regular_activity.title
+        assert activity.description == regular_activity.description
+        assert activity.duration == regular_activity.duration
+        assert activity.distance == regular_activity.distance
         assert activity.local_timestamp == activity.timestamp
 
 
@@ -119,6 +140,35 @@ def test_create_regular_activity(test_client_csrf, init_database):
         assert activity.time is not None
 
 
+def test_create_regular_activity_distance(test_client_csrf, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+        params = dict(
+            title="Some Exercise",
+            description="A description",
+            activity_type=3,
+            duration=29,
+            distance=3.45,
+            csrf_token=test_client_csrf.csrf_token)
+
+        response = test_client_csrf.post('/add_regular_activities', data=params)
+
+        assert response.status_code == 302
+
+        activity = RegularActivity.query.filter_by(user_id=u.id).first()
+
+        assert activity is not None
+        assert activity.duration == params['duration']
+        assert activity.title == params['title']
+        assert activity.type == params['activity_type']
+        assert activity.description == params['description']
+        assert round(activity.distance, 2) == round(decimal.Decimal(params['distance']), 2)
+        assert activity.time is not None
+
+
 def test_edit_regular_activity(test_client_csrf, init_database, add_regular_activity):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
@@ -144,6 +194,36 @@ def test_edit_regular_activity(test_client_csrf, init_database, add_regular_acti
         assert load_regular_activity.title == params['title']
         assert load_regular_activity.type == params['activity_type']
         assert load_regular_activity.description == params['description']
+        assert load_regular_activity.time is not None
+
+
+def test_edit_regular_activity_distance(test_client_csrf, init_database, add_regular_activity):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+        params = dict(
+            title="A new Exercise",
+            description="A new description",
+            activity_type=2,
+            duration=100,
+            distance=10,
+            csrf_token=test_client_csrf.csrf_token)
+
+        response = test_client_csrf.post('/edit_regular_activity/'+str(regular_activity.id), data=params)
+
+        assert response.status_code == 302
+
+        load_regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
+
+        assert load_regular_activity is not None
+        assert load_regular_activity.duration == params['duration']
+        assert load_regular_activity.title == params['title']
+        assert load_regular_activity.type == params['activity_type']
+        assert load_regular_activity.description == params['description']
+        assert load_regular_activity.distance == params['distance']
         assert load_regular_activity.time is not None
 
 
