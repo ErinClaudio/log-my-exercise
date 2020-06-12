@@ -1,4 +1,4 @@
-from datetime import datetime
+
 import decimal
 
 from unittest.mock import patch
@@ -7,7 +7,7 @@ from app.models import User, Activity, RegularActivity
 from app.tests import conftest
 
 
-def test_create_activity_no_local_time(test_client_csrf, init_database, add_regular_activity):
+def test_log_activity_no_local_time(test_client_csrf, init_database, add_regular_activity):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
 
@@ -24,9 +24,10 @@ def test_create_activity_no_local_time(test_client_csrf, init_database, add_regu
         assert activity.description == regular_activity.description
         assert activity.duration == regular_activity.duration
         assert activity.local_timestamp == activity.timestamp
+        assert activity.iso_timestamp[-6:] == '+00:00'
 
 
-def test_create_activity_distance(test_client_csrf, init_database, add_regular_activity_distance):
+def test_log_regular_activity_distance(test_client_csrf, init_database, add_regular_activity_distance):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
 
@@ -46,7 +47,7 @@ def test_create_activity_distance(test_client_csrf, init_database, add_regular_a
         assert activity.local_timestamp == activity.timestamp
 
 
-def test_create_activity_local_time(test_client_csrf, init_database, add_regular_activity):
+def test_log_activity_local_time(test_client_csrf, init_database, add_regular_activity):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
 
@@ -54,8 +55,7 @@ def test_create_activity_local_time(test_client_csrf, init_database, add_regular
         current_user.return_value.id = u.id
         current_user.return_value.get_id.return_value = u.id
 
-        local_time = datetime.utcnow()
-        params = {'local_time': int(local_time.timestamp())}
+        params = {'tz': 'America/Los_Angeles'}
         response = test_client_csrf.get('/log_activity/'+str(regular_activity.id), query_string=params)
         assert response.status_code == 302
         activity = Activity.query.filter_by(user_id=u.id).first()
@@ -64,18 +64,45 @@ def test_create_activity_local_time(test_client_csrf, init_database, add_regular
         assert activity.title == regular_activity.title
         assert activity.description == regular_activity.description
         assert activity.duration == regular_activity.duration
-        assert (local_time - activity.local_timestamp).total_seconds() < 1
+        assert activity.iso_timestamp[-6:] == '-07:00'
 
 
-def test_create_activity_invalid_id(test_client_csrf, init_database, add_regular_activity):
+def test_log_unique_activity(test_client_csrf, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+        params = dict(
+            title="My Exercise",
+            description="A description of a cycle ride",
+            activity_type=3,
+            duration=33,
+            distance=5.3,
+            user_tz='America/Los_Angeles',
+            csrf_token=test_client_csrf.csrf_token)
+
+        response = test_client_csrf.post('/index', data=params)
+
+        assert response.status_code == 302
+        activity = Activity.query.filter_by(user_id=u.id).first()
+        assert activity is not None
+        assert activity.type == params['activity_type']
+        assert activity.title == params['title']
+        assert activity.description == params['description']
+        assert activity.duration == params['duration']
+        assert round(activity.distance, 2) == round(decimal.Decimal(params['distance']), 2)
+        assert activity.iso_timestamp[-6:] == '-07:00'
+
+
+def test_log_activity_invalid_id(test_client_csrf, init_database, add_regular_activity):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
     with patch('flask_login.utils._get_user') as current_user:
         current_user.return_value.id = u.id
         current_user.return_value.get_id.return_value = u.id
 
-        local_time = datetime.utcnow()
-        params = {'local_time': int(local_time.timestamp())}
+        params = {'tz': 'utc'}
         response = test_client_csrf.get('/log_activity/' + str(102), query_string=params)
         assert response.status_code == 404
 

@@ -33,24 +33,25 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-<!--<nav class="navbar navbar-custom navbar-expand-lg">-->
-    <a id="main" class="navbar-brand" href="{{ url_for('main.welcome') }}"> <img style="max-width:40px"
+    <a id="main" class="navbar-brand" href="{{ url_for('main.welcome') }}"> <img style="max-height:70px"
                                                                                  src="/static/img/logo_icon_small.png"
-                                                                                 alt="logo">Log My Exercise</a>
+                                                                                 alt="logo">&nbsp;&nbsp;&nbsp;Log My
+        Exercise</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
             aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav">
-            {% if current_user.is_anonymous %}
-                <li class="nav-item">
-                    <a id="login_link" class="nav-link" href="{{ url_for('auth.oauth_authorize') }}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a id="register_link" class="nav-link" href="{{ url_for('auth.sign_up') }}">Sign Up</a>
-                </li>
-            {% else %}
+        {% if current_user.is_anonymous %}
+            <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a id="login_link" class="nav-link" href="{{ url_for('auth.oauth_authorize') }}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a id="register_link" class="nav-link" href="{{ url_for('auth.sign_up') }}">Sign Up</a>
+            </li>
+        {% else %}
+            <ul class="navbar-nav">
                 <li class="nav-item">
                     <a id="home_link" class="nav-link" href="{{ url_for('main.index') }}">Log It!</a>
                 </li>
@@ -61,18 +62,20 @@
                     <a id="regular_activities_link" class="nav-link" href="{{ url_for('main.regular_activities') }}">My
                         Regular Exercises</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user" aria-hidden="true"></i>&nbsp;{{ current_user.username }}
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a id="profile_link" class="dropdown-item"
-                           href="{{ url_for('main.user') }}">Profile</a>
-                        <a id="logout_link" class="dropdown-item" href="{{ url_for('auth.logout_new') }}">Logout</a>
-                    </div>
-                </li>
-            {% endif %}
+            </ul>
+            <ul class="navbar nav ml-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user" aria-hidden="true"></i>&nbsp;{{ current_user.username }}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <a id="profile_link" class="dropdown-item"
+                       href="{{ url_for('main.user') }}">Profile</a>
+                    <a id="logout_link" class="dropdown-item" href="{{ url_for('auth.logout_new') }}">Logout</a>
+                </div>
+            </li>
+        {% endif %}
         </ul>
     </div>
 </nav>

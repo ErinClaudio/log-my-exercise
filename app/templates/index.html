@@ -5,45 +5,51 @@
 
         <script>
             tz = moment.tz.guess();
-            zones = moment.tz.zonesForCountry('US');
+            console.log(tz)
             if (window.attachEvent) {
-                window.attachEvent('onload', add_current_date);
+                window.attachEvent('onload', add_tz_to_fields);
             } else {
                 if (window.onload) {
                     var curronload = window.onload;
                     var newonload = function (evt) {
                         curronload(evt);
-                        add_current_date();
+                        add_tz_to_fields();
                     };
                     window.onload = newonload;
                 } else {
-                    window.onload = add_current_date;
+                    window.onload = add_tz_to_fields;
                 }
             }
 
-            function add_current_date() {
-                const elements = document.querySelectorAll('.btn-primary');
+            function add_tz_to_fields(){
+                add_user_tz();
+                add_user_tz_to_form();
+            }
+
+            function add_user_tz() {
+                const tz = moment.tz.guess();
+                const elements = document.querySelectorAll('.btn-outline-primary');
                 for (let i = 0; i < elements.length; i++) {
-                    elements[i].addEventListener('click', function (event) {
-                        // Stop the link from redirecting
-                        event.preventDefault();
-                        // Redirect instead with JavaScript
-                        const current_time = new Date()
-                        const seconds = Math.round(current_time.getTime() / 1000);
-                        const tz = moment.tz.guess();
-                        window.location.href = elements[i].href + '?local_time=' + seconds + '&tz=' + tz;
-                    }, false);
+                    elements[i].href = elements[i].href + '?tz=' + tz;
+                }
+            }
+
+            function add_user_tz_to_form(){
+                const tz = moment.tz.guess();
+                const field = document.getElementById("user_tz");
+                if (typeof(field) != 'undefined' && field != null) {
+                    field.value = tz;
                 }
             }
         </script>
         {% if regular_activities %}
             <div class="row">
-                <h2 class="h3 mb-3 font-weight-normal">Which of these activities have you completed today?</h2>
+                <h4 class="h3 mb-3 font-weight-normal">Which of these activities have you completed today?</h4>
             </div>
             <div class="row">
                 {% for activity in regular_activities %}
                     <div class="col">
-                        <a class="btn btn-primary btn-lg" role="button"
+                        <a class="btn btn-outline-primary btn-lg" role="button"
                            href="{{ url_for('main.log_activity', activity_id=activity.id) }}">{{ activity.title }} </a>
                     </div>
                 {% endfor %}
@@ -57,5 +63,15 @@
                 </div>
             </div>
         {% endif %}
+        <div class="row">
+            <p>
+            <h4 class="h3 mb-3 font-weight-normal">Or log something different</h4>
+            </p>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                {% include '/activity/activity_form.html' %}
+            </div>
+        </div>
     </div>
 {% endblock %}

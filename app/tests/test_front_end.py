@@ -350,11 +350,11 @@ class TestActivity(TestBase):
             "a description")
         self.driver.find_element_by_id("duration").send_keys(
             "10")
-        self.driver.find_element_by_id("submit").click()
 
+        self.driver.find_element_by_id("submit").click()
         self.driver.find_element_by_id("home_link").click()
 
-        self.driver.find_element_by_link_text("title of workout").click()
+        self.driver.find_element_by_class_name("btn-outline-primary").click()
 
         success_message = self.driver.find_element_by_class_name("list-group-item").text
         assert "Well done on completing" in success_message
@@ -369,3 +369,35 @@ class TestActivity(TestBase):
         assert cols[1].text == "Workout"
         assert cols[2].text == "title of workout"
         assert cols[3].text == "10"
+
+
+    def test_log_unique_activity(self):
+        #log a one-off activity on the home page
+        self.login_user()
+
+        self.driver.find_element_by_id("home_link").click()
+
+        self.driver.find_element_by_id("title").send_keys(
+            "title of workout")
+        self.driver.find_element_by_id("description").send_keys(
+            "a description")
+        self.driver.find_element_by_id("duration").send_keys(
+            "65")
+        self.driver.find_element_by_id("distance").send_keys(
+            "10")
+        self.driver.find_element_by_id("save_exercise").click()
+
+        success_message = self.driver.find_element_by_class_name("list-group-item").text
+        assert "Well done on completing" in success_message
+
+        self.driver.find_element_by_id('my_log_link').click()
+        table = self.driver.find_element_by_id("activity_list")
+        rows = table.find_elements_by_tag_name("tr")
+
+        assert len(rows) == 2
+        cols = rows[1].find_elements_by_tag_name("td")
+        assert len(cols) == 6
+        assert cols[1].text == "Workout"
+        assert cols[2].text == "title of workout"
+        assert cols[3].text == "65"
+        assert cols[4].text == "10.00"

@@ -1,7 +1,6 @@
-from operator import itemgetter
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, IntegerField, SelectField, DecimalField
+from wtforms import StringField, SubmitField, TextAreaField, IntegerField, SelectField, DecimalField, HiddenField
 from wtforms.validators import DataRequired, ValidationError, Length, NumberRange, AnyOf, Optional
 
 from app.main import ACTIVITIES_LOOKUP
@@ -36,4 +35,5 @@ class ActivityForm(FlaskForm):
     distance = DecimalField('Distance km (optional)', places=2,
                             validators=[Optional(),
                                         NumberRange(0, 1000, message="Please enter a number between 0 and 999")])
+    user_tz = HiddenField(default='UTC', validators=[DataRequired()])
     submit = SubmitField('Save')

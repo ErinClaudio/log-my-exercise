@@ -1,22 +1,17 @@
-
 from datetime import datetime
 
 from flask import render_template, flash, redirect, url_for, current_app
 from flask import request
 from flask_login import current_user, login_required
-
 from sqlalchemy import desc
 
 from app import db
-from app.main import bp
-from app.services import strava
+from app.auth.forms import StravaIntegrationForm
 from app.main import ACTIVITIES_LOOKUP
-
+from app.main import bp
 from app.main.forms import ActivityForm, EditProfileForm
 from app.models import Activity, RegularActivity, User, StravaAthlete
-from app.auth.forms import StravaIntegrationForm
-
-# ACTIVITIES_LOOKUP = {1: 'Workout', 2: 'Yoga', 3: 'Bicycle Ride', 4: 'Run', 5: 'Walk'}
+from app.services import strava
 
 
 @bp.before_request
@@ -57,45 +52,24 @@ def index():
     # passed the id of the regular activity
     # need to get all the details of the regular activity
     # and use that to save the activity
+
+    # need to pass in the URL to send the one-off activity to the template
     if form.validate_on_submit():
-        activity = Activity(title=form.title.data, description=form.description.data, type=int(form.activity_type.data),
-                            duration=form.duration.data, athlete=current_user)
+        activity = Activity(title=form.title.data, description=form.description.data,
+                            type=int(form.activity_type.data),
+                            duration=form.duration.data,
+                            timestamp=datetime.utcnow(),
+                            distance=form.distance.data,
+                            user_id=current_user.get_id())
+        activity.set_local_time('', form.user_tz.data)
         db.session.add(activity)
         db.session.commit()
-        flash('Your activity is logged')
+        flash('Well done on completing {} today'.format(activity.title))
+        # need to clear the form once it's been saved successfully
         return redirect(url_for('main.index'))
 
-    return render_template('index.html', title='Home', form=form, regular_activities=activities)
-
-
-@bp.route('/privacy', methods=['GET'])
-def privacy():
-    """
-    shows the privacy page
-    :return:
-    :rtype:
-    """
-    return render_template('privacypolicy.html', title='Privacy Policy')
-
-
-@bp.route('/disclaimer', methods=['GET'])
-def disclaimer():
-    """
-    shows the disclaimer page
-    :return:
-    :rtype:
-    """
-    return render_template('disclaimer.html', title='Disclaimer')
-
-
-@bp.route('/cookies', methods=['GET'])
-def cookies():
-    """
-    shows the cookie page
-    :return:
-    :rtype:
-    """
-    return render_template('cookies.html', title='Disclaimer')
+    return render_template('index.html', title='Home', form=form, regular_activities=activities,
+                           form_url=url_for('main.index'))
 
 
 @bp.route('/user')
@@ -236,19 +210,17 @@ def log_activity(activity_id):
     """
     regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
 
-    if regular_activity is not None:
-        activity = regular_activity.create_activity()
-        activity.set_local_time(request.args.get('local_time'), request.args.get('tz'))
-        db.session.add(activity)
-        db.session.commit()
-        if current_app.config['CALL_STRAVA_API']:
-            # first check to see if this user is integrated with strava or not
-            strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
-            if strava_athlete:
-                strava.create_activity(activity.id)
-        flash('Well done on completing {} today'.format(regular_activity.title))
-    else:
-        flash('Error: Activity does not exist')
+    activity = regular_activity.create_activity()
+    activity.set_local_time(request.args.get('local_time'), request.args.get('tz'))
+    db.session.add(activity)
+    db.session.commit()
+    if current_app.config['CALL_STRAVA_API']:
+        # first check to see if this user is integrated with strava or not
+        strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
+        if strava_athlete:
+            strava.create_activity(activity.id)
+
+    flash('Well done on completing {} today'.format(regular_activity.title))
     return redirect(url_for('main.index'))
 
 
