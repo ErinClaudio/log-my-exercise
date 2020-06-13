@@ -1,6 +1,6 @@
 from flask import render_template
 
-from app.main import bp
+from app.support import bp
 
 
 @bp.route('/privacy', methods=['GET'])
@@ -10,7 +10,7 @@ def privacy():
     :return:
     :rtype:
     """
-    return render_template('privacypolicy.html', title='Privacy Policy')
+    return render_template('support/privacypolicy.html', title='Privacy Policy')
 
 
 @bp.route('/disclaimer', methods=['GET'])
@@ -20,7 +20,7 @@ def disclaimer():
     :return:
     :rtype:
     """
-    return render_template('disclaimer.html', title='Disclaimer')
+    return render_template('support/disclaimer.html', title='Disclaimer')
 
 
 @bp.route('/cookies', methods=['GET'])
@@ -30,4 +30,4 @@ def cookies():
     :return:
     :rtype:
     """
-    return render_template('cookies.html', title='Cookies')
+    return render_template('support/cookies.html', title='Cookies')

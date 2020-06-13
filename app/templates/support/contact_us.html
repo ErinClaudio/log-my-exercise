@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h3 class="h3 mb-3 font-weight-normal">Contact Us</h3>
+                <p>We'd love to hear from you. Questions, jokes, feedback on the site, suggested improvements. All are
+                    welcome.</p>
+                <p>We read and respond to every inquiry. We really do want to hear from you!</p>
+                <p>Either fill in the form below or email us at <a href="mailto:hello@logmyexercise.fit">hello@logmyfitness.fit</a>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <form action="{{ form_url }}" method="post" name="hello" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ wtf.form_field(form.name, class="form-control") }}
+                        {% for error in form.name.errors %}
+                            <small class="form-text text-muted">[{{ error }}]</small>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        {{ wtf.form_field(form.email, class="form-control") }}
+                        {% for error in form.email.errors %}
+                            <small class="form-text text-muted">[{{ error }}]</small>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        {{ wtf.form_field(form.description, class="form-control", rows=8) }}
+                        {% for error in form.description.errors %}
+                            <small class="form-text text-muted">[{{ error }}]</small>
+                        {% endfor %}
+                    </div>
+                    <button id="save_exercise" class="btn btn-lg btn-primary btn-block" type="submit">Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <p><i class="fas fa-paper-plane"></i>&nbsp;Email: <a href="mailto:hello@logmyexercise.fit">hello@logmyexercise.fit</a></p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -84,17 +84,22 @@ def test_view_all_logs(test_client):
 
 
 def test_view_privacy(test_client):
-    response = test_client.get('/privacy')
+    response = test_client.get('/support/privacy')
     assert response.status_code == 200
 
 
 def test_view_disclaimer(test_client):
-    response = test_client.get('/disclaimer')
+    response = test_client.get('/support/disclaimer')
     assert response.status_code == 200
 
 
 def test_view_cookies(test_client):
-    response = test_client.get('/cookies')
+    response = test_client.get('/support/cookies')
+    assert response.status_code == 200
+
+
+def test_view_contact_us(test_client):
+    response = test_client.get('/support/contact_us')
     assert response.status_code == 200
 
 
