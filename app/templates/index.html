@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container">
 
         <script>
             tz = moment.tz.guess();
@@ -21,7 +20,7 @@
                 }
             }
 
-            function add_tz_to_fields(){
+            function add_tz_to_fields() {
                 add_user_tz();
                 add_user_tz_to_form();
             }
@@ -34,29 +33,33 @@
                 }
             }
 
-            function add_user_tz_to_form(){
+            function add_user_tz_to_form() {
                 const tz = moment.tz.guess();
                 const field = document.getElementById("user_tz");
-                if (typeof(field) != 'undefined' && field != null) {
+                if (typeof (field) != 'undefined' && field != null) {
                     field.value = tz;
                 }
             }
         </script>
         {% if regular_activities %}
             <div class="row">
-                <h4 class="h4 mb-3 font-weight-normal">Which of these activities have you completed today?</h4>
+                <div class="col-md-8 mx-auto">
+                    <h4 class="h4 mb-3 font-weight-normal">Which of these activities have you completed today?</h4>
+                </div>
             </div>
             <div class="row">
-                {% for activity in regular_activities %}
-                    <div class="col">
-                        <a class="btn btn-outline-primary btn-lg" role="button"
-                           href="{{ url_for('main.log_activity', activity_id=activity.id) }}">{{ activity.title }} </a>
-                    </div>
-                {% endfor %}
+                <div class="col-md-8 mx-auto">
+                    {% for activity in regular_activities %}
+                        <div class="col">
+                            <a class="btn btn-outline-primary btn-lg" role="button"
+                               href="{{ url_for('main.log_activity', activity_id=activity.id) }}">{{ activity.title }} </a>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         {% else %}
             <div class="row">
-                <div class="col">
+                <div class="col-md-8 mx-auto">
                     <p id="no_reg"> No regular activities. Please <a id="set_up"
                                                                      href="{{ url_for('main.add_regular_activity') }}">set
                         one up</a>.</p>
@@ -64,14 +67,13 @@
             </div>
         {% endif %}
         <div class="row">
-            <p>
-            <h4 class="h3 mb-3 font-weight-normal">Or log something different</h4>
-            </p>
+            <div class="col-md-8 mx-auto">
+                <h4 class="h4 mb-3 font-weight-normal">Or log something different</h4>
+            </div>
         </div>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-8 mx-auto">
                 {% include '/activity/activity_form.html' %}
             </div>
         </div>
-    </div>
 {% endblock %}

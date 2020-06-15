@@ -1,51 +1,54 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container">
-        <h1 class="h3 mb-3 font-weight-normal">My regular activities</h1>
-        {% if regular_activities %}
-            <div class="table-responsive">
-                <table id="activity_list" class="table table-hover table-responsive">
-                    <caption>List of regular activities</caption>
-                    <thead class="thead-light">
-                    <tr>
-                        <th scope="col" class="th-sm">Type</th>
-                        <th scope="col" class="th-lg">Title</th>
-                        <th scope="col" class="th-sm">Duration(mins)</th>
-                        <th scope="col" class="th-sm">Distance(km)</th>
-                        <th scope="col" class="th-lg">Description</th>
-                        <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    {% for activity in regular_activities %}
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <h1 class="h3 mb-3 font-weight-normal">My regular exercises</h1>
+                {% if regular_activities %}
+                    <div class="table-responsive">
+                        <table id="activity_list" class="table table-hover table-responsive">
+                            <caption>List of regular exercises</caption>
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col" class="th-sm">Type</th>
+                                <th scope="col" class="th-lg">Title</th>
+                                <th scope="col" class="th-sm">Duration(mins)</th>
+                                <th scope="col" class="th-sm">Distance(km)</th>
+                                <th scope="col" class="th-lg">Description</th>
+                                <th scope="col"></th>
+                            </tr>
+                            </thead>
+                            {% for activity in regular_activities %}
 
-                        <tr>
-                            <td>{{ activities_lookup[activity.type] }}</td>
-                            <td>{{ activity.title }}</td>
-                            <td>{{ activity.duration }}</td>
-                            <td>{% if activity.distance %}
-                                {{ activity.distance | round(2) }}
-                                {% endif %}
-                            </td>
-                            <td>{{ activity.description }}</td>
-                            <td colspan="2">
-                                <a id="edit_activity_link"
-                                   href="{{ url_for('main.edit_regular_activity',activity_id=activity.id) }}"><i
-                                        class="fas fa-edit" aria-hidden="true"></i></a>
-                                &nbsp;&nbsp;&nbsp;
-                                <a id="delete_activity_link"
-                                   href="{{ url_for('main.delete_regular_activity',activity_id=activity.id) }}"><i
-                                        class="fas fa-trash" aria-hidden="true"></i></a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
+                                <tr>
+                                    <td>{{ activities_lookup[activity.type] }}</td>
+                                    <td>{{ activity.title }}</td>
+                                    <td>{{ activity.duration }}</td>
+                                    <td>{% if activity.distance %}
+                                        {{ activity.distance | round(2) }}
+                                    {% endif %}
+                                    </td>
+                                    <td>{{ activity.description }}</td>
+                                    <td colspan="2">
+                                        <a id="edit_activity_link"
+                                           href="{{ url_for('main.edit_regular_activity',activity_id=activity.id) }}"><i
+                                                class="fas fa-edit" aria-hidden="true"></i></a>
+                                        &nbsp;&nbsp;&nbsp;
+                                        <a id="delete_activity_link"
+                                           href="{{ url_for('main.delete_regular_activity',activity_id=activity.id) }}"><i
+                                                class="fas fa-trash" aria-hidden="true"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                {% else %}
+                    <p> No regular activities. Please set one up.</p>
+                {% endif %}
+                <p>
+                    <a class="btn btn-primary" href="{{ url_for('main.add_regular_activity') }}">Create new regular
+                        activity</a>
+                </p>
             </div>
-        {% else %}
-            <p> No regular activities. Please set one up.</p>
-        {% endif %}
-        <p>
-            <a class="btn btn-primary" href="{{ url_for('main.add_regular_activity') }}">Create new regular activity</a>
-        </p>
-    </div>
+        </div>
 {% endblock %}

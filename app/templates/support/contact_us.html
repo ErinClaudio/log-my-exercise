@@ -2,9 +2,9 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block content %}
-    <div class="container">
+
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-8 mx-auto">
                 <h3 class="h3 mb-3 font-weight-normal">Contact Us</h3>
                 <p>We'd love to hear from you. Questions, jokes, feedback on the site, suggested improvements. All are
                     welcome.</p>
@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-8 mx-auto">
                 <form action="{{ form_url }}" method="post" name="hello" novalidate>
                     {{ form.hidden_tag() }}
                     <div class="form-group">
@@ -46,10 +46,9 @@
                 </form>
             </div>
         </div>
-        <div class="row mt-4">
-            <div class="col-md-6">
+        <div class="row pt-2 my-md-2 pt-md-2">
+            <div class="col-md-8 mx-auto">
                 <p><i class="fas fa-envelope"></i>&nbsp;Email: <a href="mailto:hello@logmyexercise.fit">hello@logmyexercise.fit</a></p>
             </div>
         </div>
-    </div>
 {% endblock %}

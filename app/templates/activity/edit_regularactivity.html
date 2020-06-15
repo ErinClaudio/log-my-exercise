@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
-    <div class="container">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-8 mx-auto">
                 {% if is_add_regular_activity %}
                     <h1 class="h3 mb-3 font-weight-normal">Add regular exercise</h1>
                 {% else %}
@@ -12,7 +11,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-8 mx-auto">
                 <form action="" method="post" novalidate>
                     {{ form.hidden_tag() }}
                     <div class="form-group">
@@ -50,5 +49,4 @@
                 </form>
             </div>
         </div>
-    </div>
 {% endblock %}
