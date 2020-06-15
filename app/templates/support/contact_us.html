@@ -30,8 +30,14 @@
                         {% endfor %}
                     </div>
                     <div class="form-group">
-                        {{ wtf.form_field(form.description, class="form-control", rows=8) }}
-                        {% for error in form.description.errors %}
+                        {{ wtf.form_field(form.subject, class="form-control") }}
+                        {% for error in form.subject.errors %}
+                            <small class="form-text text-muted">[{{ error }}]</small>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        {{ wtf.form_field(form.message, class="form-control", rows=8) }}
+                        {% for error in form.message.errors %}
                             <small class="form-text text-muted">[{{ error }}]</small>
                         {% endfor %}
                     </div>
@@ -42,7 +48,7 @@
         </div>
         <div class="row mt-4">
             <div class="col-md-6">
-                <p><i class="fas fa-paper-plane"></i>&nbsp;Email: <a href="mailto:hello@logmyexercise.fit">hello@logmyexercise.fit</a></p>
+                <p><i class="fas fa-envelope"></i>&nbsp;Email: <a href="mailto:hello@logmyexercise.fit">hello@logmyexercise.fit</a></p>
             </div>
         </div>
     </div>

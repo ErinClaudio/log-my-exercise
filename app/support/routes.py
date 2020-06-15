@@ -7,6 +7,7 @@ from flask import render_template, flash, redirect, url_for, request
 from app.models import User
 from app.support import bp
 from app.support.forms import FeedbackForm
+from app.services import utils
 
 
 @bp.route('/contact_us', methods=['GET', 'POST'])
@@ -14,10 +15,8 @@ def contact_us():
     form = FeedbackForm()
 
     if form.validate_on_submit():
-        # save the feedback, consider S3
-        feedback_dict = request.form.to_dict()
-        feedback_dict.pop('csrf_token', None)
-        print(json.dumps(feedback_dict))
+        # save the feedback
+        utils.save_contents_file(form.email.data, form.to_json())
         flash('Thank you for sending us a note')
         return redirect(url_for('support.contact_us'))
 

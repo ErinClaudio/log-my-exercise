@@ -102,9 +102,16 @@
 <br>
 <hr>
 <footer>
-    <div class="container">(c) 2020 | <a href="{{ url_for('support.privacy') }}">Privacy Policy</a>|
-        <a href="{{ url_for('support.disclaimer') }}">Disclaimer</a>|
-        <a href="{{ url_for('support.cookies') }}">Cookies</a>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <a href="{{ url_for('main.welcome') }}">Home</a>
+                &nbsp;&nbsp;
+                <a href="{{ url_for('support.contact_us') }}">Contact Us</a>
+            </div>
+            <div class="col">(c) 2020</div>
+            <div class="col"><a href="{{ url_for('support.disclaimer') }}">Disclaimer</a></div>
+        </div>
     </div>
 </footer>
 </html>
