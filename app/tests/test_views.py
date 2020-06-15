@@ -106,3 +106,8 @@ def test_view_contact_us(test_client):
 def test_view_site_logo(test_client):
     response = test_client.get('/static/img/Titlewithlogo.png')
     assert response.status_code == 200
+
+
+def test_view_about(test_client):
+    response = test_client.get('/about')
+    assert response.status_code == 200

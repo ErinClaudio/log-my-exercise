@@ -260,3 +260,13 @@ def delete_activity(activity_id):
     return render_template('activity/view_log.html',
                            user=user, activities=activities,
                            activities_lookup=ACTIVITIES_LOOKUP, title="View Exercise Log")
+
+
+@bp.route('/about', methods=['GET'])
+def view_about():
+    """
+    shows the about page
+    :return:
+    :rtype:
+    """
+    return render_template('about.html', title="About LogMyExercise")

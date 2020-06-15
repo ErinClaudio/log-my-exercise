@@ -44,6 +44,8 @@
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         {% if current_user.is_anonymous %}
             <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a id="about_link" class="nav-link" href="{{ url_for('main.view_about') }}">About</a>
+               </li>
             <li class="nav-item">
                 <a id="login_link" class="nav-link" href="{{ url_for('auth.oauth_authorize') }}">Login</a>
             </li>
@@ -63,7 +65,9 @@
                         Regular Exercises</a>
                 </li>
             </ul>
-            <ul class="navbar nav ml-auto">
+            <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a id="about_link" class="nav-link" href="{{ url_for('main.view_about') }}">About</a>
+               </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
@@ -100,7 +104,7 @@
             integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
             crossorigin="anonymous"></script>
 
-    <footer class="pt-4 my-md-5 pt-md-5 border-top">
+    <footer class="pt-3 my-md-4 pt-md-4 border-top">
         <div class="row">
             <div class="col-12 col-md">
                 <img class="mb-2 max-height:40px" src="/static/img/small_circle_profile.png" alt="logo">
