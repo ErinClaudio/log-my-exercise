@@ -93,7 +93,7 @@ class TestLogin(TestBase):
             test_user_password+"&&")
         self.driver.find_element_by_id("submit").click()
 
-        error_message = self.driver.find_element_by_class_name("list-group-item").text
+        error_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Invalid username or password" in error_message
 
     def test_login_invalid_username(self):
@@ -105,7 +105,7 @@ class TestLogin(TestBase):
             test_user_password)
         self.driver.find_element_by_id("submit").click()
 
-        error_message = self.driver.find_element_by_class_name("list-group-item").text
+        error_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Invalid username or password" in error_message
 
 
@@ -130,7 +130,7 @@ class TestRegistration(TestBase):
         assert url_for('auth.login') in self.driver.current_url
 
         # Assert success message is shown
-        success_message = self.driver.find_element_by_class_name("list-group-item").text
+        success_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Congratulations" in success_message
 
         # Assert that there are now 2 users in the database
@@ -236,7 +236,7 @@ class TestActivity(TestBase):
         assert url_for('main.regular_activities') in self.driver.current_url
 
         # Assert success message is shown
-        success_message = self.driver.find_element_by_class_name("list-group-item").text
+        success_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Your regular activity is recorded" in success_message
 
         # check the table is showing the data correctly
@@ -316,7 +316,7 @@ class TestActivity(TestBase):
         assert url_for('main.regular_activities') in self.driver.current_url
 
         # Assert success message is shown
-        success_message = self.driver.find_element_by_class_name("list-group-item").text
+        success_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Saved changes" in success_message
 
     def test_delete_regular_activity(self):
@@ -335,7 +335,7 @@ class TestActivity(TestBase):
         self.driver.find_element_by_id("delete_activity_link").click()
 
         # Assert success message is shown
-        success_message = self.driver.find_element_by_class_name("list-group-item").text
+        success_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Deleted" in success_message
 
 
@@ -356,7 +356,7 @@ class TestActivity(TestBase):
 
         self.driver.find_element_by_class_name("btn-outline-primary").click()
 
-        success_message = self.driver.find_element_by_class_name("list-group-item").text
+        success_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Well done on completing" in success_message
 
         self.driver.find_element_by_id('my_log_link').click()
@@ -387,7 +387,7 @@ class TestActivity(TestBase):
             "10")
         self.driver.find_element_by_id("save_exercise").click()
 
-        success_message = self.driver.find_element_by_class_name("list-group-item").text
+        success_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Well done on completing" in success_message
 
         self.driver.find_element_by_id('my_log_link').click()

@@ -45,7 +45,10 @@
         {% if current_user.is_anonymous %}
             <ul class="navbar-nav ml-auto">
             <li class="nav-item"><a id="about_link" class="nav-link" href="{{ url_for('main.view_about') }}">About</a>
-               </li>
+            </li>
+            <li class="nav-item"><a id="about_link" class="nav-link" href="{{ url_for('support.contact_us') }}">Contact
+                Us</a>
+            </li>
             <li class="nav-item">
                 <a id="login_link" class="nav-link" href="{{ url_for('auth.oauth_authorize') }}">Login</a>
             </li>
@@ -67,7 +70,10 @@
             </ul>
             <ul class="navbar-nav ml-auto">
             <li class="nav-item"><a id="about_link" class="nav-link" href="{{ url_for('main.view_about') }}">About</a>
-               </li>
+            </li>
+            <li class="nav-item"><a id="about_link" class="nav-link" href="{{ url_for('support.contact_us') }}">Contact
+                Us</a>
+            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
@@ -85,11 +91,14 @@
 </nav>
 {% with messages = get_flashed_messages() %}
     {% if messages %}
-        <ul class="list-group">
-            {% for message in messages %}
-                <li class="list-group-item">{{ message }}</li>
-            {% endfor %}
-        </ul>
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert"" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+        {% endfor %}
     {% endif %}
 {% endwith %}
 <div class="container">
@@ -107,7 +116,8 @@
     <footer class="pt-3 my-md-4 pt-md-4 border-top">
         <div class="row">
             <div class="col-12 col-md">
-                <a href="{{ url_for('main.welcome') }}"><img class="mb-2 max-height:40px" src="/static/img/small_circle_profile.png" alt="logo"></a>
+                <a href="{{ url_for('main.welcome') }}"><img class="mb-2 max-height:40px"
+                                                             src="/static/img/small_circle_profile.png" alt="logo"></a>
                 <small class="d-block mb-3 text-muted">&copy; 2020</small>
             </div>
             <div class="col-6 col-md">

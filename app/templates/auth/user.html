@@ -1,24 +1,49 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
-        <h1 class="h3 mb-3 font-weight-normal">My profile</h1>
-        <div class="row">
-            <div class="col-sm">
-                <img src="{{ user.avatar(128) }}" alt="avatar image">
-            </div>
-            <div class="col-sm">
-                User: {{ user.username }}<br>
-                {% if user.last_seen %}
-                    Last seen on: {{ moment(user.last_seen).format('LLL') }}<br>{% endif %}
-                <br>
-                <h4 class="h4 mb-3 font-weight-normal">Strava Integration</h4>
-                <form action="{{ url_for('auth.update_strava_integration') }}" method="post" novalidate>
-                    {{ strava_form.hidden_tag() }}
-                    <div class="form-group">
-                        {{ wtf.form_field(strava_form.is_integrated, class="form-control") }}
-                    </div>
-                    <button id="changes" class="btn btn-lg btn-primary btn-block" type="submit">Save Changes</button>
-                </form>
+    <h1 class="h3 mb-3 font-weight-normal">My profile</h1>
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="card text-center bg-light mb-3 border-light">
+                <div class="cardheader">
+                </div>
+                <div class="avatar">
+                    <img src="{{ user.avatar(128) }}" alt="avatar image">
+                </div>
+                <div class="title">
+                    {{ user.username }}
+                </div>
+                <div class="desc">
+                    {% if user.last_seen %}
+                        Last seen on: {{ moment(user.last_seen).format('ll') }}
+                    {% endif %}
+                </div>
             </div>
         </div>
+        <div class="col-sm-4">
+            <h4 class="h4 mb-4 font-weight-normal">Strava Integration</h4>
+            {%  if is_strava %}
+            <p>
+                Log My Exercise is sending your exercises to your Strava account.
+            </p>
+            {% else %}
+            <p>
+                Log My Exercise can send your exercises to your Strava account.
+            </p>
+            {%  endif %}
+            <form action="{{ url_for('auth.update_strava_integration') }}" method="post" novalidate>
+                {{ strava_form.hidden_tag() }}
+                <div class="form-group">
+                    {{ wtf.form_field(strava_form.is_integrated, class="form-control") }}
+                </div>
+                {% if is_strava %}
+                <button id="changes" class="btn btn-primary" type="submit">Disable Strava</button>
+                {% else %}
+                <button id="changes" class="btn" type="submit">
+                    <img src="/static/img/btn_strava_connectwith_light.png" height="48px">
+                </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
 {% endblock %}
