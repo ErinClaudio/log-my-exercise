@@ -26,8 +26,12 @@ class User(UserMixin, db.Model):
     activities = db.relationship('Activity', backref='athlete', lazy='dynamic')
     regular_activities = db.relationship('RegularActivity', backref='regular_athlete', lazy='dynamic')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    picture_url = db.Column(db.String(100), nullable=True)
 
     def avatar(self, size):
+        if self.picture_url:
+            return self.picture_url
+
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
@@ -178,3 +182,36 @@ class StravaEvent(db.Model):
 
     def __str__(self):
         return '<StravaEvent: {} {} {}'.format(self.athlete_id, self.action, self.timestamp)
+
+
+class Inspiration(db.Model):
+    """
+    Defines a workout that inspires
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(50))
+    workout_type = db.Column(db.Integer)
+    url = db.Column(db.String(50))
+    instructor = db.Column(db.String(50))
+    instructor_sex = db.Column(db.Integer)
+    description = db.Column(db.String(200))
+    duration = db.Column(db.Integer)
+    why_loved = db.Column(db.String(200))
+    likes = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __repr__(self):
+        return '<Inspiration: {} {} {} {} {} {} {} {} {} {}'.format(self.title, self.workout_type, self.url,
+                                                                    self.instructor, self.instructor_sex,
+                                                                    self.description,
+                                                                    self.duration,
+                                                                    self.why_loved, self.likes, self.user_id)
+
+    def __str__(self):
+        return '<Inspiration: {} {} {} {} {} {} {} {} {} {} {} {}'.format(self.title, self.workout_type, self.url,
+                                                                          self.instructor, self.instructor_sex,
+                                                                          self.description, self.duration,
+                                                                          self.why_loved, self.likes, self.user_id,
+                                                                          self.timestamp, self.last_updated)

@@ -111,8 +111,11 @@ def oauth_callback():
     token = oauth.auth0.authorize_access_token()
     resp = oauth.auth0.get('userinfo')
     user_info = resp.json()
+
     social_id = 'auth0$' + user_info['sub']
-    username = user_info['name'].split('@')[0]
+    username = user_info['name'].split('@')[0]  # name may be an email address
+    picture_url = user_info['picture']  # string to a profile picture
+
     email = user_info['email']
 
     if social_id is None:
@@ -120,14 +123,14 @@ def oauth_callback():
         return redirect(url_for(INDEX_PAGE))
     user = User.query.filter_by(social_id=social_id).first()
     if not user:
-        user = User(social_id=social_id, username=username, email=email)
+        user = User(social_id=social_id, username=username, email=email, picture_url=picture_url)
         db.session.add(user)
         db.session.commit()
     login_user(user, True)
 
-    # if the user has changed their username or email since they were last here, then need to update the db
-    if user.username != username or user.email != email:
-        current_user.username, current_user.email = username, email
+    # if the user has changed their details since they were last here, then need to update the db
+    if user.username != username or user.email != email or user.picture_url != picture_url:
+        current_user.username, current_user.email, current_user.picture_url = username, email, picture_url
         db.session.commit()
 
     return redirect(url_for(INDEX_PAGE))
