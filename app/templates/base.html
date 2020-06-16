@@ -107,7 +107,7 @@
     <footer class="pt-3 my-md-4 pt-md-4 border-top">
         <div class="row">
             <div class="col-12 col-md">
-                <img class="mb-2 max-height:40px" src="/static/img/small_circle_profile.png" alt="logo">
+                <a href="{{ url_for('main.welcome') }}"><img class="mb-2 max-height:40px" src="/static/img/small_circle_profile.png" alt="logo"></a>
                 <small class="d-block mb-3 text-muted">&copy; 2020</small>
             </div>
             <div class="col-6 col-md">
@@ -118,6 +118,8 @@
             <div class="col-6 col-md">
                 <ul class="list-unstyled text-small">
                     <li><a class="text-muted" href="{{ url_for('support.contact_us') }}">Contact Us</a></li>
+                    <li><a class="text-muted" href="https://headwayapp.co/logmyexercise-changelog">Change Log</a></li>
+
                 </ul>
             </div>
             <div class="col-6 col-md">
