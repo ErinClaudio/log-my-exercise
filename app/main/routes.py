@@ -1,9 +1,10 @@
 from datetime import datetime
+import json
 
 from flask import render_template, flash, redirect, url_for, current_app
 from flask import request
 from flask_login import current_user, login_required
-from sqlalchemy import desc
+from sqlalchemy import desc, and_
 
 from app import db
 from app.auth.forms import StravaIntegrationForm
@@ -11,7 +12,7 @@ from app.main import ACTIVITIES_LOOKUP
 from app.main import bp
 from app.main.forms import ActivityForm, EditProfileForm
 from app.models import Activity, RegularActivity, User, StravaAthlete
-from app.services import strava
+from app.services import strava, charting
 
 
 @bp.before_request
@@ -234,10 +235,16 @@ def exercise_log():
     :rtype:
     """
     activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
-
+    # get hold of the activities in the last week so they can be shown on the chart
+    start_week_date = charting.get_start_week_date_before(None)
+    activities_this_week = Activity.query.filter(Activity.timestamp >= start_week_date,
+                                                 Activity.user_id == current_user.get_id()).all()
+    chart_data = charting.get_chart_dataset(activities_this_week,start_week_date)
     return render_template('activity/view_log.html',
                            user=user, activities=activities,
-                           activities_lookup=ACTIVITIES_LOOKUP, title="View Exercise Log")
+                           activities_lookup=ACTIVITIES_LOOKUP,
+                           chart_data=str(chart_data),
+                           title="View Exercise Log")
 
 
 @bp.route('/delete_activity/<int:activity_id>', methods=['GET'])
