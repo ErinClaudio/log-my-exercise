@@ -118,8 +118,8 @@ def test_delete_activity(test_client_csrf, init_database, add_regular_activity, 
         current_user.return_value.get_id.return_value = u.id
 
         response = test_client_csrf.get('/delete_activity/' + str(activity.id))
-        assert response.status_code == 200
-        assert "Deleted" in str(response.data)
+        assert response.status_code == 302
+
         activity = Activity.query.filter_by(user_id=u.id).first()
         assert activity is None
 
@@ -364,7 +364,7 @@ def test_exercise_log(test_client_csrf, init_database, add_regular_activity, add
         current_user.return_value.id = u.id
         current_user.return_value.get_id.return_value = u.id
 
-        response = test_client_csrf.get('exercise_log')
+        response = test_client_csrf.get('/exercise_log/')
 
         assert response.status_code == 200
         assert "Regular Activity" in str(response.data)

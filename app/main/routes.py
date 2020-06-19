@@ -8,7 +8,8 @@ from sqlalchemy import desc, and_
 
 from app import db
 from app.auth.forms import StravaIntegrationForm
-from app.main import ACTIVITIES_LOOKUP
+from app.main import ACTIVITIES_LOOKUP, ICONS_LOOKUP
+from app.services.charting import ACTIVITY_COLOR_LOOKUP
 from app.main import bp
 from app.main.forms import ActivityForm, EditProfileForm
 from app.models import Activity, RegularActivity, User, StravaAthlete
@@ -70,6 +71,7 @@ def index():
         return redirect(url_for('main.index'))
 
     return render_template('index.html', title='Home', form=form, regular_activities=activities,
+                           icons=ICONS_LOOKUP, colors=ACTIVITY_COLOR_LOOKUP,
                            form_url=url_for('main.index'))
 
 
@@ -215,6 +217,7 @@ def log_activity(activity_id):
     activity.set_local_time(request.args.get('local_time'), request.args.get('tz'))
     db.session.add(activity)
     db.session.commit()
+
     if current_app.config['CALL_STRAVA_API']:
         # first check to see if this user is integrated with strava or not
         strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
@@ -225,9 +228,10 @@ def log_activity(activity_id):
     return redirect(url_for('main.index'))
 
 
-@bp.route('/exercise_log', methods=['GET'])
+@bp.route('/exercise_log/', defaults={'offset': 0}, methods=['GET'])
+@bp.route('/exercise_log/<int:offset>', methods=['GET'])
 @login_required
-def exercise_log():
+def exercise_log(offset):
     """
     shows the history of all activities performed by the user
     newest activity is shown first
@@ -262,11 +266,13 @@ def delete_activity(activity_id):
     db.session.commit()
     flash('Deleted the activity')
 
-    activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
+    return redirect(url_for('main.exercise_log'))
 
-    return render_template('activity/view_log.html',
-                           user=user, activities=activities,
-                           activities_lookup=ACTIVITIES_LOOKUP, title="View Exercise Log")
+    #activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
+
+    #return render_template('activity/view_log.html',
+     #                      user=user, activities=activities,
+     #                      activities_lookup=ACTIVITIES_LOOKUP, title="View Exercise Log")
 
 
 @bp.route('/about', methods=['GET'])

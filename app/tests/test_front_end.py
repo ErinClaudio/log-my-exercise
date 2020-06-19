@@ -354,7 +354,7 @@ class TestActivity(TestBase):
         self.driver.find_element_by_id("submit").click()
         self.driver.find_element_by_id("home_link").click()
 
-        self.driver.find_element_by_class_name("btn-outline-primary").click()
+        self.driver.find_element_by_class_name("stretched-link").click()
 
         success_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Well done on completing" in success_message
