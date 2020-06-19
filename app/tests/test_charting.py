@@ -1,10 +1,7 @@
 from datetime import datetime
-import json
 
-
-from app.services import charting
 from app.models import Activity
-from app.tests import conftest
+from app.services import charting
 
 
 def test_calc_start_week():
@@ -67,8 +64,8 @@ def test_week_activity_duration_single_activity_start_week():
     assert len(week_duration) == 5
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [25, 0, 0, 0, 0, 0, 0]
-    for i in range(2,6):
-        assert week_duration[i] == [0,0,0,0,0,0,0]
+    for i in range(2, 6):
+        assert week_duration[i] == [0, 0, 0, 0, 0, 0, 0]
 
 
 def test_week_activity_duration_single_activity_end_week():
@@ -167,5 +164,3 @@ def test_return_chart_dataset():
 
     chart_dataset = charting.get_chart_dataset(activities, start_week)
     assert len(chart_dataset) == 2
-
-

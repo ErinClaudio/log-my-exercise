@@ -50,8 +50,8 @@
                     <caption>Exercise Log</caption>
                     <thead class="thead-light">
                     <tr>
-                        <th scope="col" class="th-sm">Date</th>
                         <th scope="col" class="th-sm">Type</th>
+                        <th scope="col" class="th-sm">Date</th>
                         <th scope="col" class="th-lg">Title</th>
                         <th scope="col" class="th-sm">Duration</th>
                         <th scope="col" class="th-sm">Distance</th>
@@ -60,9 +60,10 @@
                     </thead>
                     {% for activity in activities %}
                         <tr>
-                            <td>{{ moment(activity.timestamp).format('MMMM Do, h:mm') }}</td>
-                            <td>{{ activities_lookup[activity.type] }}</td>
-                            <td>{{ activity.title }}</td>
+                         <td><i class="{{ icons[activity.type] }}"></i></td>
+
+                            <td>{{ moment(activity.timestamp).format('MMM D, h:mm') }}</td>
+                           <td>{{ activity.title }}</td>
                             <td>{{ activity.duration }}</td>
                             <td>{% if activity.distance %}
                                 {{ activity.distance | round(2) }}

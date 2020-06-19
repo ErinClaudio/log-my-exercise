@@ -1,6 +1,6 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
+
 from pytz import timezone
-import pytz
 
 from app.main import ACTIVITIES_LOOKUP
 
@@ -46,7 +46,8 @@ def get_start_week_date_before(input_date):
 def calc_daily_duration_per_exercise_type(activities, start_date):
     """
     Given a list of activities for the last week, will put them into a dictionary of arrays.
-    The key represents the activity type, the array represents the minutes spent on that activity for each day of the week
+    The key represents the activity type, the array represents the minutes spent on that activity
+    for each day of the week
     The first item in the array represents Monday, the second is Tuesday and so on
     It assumes the activities only go back since the start of the calendar week of today's date
 
@@ -70,7 +71,6 @@ def calc_daily_duration_per_exercise_type(activities, start_date):
 
         if local_date >= start_date:
             exercise_dict[activity.type][local_date.weekday()] += activity.duration
-
 
     return exercise_dict
 

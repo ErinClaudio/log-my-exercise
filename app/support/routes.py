@@ -1,13 +1,10 @@
-import json
-
+from flask import render_template, flash, redirect, url_for
 from flask_login import current_user
-from flask import render_template, flash, redirect, url_for, request
-
 
 from app.models import User
+from app.services import utils
 from app.support import bp
 from app.support.forms import FeedbackForm
-from app.services import utils
 
 
 @bp.route('/contact_us', methods=['GET', 'POST'])
