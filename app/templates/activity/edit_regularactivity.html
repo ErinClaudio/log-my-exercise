@@ -1,52 +1,54 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
-        <div class="row">
-            <div class="col-md-8 mx-auto">
-                {% if is_add_regular_activity %}
-                    <h1 class="h3 mb-3 font-weight-normal">Add regular exercise</h1>
-                {% else %}
-                    <h1 class="h3 mb-3 font-weight-normal">Edit regular exercise</h1>
-                {% endif %}
-            </div>
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            {% if is_add_regular_activity %}
+                <h1 class="h3 mb-3 font-weight-normal">Add regular exercise</h1>
+            {% else %}
+                <h1 class="h3 mb-3 font-weight-normal">Edit regular exercise</h1>
+            {% endif %}
         </div>
-        <div class="row">
-            <div class="col-md-8 mx-auto box-shadow bg-light">
-                <form action="" method="post" novalidate>
-                    {{ form.hidden_tag() }}
-                    <div class="form-group">
-                        {{ wtf.form_field(form.activity_type, class="form-control") }}
-                        {% for error in form.activity_type.errors %}
-                            <small class="form-text text-muted">[{{ error }}]</small>
-                        {% endfor %}
-                    </div>
-                    <div class="form-group">
-                        {{ wtf.form_field(form.title, class="form-control") }}
-                        {% for error in form.title.errors %}
-                            <small class="form-text text-muted">[{{ error }}]</small>
-                        {% endfor %}
-                    </div>
-                    <div class="form-group">
-                        {{ wtf.form_field(form.description, class="form-control") }}
-                        {% for error in form.description.errors %}
-                            <small class="form-text text-muted">[{{ error }}]</small>
-                        {% endfor %}
-                    </div>
-                    <div class="form-group">
-                        {{ wtf.form_field(form.duration, class="form-control") }}
-                        {% for error in form.duration.errors %}
-                            <small class="form-text text-muted">[{{ error }}]</small>
-                        {% endfor %}
-                    </div>
-                    <div class="form-group">
-                        {{ wtf.form_field(form.distance, class="form-control") }}
-                        {% for error in form.distance.errors %}
-                            <small class="form-text text-muted">[{{ error }}]</small>
-                        {% endfor %}
-                    </div>
-                    <button id="submit" class="btn btn-lg btn-primary btn-block" type="submit">Save</button>
-
-                </form>
-            </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 mx-auto box-shadow bg-light">
+            <form action="" method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ wtf.form_field(form.activity_type, class="form-control") }}
+                    {% for error in form.activity_type.errors %}
+                        <small class="form-text text-muted">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ wtf.form_field(form.title, class="form-control") }}
+                    {% for error in form.title.errors %}
+                        <small class="form-text text-muted">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ wtf.form_field(form.description, class="form-control") }}
+                    {% for error in form.description.errors %}
+                        <small class="form-text text-muted">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ wtf.form_field(form.duration, class="form-control") }}
+                    {% for error in form.duration.errors %}
+                        <small class="form-text text-muted">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ wtf.form_field(form.distance, class="form-control") }}
+                    {% for error in form.distance.errors %}
+                        <small class="form-text text-muted">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+                <div class="text-right">
+                    <a href="{{ url_for('main.regular_activities') }}" class="btn btn-secondary">Cancel</a>
+                    <button id="submit" class="btn btn-primary" type="submit">Save changes</button>
+                </div>
+            </form>
         </div>
+    </div>
 {% endblock %}

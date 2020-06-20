@@ -123,7 +123,7 @@ def regular_activities():
     """
     activities = RegularActivity.query.filter_by(user_id=current_user.get_id()).all()
     return render_template('activity/regularactivities.html', user=user, regular_activities=activities,
-                           activities_lookup=ACTIVITIES_LOOKUP)
+                           activities_lookup=ACTIVITIES_LOOKUP, icons=ICONS_LOOKUP)
 
 
 @bp.route('/add_regular_activities', methods=['GET', 'POST'])
@@ -147,7 +147,7 @@ def add_regular_activity():
         flash('Your regular activity is recorded')
         return redirect(url_for('main.regular_activities'))
     return render_template('activity/edit_regularactivity.html', user=user, form=form,
-                           is_add_regular_activity=is_add_regular_activity)
+                           is_add_regular_activity=is_add_regular_activity, icons=ICONS_LOOKUP)
 
 
 @bp.route('/edit_regular_activity/<int:activity_id>', methods=['GET', 'POST'])
@@ -239,9 +239,13 @@ def exercise_log(offset):
     """
     activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
     # get hold of the activities in the last week so they can be shown on the chart
-    start_week_date = charting.get_start_week_date_before(None)
-    activities_this_week = Activity.query.filter(Activity.timestamp >= start_week_date,
+    start_week_date_day_before = charting.get_start_week_date_before(None)
+    activities_this_week = Activity.query.filter(Activity.timestamp >= start_week_date_day_before,
                                                  Activity.user_id == current_user.get_id()).all()
+    # need to consider this as want the actual date for Monday when we are charting it
+    # do need the UTC day before for getting the data to cover cases where the local time is ahead
+    # of UTC
+    start_week_date = charting.get_start_week_date(None)
     chart_data = charting.get_chart_dataset(activities_this_week, start_week_date)
     return render_template('activity/view_log.html',
                            user=user, activities=activities,

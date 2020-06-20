@@ -2,6 +2,7 @@
 {% block content %}
     <div class="row">
         <div class="col-md-8 mx-auto">
+            <h1 class="h3 mb-3 font-weight-normal">Exercises this week</h1>
             <canvas id="myChart"></canvas>
             <script>
                 Chart.defaults.scale.gridLines.drawOnChartArea = false;
@@ -43,12 +44,12 @@
     </div>
     <div class="row">
         <div class="col-md-8 mx-auto">
-            <h1 class="h3 mb-3 font-weight-normal">My exercises</h1>
+            <h1 class="h3 mb-3 font-weight-normal">My logged exercises</h1>
             {% if activities %}
                 <div class="table-responsive">
                 <table id="activity_list" class="table table-hover table-responsive">
                     <caption>Exercise Log</caption>
-                    <thead class="thead-light">
+                    <thead class="">
                     <tr>
                         <th scope="col" class="th-sm">Type</th>
                         <th scope="col" class="th-sm">Date</th>

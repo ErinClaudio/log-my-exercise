@@ -43,7 +43,7 @@ def get_start_week_date_before(input_date):
     return date_start_week.replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def calc_daily_duration_per_exercise_type(activities, start_date):
+def calc_daily_duration_per_exercise_type(activities, start_date, sum_by='duration'):
     """
     Given a list of activities for the last week, will put them into a dictionary of arrays.
     The key represents the activity type, the array represents the minutes spent on that activity
@@ -53,6 +53,10 @@ def calc_daily_duration_per_exercise_type(activities, start_date):
 
     :param activities: a list of Activity
     :type activities: a list of Activity objects
+    :param start_date: Monday's UTC date
+    :type start_date: a UTC date
+    :param sum_by: whether to sum by duration or distance
+    :type sum_by: a String either 'duration' or 'distance'
     :return: a dictionary with the key representing the activity type and an array representing minutes of that activity
     performed each day of the week (7 entries)
     :rtype: Dictionary
@@ -70,7 +74,8 @@ def calc_daily_duration_per_exercise_type(activities, start_date):
             local_date = my_utc.localize(activity.timestamp)
 
         if local_date >= start_date:
-            exercise_dict[activity.type][local_date.weekday()] += activity.duration
+            to_add = activity.duration if sum_by == 'duration' else activity.distance
+            exercise_dict[activity.type][local_date.weekday()] += to_add
 
     return exercise_dict
 
