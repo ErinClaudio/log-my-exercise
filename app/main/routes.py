@@ -229,8 +229,9 @@ def log_activity(activity_id):
 
 @bp.route('/exercise_log/', defaults={'offset': 0}, methods=['GET'])
 @bp.route('/exercise_log/<int:offset>', methods=['GET'])
+@bp.route('/exercise_log/<int:offset>/<string:sum_by>', methods=['GET'])
 @login_required
-def exercise_log(offset):
+def exercise_log(offset=0, sum_by='duration'):
     """
     shows the history of all activities performed by the user
     newest activity is shown first
@@ -239,19 +240,26 @@ def exercise_log(offset):
     """
     activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
     # get hold of the activities in the last week so they can be shown on the chart
-    start_week_date_day_before = charting.get_start_week_date_before(None)
-    activities_this_week = Activity.query.filter(Activity.timestamp >= start_week_date_day_before,
+    start_week_date_before, start_week_date, end_week_date = charting.get_week_bookends(None,week_offset=offset)
+    activities_this_week = Activity.query.filter(Activity.timestamp >= start_week_date_before,
+                                                 Activity.timestamp <= end_week_date,
                                                  Activity.user_id == current_user.get_id()).all()
     # need to consider this as want the actual date for Monday when we are charting it
     # do need the UTC day before for getting the data to cover cases where the local time is ahead
     # of UTC
-    start_week_date = charting.get_start_week_date(None)
-    chart_data = charting.get_chart_dataset(activities_this_week, start_week_date)
+    print(sum_by)
+    print(offset)
+    print(start_week_date, end_week_date)
+    chart_data = charting.get_chart_dataset(activities_this_week, start_week_date, sum_by=sum_by)
     return render_template('activity/view_log.html',
                            user=user, activities=activities,
                            activities_lookup=ACTIVITIES_LOOKUP,
                            icons=ICONS_LOOKUP,
                            chart_data=str(chart_data),
+                           start_week=start_week_date.strftime("%b %d"),
+                           end_week=end_week_date.strftime("%b %d"),
+                           sum_by=sum_by,
+                           offset=offset,
                            title="View Exercise Log")
 
 

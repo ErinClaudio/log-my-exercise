@@ -3,6 +3,48 @@
     <div class="row">
         <div class="col-md-8 mx-auto">
             <h1 class="h3 mb-3 font-weight-normal">Exercises this week</h1>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    {% if sum_by =='duration' %}
+                        <a class="nav-link active"
+                    {% else %}
+                        <a class="nav-link"
+                    {% endif %}
+                           id="time-tab" href="{{ url_for('main.exercise_log', offset=offset,sum_by='duration') }}"
+                           role="tab"
+                           aria-controls="time"
+                           aria-selected="true">By Time</a>
+                </li>
+                <li class="nav-item">
+                    {% if sum_by =='distance' %}
+                        <a class="nav-link active"
+                    {% else %}
+                        <a class="nav-link"
+                    {% endif %}
+                           id="distance-tab"
+                           href="{{ url_for('main.exercise_log', offset=offset,sum_by='distance') }}" role="tab"
+                           aria-controls="distance"
+                           aria-selected="false">By Distance</a>
+                </li>
+            </ul>
+            <div class="d-flex justify-content-between">
+                <div>
+                    {% if offset < 13 %}
+                        <a href="{{ url_for('main.exercise_log', offset=offset+1,sum_by=sum_by) }}">
+                        <i class="fas fa-chevron-left"></i>
+                        Previous
+                        </a>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if offset <= 13 and offset >0 %}
+                        <a href="{{ url_for('main.exercise_log', offset=offset-1,sum_by=sum_by) }}">
+                        Next
+                        <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
             <canvas id="myChart"></canvas>
             <script>
                 Chart.defaults.scale.gridLines.drawOnChartArea = false;
@@ -17,7 +59,11 @@
                     options: {
                         title: {
                             display: true,
-                            text: 'This week: minutes spent exercising'
+                            {% if sum_by =='distance' %}
+                                text: 'Kms: {{ start_week }} - {{ end_week }}'
+                            {% else %}
+                                text: 'Minutes: {{ start_week }} - {{ end_week }}'
+                            {% endif %}
                         },
                         tooltips: {
                             mode: 'index',
@@ -27,9 +73,21 @@
                         scales: {
                             xAxes: [{
                                 stacked: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Weekday'
+                                }
                             }],
                             yAxes: [{
                                 stacked: true,
+                                scaleLabel: {
+                                    display: true,
+                                    {% if sum_by =='distance' %}
+                                        labelString: 'Kms'
+                                {% else %}
+                                    labelString: 'Mins.'
+                                {% endif %}
+                                },
                                 ticks: {
                                     beginAtZero: true
                                 }
@@ -61,10 +119,10 @@
                     </thead>
                     {% for activity in activities %}
                         <tr>
-                         <td><i class="{{ icons[activity.type] }}"></i></td>
+                            <td><i class="{{ icons[activity.type] }}"></i></td>
 
                             <td>{{ moment(activity.timestamp).format('MMM D, h:mm') }}</td>
-                           <td>{{ activity.title }}</td>
+                            <td>{{ activity.title }}</td>
                             <td>{{ activity.duration }}</td>
                             <td>{% if activity.distance %}
                                 {{ activity.distance | round(2) }}

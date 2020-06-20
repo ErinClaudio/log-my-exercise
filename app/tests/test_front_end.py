@@ -247,7 +247,7 @@ class TestActivity(TestBase):
         self.assertEqual(len(rows), 2)
         cols = rows[1].find_elements_by_tag_name("td")
         self.assertEqual(len(cols), 6)
-    
+
         self.assertEqual(cols[1].text, "title of workout")
         self.assertEqual(cols[2].text, "10")
         self.assertEqual(cols[3].text, "")
