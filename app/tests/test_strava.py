@@ -1,15 +1,14 @@
 import json
 import os
-import logging
-
-from requests import Response
 from unittest.mock import Mock, patch
 
+from requests import Response
+
 from app import db
-from app.models import User, StravaAthlete, Activity
-from app.tests import conftest
-from app.services import strava as ss
 from app.api import strava as strava_api
+from app.models import User, StravaAthlete, Activity
+from app.services import strava as ss
+from app.tests import conftest
 
 
 def test_strava_athlete_create(test_client, init_database):
@@ -58,7 +57,6 @@ def test_refresh_access_token(test_client, init_database):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
     with patch('app.services.strava.OAuth2Session') as mock_oauth:
-
         authorize_details = json.loads(conftest.STRAVA_RESPONSE_EXAMPLE)
         scope = 'activity:write'
         strava_athlete = ss.create_strava_athlete(authorize_details, u.id, scope)
@@ -80,7 +78,6 @@ def test_refresh_access_token_none(test_client, init_database):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
     with patch('app.services.strava.OAuth2Session') as mock_oauth:
-
         authorize_details = json.loads(conftest.STRAVA_RESPONSE_EXAMPLE)
         scope = 'activity:write'
         strava_athlete = ss.create_strava_athlete(authorize_details, u.id, scope)
@@ -94,7 +91,6 @@ def test_refresh_access_token_none(test_client, init_database):
         new_token = ss.refresh_access_token(u.id)
 
         assert new_token is None
-
 
 
 def test_create_activity(test_client, init_database, add_strava_athlete, add_activity):
@@ -302,7 +298,7 @@ def test_is_valid_strava_challenge_params_invalid_challenge(test_client):
 def test_is_valid_strava_challenge_params_invalid_token(test_client):
     token = os.getenv('STRAVA_VERIFY_TOKEN')
 
-    is_valid = strava_api.is_valid_strava_challenge_params('subscribe12', 'some challenge', token+'SDF')
+    is_valid = strava_api.is_valid_strava_challenge_params('subscribe12', 'some challenge', token + 'SDF')
 
     assert is_valid is False
 
@@ -310,7 +306,7 @@ def test_is_valid_strava_challenge_params_invalid_token(test_client):
 def test_subscription_validation_request(test_client):
     token = os.getenv('STRAVA_VERIFY_TOKEN')
 
-    params = {'hub.mode': 'subscribe', 'hub.challenge': '15f7d1a91c1f40f8a748fd134752feb3', 'hub.verify_token':token}
+    params = {'hub.mode': 'subscribe', 'hub.challenge': '15f7d1a91c1f40f8a748fd134752feb3', 'hub.verify_token': token}
     response = test_client.get('/api/strava/callback', query_string=params)
 
     assert response.status_code == 200
@@ -322,7 +318,7 @@ def test_subscription_validation_request(test_client):
 def test_subscription_validation_request_invalid(test_client):
     token = os.getenv('STRAVA_VERIFY_TOKEN')
 
-    params = {'hub.mode': 'subscribe123', 'hub.challenge': 'my_challenge', 'hub.verify_token':token}
+    params = {'hub.mode': 'subscribe123', 'hub.challenge': 'my_challenge', 'hub.verify_token': token}
     response = test_client.get('/api/strava/callback', query_string=params)
 
     assert response.status_code == 400
@@ -331,7 +327,7 @@ def test_subscription_validation_request_invalid(test_client):
     assert response_json['error'] == 'invalid params'
 
 
-def test_strava_callback_access_denied(test_client, init_database,):
+def test_strava_callback_access_denied(test_client, init_database, ):
     # fails as user is not logged in and so no current_user
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
@@ -344,7 +340,7 @@ def test_strava_callback_access_denied(test_client, init_database,):
         assert "Strava: Access Denied" in str(response.data)
 
 
-def test_strava_callback_invalid_write_scope(test_client, init_database,):
+def test_strava_callback_invalid_write_scope(test_client, init_database, ):
     # fails as user is not logged in and so no current_user
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
@@ -357,7 +353,7 @@ def test_strava_callback_invalid_write_scope(test_client, init_database,):
         assert "Please ensure you agree to sharing your data" in str(response.data)
 
 
-def test_strava_callback_invalid_read_scope(test_client, init_database,):
+def test_strava_callback_invalid_read_scope(test_client, init_database, ):
     # fails as user is not logged in and so no current_user
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
@@ -370,7 +366,7 @@ def test_strava_callback_invalid_read_scope(test_client, init_database,):
         assert "Please ensure you agree to sharing your data" in str(response.data)
 
 
-def test_strava_callback_invalid_code(test_client, init_database,):
+def test_strava_callback_invalid_code(test_client, init_database, ):
     # fails as user is not logged in and so no current_user
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 
@@ -532,7 +528,6 @@ def test_strava_integration_off(test_client_csrf, init_database, add_strava_athl
     athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
     athlete.is_active = 0
     db.session.commit()
-
 
     with patch('flask_login.utils._get_user') as current_user:
         current_user.return_value.id = u.id

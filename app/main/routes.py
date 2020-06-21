@@ -240,16 +240,13 @@ def exercise_log(offset=0, sum_by='duration'):
     """
     activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
     # get hold of the activities in the last week so they can be shown on the chart
-    start_week_date_before, start_week_date, end_week_date = charting.get_week_bookends(None,week_offset=offset)
+    start_week_date_before, start_week_date, end_week_date = charting.get_week_bookends(None, week_offset=offset)
     activities_this_week = Activity.query.filter(Activity.timestamp >= start_week_date_before,
                                                  Activity.timestamp <= end_week_date,
                                                  Activity.user_id == current_user.get_id()).all()
     # need to consider this as want the actual date for Monday when we are charting it
     # do need the UTC day before for getting the data to cover cases where the local time is ahead
     # of UTC
-    print(sum_by)
-    print(offset)
-    print(start_week_date, end_week_date)
     chart_data = charting.get_chart_dataset(activities_this_week, start_week_date, sum_by=sum_by)
     return render_template('activity/view_log.html',
                            user=user, activities=activities,

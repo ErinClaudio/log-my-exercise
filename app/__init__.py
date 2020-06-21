@@ -1,3 +1,4 @@
+from logging import config
 import yaml
 
 from flask import Flask
@@ -7,8 +8,6 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_moment import Moment
 from flask_wtf.csrf import CSRFProtect
-
-from logging import config
 
 from authlib.integrations.flask_client import OAuth
 from config import app_config

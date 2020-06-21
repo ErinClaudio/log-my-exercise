@@ -87,6 +87,7 @@ def test_get_week_bookends_offset():
     assert end_week.month == 6
     assert end_week.day == 14
 
+
 def test_week_activity_duration_single_activity_start_week():
     iso_date = '2020-06-18T21:58:33.302785-07:00'
 
@@ -208,8 +209,10 @@ def test_week_activity_distance_two_activity_diff_types():
     my_date = datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%S.%f%z').date()
     start_week = charting.get_start_week_date(my_date)
 
-    activity = Activity(id=1, type=1, title='title', duration=25, distance=10, iso_timestamp='2020-06-15T21:58:33.302785-07:00')
-    activity_1 = Activity(id=2, type=2, title='title', duration=32, distance=5, iso_timestamp='2020-06-17T05:58:33.302785-07:00')
+    activity = Activity(id=1, type=1, title='title', duration=25, distance=10,
+                        iso_timestamp='2020-06-15T21:58:33.302785-07:00')
+    activity_1 = Activity(id=2, type=2, title='title', duration=32, distance=5,
+                          iso_timestamp='2020-06-17T05:58:33.302785-07:00')
 
     activities = [activity, activity_1]
 
@@ -225,10 +228,12 @@ def test_week_activity_distance_end_week():
     iso_date = '2020-06-18T21:58:33.302785-07:00'
 
     my_date = datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%S.%f%z').date()
-    start_week_prior, start_week, end_week = charting.get_week_bookends(my_date)
+    _, start_week, end_week = charting.get_week_bookends(my_date)
 
-    activity = Activity(id=1, type=1, title='title', duration=25, distance=10, iso_timestamp='2020-06-15T21:58:33.302785-07:00')
-    activity_1 = Activity(id=2, type=2, title='title', duration=32, distance=5, iso_timestamp='2020-06-21T05:58:33.302785-07:00')
+    activity = Activity(id=1, type=1, title='title', duration=25, distance=10,
+                        iso_timestamp='2020-06-15T21:58:33.302785-07:00')
+    activity_1 = Activity(id=2, type=2, title='title', duration=32, distance=5,
+                          iso_timestamp='2020-06-21T05:58:33.302785-07:00')
 
     activities = [activity, activity_1]
 
@@ -244,7 +249,7 @@ def test_week_activity_null_distance_end_week():
     iso_date = '2020-06-18T21:58:33.302785-07:00'
 
     my_date = datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%S.%f%z').date()
-    start_week_prior, start_week, end_week = charting.get_week_bookends(my_date)
+    _, start_week, end_week = charting.get_week_bookends(my_date)
 
     activity = Activity(id=1, type=1, title='title', duration=25, iso_timestamp='2020-06-15T21:58:33.302785-07:00')
 
@@ -261,10 +266,12 @@ def test_week_activity_distance_into_next_week():
     iso_date = '2020-06-18T21:58:33.302785-07:00'
 
     my_date = datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%S.%f%z').date()
-    start_week_prior, start_week, end_week = charting.get_week_bookends(my_date)
+    _, start_week, end_week = charting.get_week_bookends(my_date)
 
-    activity = Activity(id=1, type=1, title='title', duration=25, distance=10, iso_timestamp='2020-06-15T21:58:33.302785-07:00')
-    activity_1 = Activity(id=2, type=2, title='title', duration=32, distance=5, iso_timestamp='2020-06-22T05:58:33.302785-07:00')
+    activity = Activity(id=1, type=1, title='title', duration=25, distance=10,
+                        iso_timestamp='2020-06-15T21:58:33.302785-07:00')
+    activity_1 = Activity(id=2, type=2, title='title', duration=32, distance=5,
+                          iso_timestamp='2020-06-22T05:58:33.302785-07:00')
 
     activities = [activity, activity_1]
 
@@ -280,9 +287,10 @@ def test_week_activity_distance_positive_timezone():
     iso_date = '2020-06-18T21:58:33.302785-07:00'
 
     my_date = datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%S.%f%z').date()
-    start_week_prior, start_week, end_week = charting.get_week_bookends(my_date)
+    _, start_week, end_week = charting.get_week_bookends(my_date)
 
-    activity = Activity(id=1, type=1, title='title', duration=25, distance=10, iso_timestamp='2020-06-15T04:58:33.302785+05:00')
+    activity = Activity(id=1, type=1, title='title', duration=25, distance=10,
+                        iso_timestamp='2020-06-15T04:58:33.302785+05:00')
 
     activities = [activity]
 

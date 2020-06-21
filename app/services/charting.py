@@ -65,7 +65,8 @@ def get_week_bookends(input_date: datetime, week_offset: int = 0) -> (date, date
             date_end_week)
 
 
-def calc_daily_duration_per_exercise_type(activities, start_date: date, end_date: date = None, sum_by: str ='duration'):
+def calc_daily_duration_per_exercise_type(activities, start_date: date, end_date: date = None,
+                                          sum_by: str = 'duration'):
     """
     Given a list of activities for the last week, will put them into a dictionary of arrays.
     The key represents the activity type, the array represents the minutes spent on that activity
@@ -128,6 +129,8 @@ def get_chart_dataset(activities, start_date: date, end_date: date = None, sum_b
     :type activities: date
     :param end_date: the end of the week date from which the Activity objects should be bucketed
     :type activities: date
+    :param sum_by: whether to sum by duration or distance
+    :type activities: string
     :return: a list of dicts where the keys are label, backgroundColor, data
     :rtype: a list
     """

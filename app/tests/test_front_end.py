@@ -1,8 +1,6 @@
-
+from flask import url_for
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
-
-from flask import url_for
 
 from app import create_app, db
 from app.models import User
@@ -10,6 +8,7 @@ from app.models import User
 test_user_username = "my_test_user"
 test_user_email = "test@test.email"
 test_user_password = "test_pwd"
+
 
 class TestBase(LiveServerTestCase):
 
@@ -29,7 +28,6 @@ class TestBase(LiveServerTestCase):
         user.set_password(test_user_password)
         db.session.add(user)
         db.session.commit()
-
 
     def tearDown(self):
         self.driver.quit()
@@ -90,7 +88,7 @@ class TestLogin(TestBase):
         self.driver.find_element_by_id("username").send_keys(
             test_user_username)
         self.driver.find_element_by_id("password").send_keys(
-            test_user_password+"&&")
+            test_user_password + "&&")
         self.driver.find_element_by_id("submit").click()
 
         error_message = self.driver.find_element_by_class_name("alert-success").text
@@ -100,7 +98,7 @@ class TestLogin(TestBase):
         # Fill in login form
         self.driver.get(self.get_server_url() + "/auth/login")
         self.driver.find_element_by_id("username").send_keys(
-            test_user_username+"@£")
+            test_user_username + "@£")
         self.driver.find_element_by_id("password").send_keys(
             test_user_password)
         self.driver.find_element_by_id("submit").click()
@@ -137,7 +135,6 @@ class TestRegistration(TestBase):
         # 1 is created in the setup
         self.assertEqual(User.query.count(), 2)
 
-
     def test_registration_missing_fields(self):
         # Click register menu link
         self.driver.get(self.get_server_url() + "/auth/register")
@@ -155,10 +152,9 @@ class TestRegistration(TestBase):
         error_message = self.driver.find_element_by_class_name("text-muted").text
         assert "This field is required" in error_message
 
-
     def test_registration_mismatch_password(self):
         self.driver.get(self.get_server_url() + "/auth/register")
-       #  self.driver.find_element_by_id("register_link").click()
+        #  self.driver.find_element_by_id("register_link").click()
 
         # Fill in registration form, leave out username
         self.driver.find_element_by_id("email").send_keys("test12@test.com")
@@ -176,7 +172,7 @@ class TestRegistration(TestBase):
 
     def test_registration_duplicate_username(self):
         self.driver.get(self.get_server_url() + "/auth/register")
-       # self.driver.find_element_by_id("register_link").click()
+        # self.driver.find_element_by_id("register_link").click()
 
         # Fill in registration form, use same username as user already setup
         self.driver.find_element_by_id("email").send_keys("test12@test.com")
@@ -209,6 +205,7 @@ class TestRegistration(TestBase):
         # Error message is shown
         error_message = self.driver.find_element_by_tag_name("small").text
         assert "Please use a different email" in error_message
+
 
 class TestActivity(TestBase):
 
@@ -252,8 +249,6 @@ class TestActivity(TestBase):
         self.assertEqual(cols[2].text, "10")
         self.assertEqual(cols[3].text, "")
         self.assertEqual(cols[4].text, "a description")
-
-
 
     def test_create_regular_activity_missing_fields(self):
         self.login_user()
@@ -320,7 +315,7 @@ class TestActivity(TestBase):
         assert "Saved changes" in success_message
 
     def test_delete_regular_activity(self):
-        #login, create an activity and then delete it
+        # login, create an activity and then delete it
 
         self.login_user()
 
@@ -338,11 +333,9 @@ class TestActivity(TestBase):
         success_message = self.driver.find_element_by_class_name("alert-success").text
         assert "Deleted" in success_message
 
-
     def test_log_activity(self):
-        #create an activity and log it being completed
+        # create an activity and log it being completed
         self.login_user()
-
 
         self.driver.find_element_by_id("title").send_keys(
             "title of workout")
@@ -354,6 +347,8 @@ class TestActivity(TestBase):
         self.driver.find_element_by_id("submit").click()
         self.driver.find_element_by_id("home_link").click()
 
+        # check timezone info has been added to the URL
+        assert "?tz=" in self.driver.find_element_by_class_name("stretched-link").get_attribute("href")
         self.driver.find_element_by_class_name("stretched-link").click()
 
         success_message = self.driver.find_element_by_class_name("alert-success").text
@@ -370,9 +365,8 @@ class TestActivity(TestBase):
         assert cols[2].text == "title of workout"
         assert cols[3].text == "10"
 
-
     def test_log_unique_activity(self):
-        #log a one-off activity on the home page
+        # log a one-off activity on the home page
         self.login_user()
 
         self.driver.find_element_by_id("home_link").click()
