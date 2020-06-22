@@ -4,7 +4,7 @@ from six.moves.urllib.parse import urlencode
 
 from app import db, oauth
 from app.auth import bp
-from app.auth.forms import LoginForm, RegistrationForm
+from app.auth.forms import LoginForm
 from app.models import User
 
 INDEX_PAGE = 'main.index'
@@ -39,26 +39,6 @@ def logout():
     """
     logout_user()
     return redirect(url_for(INDEX_PAGE))
-
-
-def register():
-    """
-    allows a new user to register with the application
-    :return: the template to render
-    :rtype:
-    """
-    if current_user.is_authenticated:
-        return redirect(url_for(INDEX_PAGE))
-    add_user = True
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Congratulations, you are now a registered user!')
-        return redirect(url_for('auth.login'))
-    return render_template('auth/register.html', title='Register', form=form, add_user=add_user)
 
 
 @bp.route('/sign-up', methods=['GET', 'POST'])

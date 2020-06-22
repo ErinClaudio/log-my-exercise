@@ -88,6 +88,54 @@ def test_get_week_bookends_offset():
     assert end_week.day == 14
 
 
+def test_get_date_from_isotimestamp():
+    iso_date = '2020-06-18T21:58:33.302785-07:00'
+
+    local_date = charting.get_date_from_isotimestamp(iso_date, None)
+    assert local_date.day == 18
+    assert local_date.month == 6
+    assert local_date.year == 2020
+
+
+def test_get_date_from_blank_isotimestamp():
+    local_date = charting.get_date_from_isotimestamp(None, datetime(2020, 6, 18))
+    assert local_date.day == 18
+    assert local_date.month == 6
+    assert local_date.year == 2020
+
+
+def test_get_12_week_bookends():
+    my_date = datetime(2020, 6, 17)
+    start_date_day_before, start_historic_week, start_current_week = charting.get_12_week_bookends(my_date)
+    assert start_current_week.day == 15
+    assert start_current_week.month == 6
+    assert start_current_week.year == 2020
+
+    assert start_historic_week.day == 23
+    assert start_historic_week.month == 3
+    assert start_historic_week.year == 2020
+
+    assert start_date_day_before.day == 22
+    assert start_date_day_before.month == 3
+    assert start_date_day_before.year == 2020
+
+
+def test_get_12_week_bookends_overlap_year():
+    my_date = datetime(2020, 2, 1)
+    start_date_day_before, start_historic_week, start_current_week = charting.get_12_week_bookends(my_date)
+    assert start_current_week.day == 27
+    assert start_current_week.month == 1
+    assert start_current_week.year == 2020
+
+    assert start_historic_week.day == 4
+    assert start_historic_week.month == 11
+    assert start_historic_week.year == 2019
+
+    assert start_date_day_before.day == 3
+    assert start_date_day_before.month == 11
+    assert start_date_day_before.year == 2019
+
+
 def test_week_activity_duration_single_activity_start_week():
     iso_date = '2020-06-18T21:58:33.302785-07:00'
 
@@ -230,9 +278,9 @@ def test_week_activity_distance_end_week():
     my_date = datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%S.%f%z').date()
     _, start_week, end_week = charting.get_week_bookends(my_date)
 
-    activity = Activity(id=1, type=1, title='title', duration=25, distance=10,
+    activity = Activity(id=1, type=1, title='title', duration=25, distance=10.1,
                         iso_timestamp='2020-06-15T21:58:33.302785-07:00')
-    activity_1 = Activity(id=2, type=2, title='title', duration=32, distance=5,
+    activity_1 = Activity(id=2, type=2, title='title', duration=32, distance=5.25,
                           iso_timestamp='2020-06-21T05:58:33.302785-07:00')
 
     activities = [activity, activity_1]
@@ -240,8 +288,8 @@ def test_week_activity_distance_end_week():
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week, end_week, sum_by='distance')
     assert len(week_duration) == 5
     assert len(week_duration[1]) == 7
-    assert week_duration[1] == [10, 0, 0, 0, 0, 0, 0]
-    assert week_duration[2] == [0, 0, 0, 0, 0, 0, 5]
+    assert week_duration[1] == [10.1, 0, 0, 0, 0, 0, 0]
+    assert week_duration[2] == [0, 0, 0, 0, 0, 0, 5.25]
 
 
 def test_week_activity_null_distance_end_week():

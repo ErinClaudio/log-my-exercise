@@ -65,6 +65,79 @@ def get_week_bookends(input_date: datetime, week_offset: int = 0) -> (date, date
             date_end_week)
 
 
+def get_12_week_bookends(input_date: datetime) -> (date, date, date):
+    """
+    Calculates a 12 week window using the input_date as a start point.
+    Calculates the date for the Monday of the current week,
+    the Monday of the week 12 weeks prior
+    the Sunday of the week 12 weeks prior
+
+    :param input_date: current date to base calculations off
+    :type input_date: date
+    :return: (start_historic_week_date_day_before, start_historic_week_date, start_current_week_date)
+    :rtype: a tuple of dates
+    """
+    start_current_week_date = get_start_week_date(input_date, 0)
+    start_historic_week_date = get_start_week_date(input_date, 12)
+    start_historic_week_date_day_before = start_historic_week_date + timedelta(days=-1)
+    return start_historic_week_date_day_before, start_historic_week_date, start_current_week_date
+
+
+def get_date_from_isotimestamp(iso_timestamp, timestamp):
+    """
+    Returns a date based on the provided iso_timestamp
+    :param iso_timestamp: timestamp to convert to date
+    :type iso_timestamp: string
+    :param timestamp: the timestamp in UTC time
+    :type timestamp: date
+    :return: iso_timestamp as a date
+    :rtype: date
+    """
+    if iso_timestamp:
+        local_date = datetime.strptime(iso_timestamp, '%Y-%m-%dT%H:%M:%S.%f%z').date()
+    else:
+        # if the local time as a iso string isn't available use the timestamp and assume UTC
+        my_utc = timezone('UTC')
+        local_date = my_utc.localize(timestamp).date()
+
+    return local_date
+
+
+def determine_value_to_add(activity, local_date: date, start_date: date, end_date: date = None,
+                           sum_by: str = 'duration'):
+    """
+    Determines whether the activity falls in the date range indicated by [start_date, end_date].
+    If it does, then determines how much activity to count and whether it is duration or distance being measured.
+
+    :param activity: activity taken place
+    :type activity: activity
+    :param local_date: the date the activity took place in local time, could be different to the UTC date
+    :type local_date: date
+    :param start_date: the start of the time period in consideration
+    :type start_date: date
+    :param end_date: the end of the time period in consideration
+    :type end_date: date
+    :param sum_by: whether to sum by distance or duration
+    :type sum_by: string
+    :return: a tuple where first value is whether activity should be added, second is the value to be added
+    :rtype: a tuple (boolean, int)
+    """
+    to_add = 0
+    if sum_by == 'duration':
+        to_add = activity.duration
+    elif activity.distance:
+        to_add = round(float(activity.distance), 2)
+
+    add_it = False
+    if not end_date:
+        if local_date >= start_date:
+            add_it = True
+    elif start_date <= local_date <= end_date:
+        add_it = True
+
+    return add_it, to_add
+
+
 def calc_daily_duration_per_exercise_type(activities, start_date: date, end_date: date = None,
                                           sum_by: str = 'duration'):
     """
@@ -91,26 +164,10 @@ def calc_daily_duration_per_exercise_type(activities, start_date: date, end_date
 
     # need to consider this in local time to the user, not UTC time
     for activity in activities:
-        if activity.iso_timestamp:
-            local_date = datetime.strptime(activity.iso_timestamp, '%Y-%m-%dT%H:%M:%S.%f%z').date()
-        else:
-            # if the local time as a iso string isn't available use the timestamp and assume UTC
-            my_utc = timezone('UTC')
-            local_date = my_utc.localize(activity.timestamp).date()
+        local_date = get_date_from_isotimestamp(activity.iso_timestamp, activity.timestamp)
 
-        # add up the data, determine what to add by and also to include the date
-        to_add = 0
-        if sum_by == 'duration':
-            to_add = activity.duration
-        elif activity.distance:
-            to_add = int(activity.distance)
-        add_it = False
-
-        if not end_date:
-            if local_date >= start_date:
-                add_it = True
-        elif start_date <= local_date <= end_date:
-            add_it = True
+        # add up the data, determine what to add by and whether the localised date is in the date range
+        add_it, to_add = determine_value_to_add(activity, local_date, start_date, end_date, sum_by)
 
         if add_it:
             exercise_dict[activity.type][local_date.weekday()] += to_add

@@ -9,7 +9,7 @@ from app import db
 from app.auth.forms import StravaIntegrationForm
 from app.main import ACTIVITIES_LOOKUP, ICONS_LOOKUP
 from app.main import bp
-from app.main.forms import ActivityForm, EditProfileForm
+from app.main.forms import ActivityForm
 from app.models import Activity, RegularActivity, User, StravaAthlete
 from app.services import strava, charting
 from app.services.charting import ACTIVITY_COLOR_LOOKUP
@@ -94,25 +94,6 @@ def user():
     return render_template('auth/user.html', user=my_user, is_strava=is_strava, strava_form=form)
 
 
-@login_required
-def edit_profile():
-    """
-    allows the user to edit their profile
-    :return:
-    :rtype:
-    """
-    add_user = False
-    form = EditProfileForm(current_user.username)
-    if form.validate_on_submit():
-        current_user.username = form.username.data
-        db.session.commit()
-        flash('Your changes have been saved.')
-        return redirect(url_for('main.edit_profile'))
-    elif request.method == 'GET':
-        form.username.data = current_user.username
-    return render_template('auth/edit_profile.html', title='Edit Profile', form=form, add_user=add_user)
-
-
 @bp.route('/regular_activities', methods=['GET', 'POST'])
 @login_required
 def regular_activities():
@@ -176,7 +157,8 @@ def edit_regular_activity(activity_id):
 
     form.title.data = regular_activity.title
     form.description.data = regular_activity.description
-    form.activity_type.data = regular_activity.type
+    print(regular_activity.type)
+    form.activity_type.data = str(regular_activity.type)
     form.duration.data = regular_activity.duration
     return render_template('activity/edit_regularactivity.html', is_add_regular_activity=is_add_regular_activity,
                            user=user, form=form, title="Edit Regular Activity")

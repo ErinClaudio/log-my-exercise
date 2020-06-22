@@ -19,9 +19,6 @@ def test_login_view(test_client):
     response = test_client.get('/auth/login')
     assert response.status_code == 200
 
-def test_register_view(test_client):
-    response = test_client.get('/auth/register')
-    assert response.status_code == 200
 
 def test_logout_view(test_client):
     response = test_client.get('/auth/logout')
@@ -35,11 +32,6 @@ def test_login_new_view(test_client):
 
 def test_logout_new_view(test_client):
     response = test_client.get('/auth/logout_new')
-    assert response.status_code == 302
-
-
-def test_edit_profile_view(test_client):
-    response = test_client.get('/edit_profile')
     assert response.status_code == 302
 
 
