@@ -157,7 +157,6 @@ def edit_regular_activity(activity_id):
 
     form.title.data = regular_activity.title
     form.description.data = regular_activity.description
-    print(regular_activity.type)
     form.activity_type.data = str(regular_activity.type)
     form.duration.data = regular_activity.duration
     return render_template('activity/edit_regularactivity.html', is_add_regular_activity=is_add_regular_activity,

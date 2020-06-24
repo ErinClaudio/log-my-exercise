@@ -9,7 +9,7 @@ from flask.testing import FlaskClient as BaseFlaskClient
 from flask_wtf.csrf import generate_csrf
 
 from app import create_app, db
-from app.models import User, RegularActivity
+from app.models import User, RegularActivity, Goal
 from app.services import strava as ss
 
 # define some test data to be used in tests
@@ -230,4 +230,22 @@ def add_strava_athlete():
     strava_athlete = ss.create_strava_athlete(authorize_details, u.id, scope)
 
     db.session.add(strava_athlete)
+    db.session.commit()
+
+
+@pytest.fixture(scope='function')
+def add_goal():
+    u = User.query.filter_by(username=TEST_USER_USERNAME).first()
+    current_time = datetime.utcnow()
+    goal = Goal(title="My Exercise",
+                motivation="Why am i motivated to do this",
+                acceptance_criteria="My acceptance criteria",
+                reward="how will i reward myself",
+                frequency=5,
+                frequency_activity_type=1,
+                timestamp=current_time,
+                last_updated=current_time,
+                user_id=u.id)
+
+    db.session.add(goal)
     db.session.commit()
