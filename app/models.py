@@ -215,3 +215,41 @@ class Inspiration(db.Model):
                                                                           self.description, self.duration,
                                                                           self.why_loved, self.likes, self.user_id,
                                                                           self.timestamp, self.last_updated)
+
+
+class Goal(db.Model):
+    """
+    An exercise goal set by a user
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(50))
+    motivation = db.Column(db.String(200))
+    acceptance_criteria = db.Column(db.String(200))
+    reward = db.Column(db.String(200))
+    due_date = db.Column(db.DateTime)
+    frequency_activity_type = db.Column(db.Integer)
+    frequency = db.Column(db.Integer)
+    duration_activity_type = db.Column(db.Integer)
+    duration = db.Column(db.Integer)
+    distance_activity_type = db.Column(db.Integer)
+    distance = db.Column(db.Integer)
+    completed = db.Column(db.DateTime)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Goal: {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(self.title, self.motivation,
+                                                                      self.acceptance_criteria,
+                                                                      self.reward, self.due_date,
+                                                                      self.frequency_activity_type, self.frequency,
+                                                                      self.duration_activity_type, self.duration,
+                                                                      self.distance_activity_type, self.distance,
+                                                                      self.user_id, self.completed)
+
+    def __str__(self):
+        return '<Goal: {} {} {} {} {} {} {} {}'.format(self.title,
+                                                                      self.frequency_activity_type, self.frequency,
+                                                                      self.duration_activity_type, self.duration,
+                                                                      self.distance_activity_type, self.distance,
+                                                                      self.user_id)

@@ -2,16 +2,17 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, IntegerField, SelectField, DecimalField, HiddenField
 from wtforms.validators import DataRequired, Length, NumberRange, AnyOf, Optional
 
-from app.main import ACTIVITIES_LOOKUP
+from app.main import VALID_ACTIVITIES, SELECT_ACTIVITIES
 
 
 class ActivityForm(FlaskForm):
-    valid_activities = [str(i) for i in ACTIVITIES_LOOKUP.keys()]
-    select_activities = sorted([(str(a), b) for a, b in list(ACTIVITIES_LOOKUP.items())])
+
 
     title = StringField('Title *', validators=[DataRequired(), Length(min=0, max=50)])
+    motivation = TextAreaField('Reason for goal (optional)', validators=[Length(min=0, max=300)])
+    reward = TextAreaField('Reward for achieving goal (optional)', validators=[Length(min=0, max=300)])
     description = TextAreaField('Description (optional)', validators=[Length(min=0, max=300)])
-    activity_type = SelectField('Type *', choices=select_activities, validators=[AnyOf(valid_activities)])
+    activity_type = SelectField('Type *', choices=SELECT_ACTIVITIES, validators=[AnyOf(VALID_ACTIVITIES)])
     duration = IntegerField('Duration (mins) *',
                             validators=[DataRequired(),
                                         NumberRange(0, 999, message="Please enter a number between 0 and 999")])

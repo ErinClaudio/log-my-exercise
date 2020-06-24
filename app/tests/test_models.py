@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from app import db
-from app.models import User, Activity, RegularActivity, StravaAthlete
+from app.models import User, Activity, RegularActivity, StravaAthlete, Goal
 from app.tests import conftest
 
 
@@ -85,7 +85,7 @@ def test_daily_activity_no_local_time_present(test_client, init_database, add_re
     assert activity.local_timestamp == load_activity.local_timestamp
     assert load_activity.iso_timestamp is not None
     assert activity.timestamp == load_activity.timestamp
-    assert load_activity.local_timestamp == load_activity.timestamp # timestamps are the same as none provided
+    assert load_activity.local_timestamp == load_activity.timestamp  # timestamps are the same as none provided
 
     assert "Regular Activity" in repr(activity)
     assert "Regular Activity" in str(activity)
@@ -111,7 +111,7 @@ def test_daily_activity_no_tz_present(test_client, init_database, add_regular_ac
     assert activity.local_timestamp == load_activity.local_timestamp
     assert load_activity.iso_timestamp is not None
     assert activity.timestamp == load_activity.timestamp
-    assert load_activity.local_timestamp == load_activity.timestamp # timestampes are the same as none provided
+    assert load_activity.local_timestamp == load_activity.timestamp  # timestampes are the same as none provided
 
     assert "Regular Activity" in repr(activity)
     assert "Regular Activity" in str(activity)
@@ -149,3 +149,35 @@ def test_strava_athlete(test_client, init_database):
 
     assert "StravaAthlete" in repr(load_strava_athlete)
     assert "StravaAthlete" in str(load_strava_athlete)
+
+
+def test_goal(test_client, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    current_time = datetime.utcnow()
+    goal = Goal(title="My Exercise",
+                motivation="Why am i motivated to do this",
+                acceptance_criteria="My acceptance criteria",
+                reward="how will i reward myself",
+                frequency=5,
+                frequency_activity_type=1,
+                timestamp=current_time,
+                last_updated=current_time,
+                user_id=u.id)
+
+    db.session.add(goal)
+    db.session.commit()
+
+    load_goal = Goal.query.filter_by(user_id=u.id).first()
+    assert Goal.query.filter_by(user_id=u.id).count() == 1
+
+    assert load_goal.title == goal.title
+    assert load_goal.motivation == goal.motivation
+    assert load_goal.acceptance_criteria == goal.acceptance_criteria
+    assert load_goal.reward == goal.reward
+    assert load_goal.frequency == goal.frequency
+    assert load_goal.frequency_activity_type == goal.frequency_activity_type
+    assert load_goal.timestamp == current_time
+    assert load_goal.last_updated == current_time
+
+    assert "Goal" in repr(load_goal)
+    assert "Goal" in str(load_goal)

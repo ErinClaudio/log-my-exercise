@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h1 class="h3 mb-3 font-weight-normal">Set a Goal</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 mx-auto bg-light">
+            <p>Setting goals can help to motivate us. They can remind us why we are exercising and help hold ourselves
+                accountable.</p>
+            <p>Do you have a goal? Is there a reason for this goal and how will you reward yourself for achieving this
+                goal?</p>
+            <p>Think about your reasons for exercising and then enter your goals below. LogMyExercise can help you track
+                progress towards the goals</p>
+            <p>Remember goals change and you will want to review and update these every month</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 mx-auto box-shadow bg-light">
+            <h3 class="h3 mb-3 font-weight-normal"><i class="fas fa-bullseye" aria-hidden=true>&nbsp;</i>My goal</h3>
+            <form action="" method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ wtf.form_field(form.title, class="form-control") }}
+                    {% for error in form.title.errors %}
+                        <small class="form-text text-muted">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ wtf.form_field(form.motivation, class="form-control") }}
+                    {% for error in form.motivation.errors %}
+                        <small class="form-text text-muted">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ wtf.form_field(form.acceptance_criteria, class="form-control") }}
+                    {% for error in form.acceptance_criteria.errors %}
+                        <small class="form-text text-muted">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ wtf.form_field(form.reward, class="form-control") }}
+                    {% for error in form.reward.errors %}
+                        <small class="form-text text-muted">[{{ error }}]</small>
+                    {% endfor %}
+                </div>
+            <p>To help me achieve this goal, I will:</p>
+            <small class="form-text text-muted">Complete at least one of the below</small>
+            <div class="form-group">
+                {% for error in form.valid_goal.errors %}
+                    <small class="form-text text-muted">[{{ error }}]</small>
+                {% endfor %}
+            </div>
+            <p><i class="fas fa-bars" aria-hidden=true>&nbsp;</i>Complete {{ form.frequency_activity_type }}, {{ form.frequency }} times a week</p>
+            <p><i class="fab fa-algolia" aria-hidden=true>&nbsp;</i>Complete {{ form.duration_activity_type }} for a grand total of {{ form.duration }} minutes in a week</p>
+            <p><i class="fas fa-flag-checkered" aria-hidden=true>&nbsp;</i>Complete {{ form.distance_activity_type }} for a grand total of {{ form.distance }} kms in a week</p>
+                <div class="text-right">
+                    <a href="{{ url_for('main.regular_activities') }}" class="btn btn-secondary">Cancel</a>
+                    <button id="submit" class="btn btn-primary" type="submit">Set Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -103,3 +103,8 @@ def test_view_site_logo(test_client):
 def test_view_about(test_client):
     response = test_client.get('/about')
     assert response.status_code == 200
+
+
+def test_view_set_goal(test_client):
+    response = test_client.get('/goal/set_goal')
+    assert response.status_code == 302

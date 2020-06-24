@@ -56,7 +56,7 @@
                                 <h5 class="card-text">{{ activity.title }}</h5>
                             </div>
                             <div class="card-footer">
-                                <i class="{{ icons[activity.type] }}"></i>&nbsp;{{ activity.duration }} mins.{% if activity.distance %}
+                                <i class="{{ icons[activity.type] }}" aria-hidden=true></i>&nbsp;{{ activity.duration }} mins.{% if activity.distance %}
                                 &nbsp;|&nbsp;{{ activity.distance | round(2) }} km {%  endif %}
                                 <a href="{{ url_for('main.log_activity', activity_id=activity.id) }}" class="stretched-link">&nbsp;</a>
                             </div>

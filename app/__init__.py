@@ -86,6 +86,8 @@ def create_app(config_name='default'):
     csrf.exempt(api_bp)
     from app.support import bp as support_bp
     app.register_blueprint(support_bp, url_prefix='/support')
+    from app.goal import bp as goal_bp
+    app.register_blueprint(goal_bp, url_prefix='/goal')
 
     return app
 
