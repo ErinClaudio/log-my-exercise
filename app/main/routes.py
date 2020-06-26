@@ -10,7 +10,7 @@ from app.auth.forms import StravaIntegrationForm
 from app.main import ACTIVITIES_LOOKUP, ICONS_LOOKUP
 from app.main import bp
 from app.main.forms import ActivityForm
-from app.models import Activity, RegularActivity, User, StravaAthlete
+from app.models import Activity, RegularActivity, User, StravaAthlete, Goal
 from app.services import strava, charting
 from app.services.charting import ACTIVITY_COLOR_LOOKUP
 
@@ -229,6 +229,13 @@ def exercise_log(offset=0, sum_by='duration'):
     # do need the UTC day before for getting the data to cover cases where the local time is ahead
     # of UTC
     chart_data = charting.get_chart_dataset(activities_this_week, start_week_date, sum_by=sum_by)
+
+    # look at goals and whether they are met this week
+    goals = Goal.query.filter_by(user_id=current_user.get_id())
+    _, current_week_start_date, current_week_end_date = charting.get_week_bookends(None, 0)
+    goals_percentage_met = charting.compare_weekly_totals_to_goals(goals, activities, current_week_start_date,
+                                                                   current_week_end_date)
+
     return render_template('activity/view_log.html',
                            user=user, activities=activities,
                            activities_lookup=ACTIVITIES_LOOKUP,
@@ -238,6 +245,8 @@ def exercise_log(offset=0, sum_by='duration'):
                            end_week=end_week_date.strftime("%b %d"),
                            sum_by=sum_by,
                            offset=offset,
+                           goals=goals,
+                           goals_percentage_met=goals_percentage_met,
                            title="View Exercise Log")
 
 

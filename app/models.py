@@ -249,7 +249,7 @@ class Goal(db.Model):
 
     def __str__(self):
         return '<Goal: {} {} {} {} {} {} {} {}'.format(self.title,
-                                                                      self.frequency_activity_type, self.frequency,
-                                                                      self.duration_activity_type, self.duration,
-                                                                      self.distance_activity_type, self.distance,
-                                                                      self.user_id)
+                                                       self.frequency_activity_type, self.frequency,
+                                                       self.duration_activity_type, self.duration,
+                                                       self.distance_activity_type, self.distance,
+                                                       self.user_id)

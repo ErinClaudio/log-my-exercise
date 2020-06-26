@@ -124,7 +124,7 @@ def determine_value_to_add(activity, local_date: date, start_date: date, end_dat
     """
     to_add = 0
     if sum_by == 'duration':
-        to_add = activity.duration
+        to_add = activity.duration if activity.duration else 0
     elif activity.distance:
         to_add = round(float(activity.distance), 2)
 
@@ -192,7 +192,6 @@ def get_chart_dataset(activities, start_date: date, end_date: date = None, sum_b
     :rtype: a list
     """
     exercise_dict = calc_daily_duration_per_exercise_type(activities, start_date, end_date, sum_by)
-    print(exercise_dict)
     display_data = []
     for key in sorted(exercise_dict):
         if sum(exercise_dict[key]) > 0:
@@ -202,3 +201,114 @@ def get_chart_dataset(activities, start_date: date, end_date: date = None, sum_b
                                  'data': exercise_dict[key]})
 
     return display_data
+
+
+def calc_week_totals_by_exercise_type(exercise_dict):
+    """
+    calculates the total number of exercises performed irrespective of exercise_type in a week,
+    the total number for each exercise_type in a week and the total weekly minutes/kms per exercise_type
+    total
+    :param exercise_dict:a dictionary where key is exerise_type and value is a list
+    representing minutes/kms spent on that exercise_type on that day
+    :type exercise_dict:
+    :return: total number of activities performed in the week, a dict with total number of activities per activity type,
+    total minutes/kms across all activities
+    a dict with key the activity_type and value is total minutes/kms spent on that activity_type
+    :rtype: tuple with 4 items
+    """
+    dict_totals = {}
+    grand_total = float(0.0)
+    activities_grand_total = 0
+    dict_number_activities = {}
+    for exercise_type, days in exercise_dict.items():
+        dict_totals[exercise_type] = sum(days)
+        grand_total += sum(days)
+        number_activities = sum(1 if daily_total > 0 else 0 for daily_total in days)
+        activities_grand_total += number_activities
+        dict_number_activities[exercise_type] = number_activities
+
+    return activities_grand_total, dict_number_activities, grand_total, dict_totals
+
+
+def calc_weekly_totals(activities, start_date: date, end_date: date = None):
+    """
+    Calculates the weekly grand totals for duration and distance and number of exercises performed
+    :param activities: list of activities to count
+    :type activities: activity
+    :param start_date: the start date of the week
+    :type start_date: Date
+    :param end_date: the end date of the week
+    :type end_date: Date
+    :return: total count of activities in the week, total count of activities by exercise_type,
+    weekly total of exercise duration,
+    weekly total of exercise duration by exercise_type,
+    weekly total of exercise distance, weekly total of exercise distance by exercise_type,
+    :rtype: a tuple with 6 elements
+    """
+    dict_by_duration = calc_daily_duration_per_exercise_type(activities, start_date, end_date, 'duration')
+    dict_by_distance = calc_daily_duration_per_exercise_type(activities, start_date, end_date, 'distance')
+
+    total_count_all_activities, total_count_by_exercise_type, total_duration_all_activities, \
+        total_duration_by_exercise_type = calc_week_totals_by_exercise_type(dict_by_duration)
+    _, _, total_distance_all_activities, total_distance_by_exercise_type = calc_week_totals_by_exercise_type(
+        dict_by_distance)
+
+    return total_count_all_activities, total_count_by_exercise_type, total_duration_all_activities, \
+        total_duration_by_exercise_type, total_distance_all_activities, total_distance_by_exercise_type
+
+
+def compare_weekly_totals_to_goals(goals, activities, start_date: date, end_date: date = None):
+    """
+    Compares the weekly frequency, duration, distance figrues against goals in order to calculate %age of the goal
+    :param goals: a list of user Goal
+    :type goals: List
+    :param total_count_all_activities: total number of activities in the week
+    :type total_count_all_activities: int
+    :param total_count_by_exercise_type: total number of activities per activity type
+    :type total_count_by_exercise_type: Dict
+    :param total_duration_all_activities: total duration of activities in the week
+    :type total_duration_all_activities: float
+    :param total_duration_by_exercise_type: total duration per activity type
+    :type total_duration_by_exercise_type: dict
+    :param total_distance_all_activities: total distance o activities in the week
+    :type total_distance_all_activities: float
+    :param total_distance_by_exercise_type: total distance of activities per activity type
+    :type total_distance_by_exercise_type: dict
+    :return: A list of tuples where each tuple contains (%age met of total activities goal,
+    %age met of total duration goal, %age met of total distance goal)
+    :rtype: tuple
+    """
+    total_count_all_activities, total_count_by_exercise_type, \
+        total_duration_all_activities, total_duration_by_exercise_type, \
+        total_distance_all_activities, total_distance_by_exercise_type = \
+        calc_weekly_totals(activities, start_date, end_date)
+
+    percentages = []
+    for goal in goals:
+        frequency_percentage, duration_percentage, distance_percentage = 0, 0, 0
+
+        if goal.frequency:
+            # look to see if across all activities or specific activity type
+            if goal.frequency_activity_type == -1:
+                numerator = total_count_all_activities
+            else:
+                numerator = total_count_by_exercise_type[goal.frequency_activity_type]
+            frequency_percentage = int(numerator / goal.frequency * 100)
+
+        if goal.duration:
+            if goal.duration_activity_type == -1:
+                numerator = total_duration_all_activities
+            else:
+                numerator = total_duration_by_exercise_type[goal.duration_activity_type]
+            duration_percentage = int(numerator / goal.duration * 100)
+
+        if goal.distance:
+            if goal.distance_activity_type == -1:
+                numerator = total_distance_all_activities
+            else:
+                numerator = total_distance_by_exercise_type[goal.distance_activity_type]
+            distance_percentage = int(numerator / goal.distance * 100)
+
+        percentages.append((frequency_percentage, duration_percentage, distance_percentage))
+
+    return percentages

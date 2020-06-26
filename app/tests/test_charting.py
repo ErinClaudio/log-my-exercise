@@ -1,6 +1,8 @@
 from datetime import datetime, date
 
-from app.models import Activity
+import pytest
+
+from app.models import Activity, Goal
 from app.services import charting
 
 
@@ -346,3 +348,195 @@ def test_week_activity_distance_positive_timezone():
     assert len(week_duration) == 5
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [10, 0, 0, 0, 0, 0, 0]
+
+
+def test_calc_week_totals_by_exercise_type():
+    exercise_dict = {1: [10, 0, 0, 0, 0, 0, 0],
+                     2: [0, 20, 0, 0, 0, 0, 0],
+                     3: [0, 0, 30, 0, 0, 0, 0],
+                     4: [0, 0, 10, 40, 0, 0, 0],
+                     5: [0, 0, 0, 0, 50, 0, 0],
+                     6: [0, 0, 0, 0, 0, 60, 0],
+                     }
+
+    activities_grand_total, dict_counts, grand_total, dict_totals = charting.calc_week_totals_by_exercise_type(
+        exercise_dict)
+
+    assert activities_grand_total == 7
+    assert grand_total == 220
+    assert dict_counts == {1: 1, 2: 1, 3: 1, 4: 2, 5: 1, 6: 1}
+    assert dict_totals == {1: 10, 2: 20, 3: 30, 4: 50, 5: 50, 6: 60}
+
+
+def test_calc_week_totals_by_exercise_type_floats():
+    exercise_dict = {1: [10.1, 0, 10.1, 0, 0, 0, 0],
+                     2: [0, 20.2, 0, 0, 0, 0, 0],
+                     3: [0, 0, 0, 0, 0, 0, 0],
+                     4: [0, 0, 0, 0, 0, 0, 0],
+                     5: [0, 0, 0, 0, 0, 0, 0],
+                     6: [0, 0, 0, 0, 0, 0, 0],
+                     }
+
+    activities_grand_total, dict_counts, grand_total, dict_totals = charting.calc_week_totals_by_exercise_type(
+        exercise_dict)
+
+    assert activities_grand_total == 3
+    assert grand_total == 40.4
+    assert dict_counts == {1: 2, 2: 1, 3: 0, 4: 0, 5: 0, 6: 0}
+    assert dict_totals == {1: 20.2, 2: 20.2, 3: 0, 4: 0, 5: 0, 6: 0}
+
+
+def test_calc_weekly_totals():
+    iso_date = '2020-06-18T21:58:33.302785-07:00'
+
+    my_date = datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%S.%f%z').date()
+    _, start_week, _ = charting.get_week_bookends(my_date)
+
+    activities = [Activity(id=1, type=1, title='title', duration=20,
+                           iso_timestamp='2020-06-16T04:58:33.302785+05:00'),
+                  Activity(id=2, type=4, title='title', distance=10, duration=15,
+                           iso_timestamp='2020-06-17T04:58:33.302785+05:00'),
+                  Activity(id=3, type=1, title='title', duration=34,
+                           iso_timestamp='2020-06-18T04:58:33.302785+05:00'),
+                  Activity(id=4, type=3, title='title', duration=25,
+                           iso_timestamp='2020-06-19T04:58:33.302785+05:00')
+                  ]
+
+    total_count_all_activities, total_count_by_exercise_type, \
+    total_duration_all_activities, total_duration_by_exercise_type, \
+    total_distance_all_activities, total_distance_by_exercise_type = \
+        charting.calc_weekly_totals(activities, start_week)
+
+    assert total_count_all_activities == 4
+    assert total_count_by_exercise_type == {1: 2, 2: 0, 3: 1, 4: 1, 5: 0}
+    assert total_duration_all_activities == 94
+    assert total_distance_all_activities == 10
+    assert total_duration_by_exercise_type == {1: 54, 2: 0, 3: 25, 4: 15, 5: 0}
+    assert total_distance_by_exercise_type == {1: 0, 2: 0, 3: 0, 4: 10, 5: 0}
+
+
+weekly_totals_test_data = [([Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  frequency=5,
+                                  frequency_activity_type=-1,
+                                  user_id=1)],
+                            [Activity(id=1, type=1, title='title', duration=20,
+                                      iso_timestamp='2020-06-16T04:58:33.302785+05:00')],
+                            [(20, 0, 0)]),
+                           ([Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  frequency=5,
+                                  frequency_activity_type=3,
+                                  user_id=1)],
+                            [Activity(id=1, type=3, title='title', duration=20,
+                                      iso_timestamp='2020-06-16T04:58:33.302785+05:00')],
+                            [(20, 0, 0)]),
+                           ([Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  frequency=5,
+                                  frequency_activity_type=3,
+                                  user_id=1)],
+                            [Activity(id=1, type=3, title='title', duration=20,
+                                      iso_timestamp='2020-06-16T04:58:33.302785+05:00'),
+                             Activity(id=1, type=3, title='title', duration=20,
+                                      iso_timestamp='2020-06-17T04:58:33.302785+05:00')
+                             ],
+                            [(40, 0, 0)]),
+                           ([Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  duration=60,
+                                  duration_activity_type=-1,
+                                  user_id=1)],
+                            [Activity(id=1, type=3, title='title', duration=20,
+                                      iso_timestamp='2020-06-16T04:58:33.302785+05:00')],
+                            [(0, 33, 0)]),
+                           ([Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  duration=60,
+                                  duration_activity_type=4,
+                                  user_id=1)],
+                            [Activity(id=1, type=4, title='title', duration=20,
+                                      iso_timestamp='2020-06-16T04:58:33.302785+05:00')],
+                            [(0, 33, 0)]),
+                           ([Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  distance=60,
+                                  distance_activity_type=-1,
+                                  user_id=1)],
+                            [Activity(id=1, type=3, title='title', distance=20,
+                                      iso_timestamp='2020-06-16T04:58:33.302785+05:00')],
+                            [(0, 0, 33)]),
+                           ([Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  distance=60,
+                                  distance_activity_type=4,
+                                  user_id=1)],
+                            [Activity(id=1, type=4, title='title', distance=20,
+                                      iso_timestamp='2020-06-16T04:58:33.302785+05:00')],
+                            [(0, 0, 33)]),
+                           ([Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  distance=60,
+                                  distance_activity_type=4,
+                                  user_id=1),
+                             Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  duration=60,
+                                  duration_activity_type=-1,
+                                  user_id=1)
+                             ],
+                            [Activity(id=1, type=4, title='title', distance=20, duration=20,
+                                      iso_timestamp='2020-06-16T04:58:33.302785+05:00'),
+                             Activity(id=1, type=2, title='title', duration=20,
+                                      iso_timestamp='2020-06-17T04:58:33.302785+05:00')
+                             ],
+                            [(0, 0, 33), (0, 66, 0)]),
+                           ([Goal(title="My Exercise",
+                                  motivation="Why am i motivated to do this",
+                                  acceptance_criteria="My acceptance criteria",
+                                  reward="how will i reward myself",
+                                  frequency=3,
+                                  frequency_activity_type=-1,
+                                  duration=60,
+                                  duration_activity_type=3,
+                                  distance=60,
+                                  distance_activity_type=4,
+                                  user_id=1),
+                             ],
+                            [Activity(id=1, type=4, title='title', distance=20, duration=20,
+                                      iso_timestamp='2020-06-16T04:58:33.302785+05:00'),
+                             Activity(id=1, type=4, title='title', duration=20,
+                                      iso_timestamp='2020-06-17T04:58:33.302785+05:00'),
+                             Activity(id=1, type=2, title='title', duration=10,
+                                      iso_timestamp='2020-06-17T04:58:33.302785+05:00')],
+                            [(100, 0, 33)])
+                           ]
+
+
+@pytest.mark.parametrize("goals,activities,expected_percentages", weekly_totals_test_data)
+def test_compare_weekly_totals_to_goals_params(goals, activities, expected_percentages):
+    iso_date = '2020-06-18T21:58:33.302785-07:00'
+
+    my_date = datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%S.%f%z').date()
+    _, start_week, _ = charting.get_week_bookends(my_date)
+
+    percentages = charting.compare_weekly_totals_to_goals(goals, activities, start_week)
+    assert percentages == expected_percentages

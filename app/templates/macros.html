@@ -15,3 +15,32 @@
     {{ name }}
 </a></li>
 {% endmacro %}
+{% macro exercise_icon(activity_type_id) %}
+    {% if activity_type_id >-1 %}
+        <i class="{{ icons[activity_type_id] }}" aria-hidden="true"></i>
+    {% else %}
+        <span>Any</span>
+    {% endif %}
+{% endmacro %}
+{% macro goal_progress_bar(measure_icon_style, measure_text, measure_value, measure_activity_type, measure_unit, goal_percentage) %}
+    {% if measure_value %}
+        <div>
+            <div class="d-flex justify-content-between">
+                <div class="text-muted small">
+                    <i class="{{ measure_icon_style }}" aria-hidden=true></i>
+                    {{ measure_text }}
+                </div>
+                <div class="text-muted small">
+                    {{ measure_value }} {{ measure_unit }} {{ exercise_icon(measure_activity_type) }}
+                </div>
+            </div>
+            <div class="progress" >
+                <div class="progress-bar" role="progressbar" style="width: {{ goal_percentage }}%"
+                     aria-valuenow="{{ goal_percentage }}"
+                     aria-valuemin="0"
+                     aria-valuemax="100"> <span class="small">{{ goal_percentage }}%</span>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}

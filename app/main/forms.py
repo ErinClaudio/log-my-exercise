@@ -7,7 +7,6 @@ from app.main import VALID_ACTIVITIES, SELECT_ACTIVITIES
 
 class ActivityForm(FlaskForm):
 
-
     title = StringField('Title *', validators=[DataRequired(), Length(min=0, max=50)])
     motivation = TextAreaField('Reason for goal (optional)', validators=[Length(min=0, max=300)])
     reward = TextAreaField('Reward for achieving goal (optional)', validators=[Length(min=0, max=300)])
