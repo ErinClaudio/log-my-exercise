@@ -15,8 +15,6 @@ jobs:
         environment:
           MYSQL_ROOT_PASSWORD: ubuntu
           MYSQL_DATABASE: circle_test
-          MYSQL_USER: ubuntu
-          MYSQL_PASSWORD: ""
     steps:
       - checkout
       - restore_cache:
