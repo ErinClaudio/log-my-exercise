@@ -5,6 +5,9 @@ jobs:
       - image: circleci/python:3.6.2-stretch-browsers
         environment:
           FLASK_CONFIG: testing
+          AUTH0_CLIENT_ID: 123
+          AUTH0_CLIENT_SECRET: secret
+          AUTH0_CLIENT_DOMAIN: domain
           TEST_DATABASE_URL: postgresql://ubuntu@localhost/circle_test?sslmode=disable
       - image: circleci/postgres:9.6.5-alpine-ram
         environment:
