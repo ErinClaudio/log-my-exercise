@@ -8,7 +8,9 @@ jobs:
           AUTH0_CLIENT_ID: 123
           AUTH0_CLIENT_SECRET: secret
           AUTH0_CLIENT_DOMAIN: domain
-          TEST_DATABASE_URL: mysql+pymysq://user:passw0rd@localhost/test_db
+          CALL_STRAVA_API:
+          CONTACT_US_FORMAT:
+          TEST_DATABASE_URL: mysql+pymysql://user:passw0rd@localhost/test_db
       - image: circleci/mysql:8.0.4
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
