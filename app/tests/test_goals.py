@@ -180,6 +180,84 @@ def test_goal_invalid_no_frequency(test_client_csrf, init_database):
         assert "Please enter a frequency, duration or distance" in str(response.data)
 
 
+def test_goal_invalid_frequency(test_client_csrf, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        params = dict(
+            title="My Exercise",
+            motivation="Why am i motivated to do this",
+            acceptance_criteria="My acceptance criteria",
+            reward="how will i reward myself",
+            frequency=2.3,  # only integers are valid
+            distance_activity_type=4,
+            frequency_activity_type=-1,
+            duration_activity_type=-1,
+            csrf_token=test_client_csrf.csrf_token)
+
+        response = test_client_csrf.post('/goal/set_goal', data=params)
+        assert response.status_code == 200
+        goal = Goal.query.filter_by(user_id=u.id).first()
+
+        assert goal is None
+        assert "Not a valid integer value" in str(response.data)
+
+
+def test_goal_invalid_duration(test_client_csrf, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        params = dict(
+            title="My Exercise",
+            motivation="Why am i motivated to do this",
+            acceptance_criteria="My acceptance criteria",
+            reward="how will i reward myself",
+            duration=2.3,  # only integers are valid
+            distance_activity_type=4,
+            frequency_activity_type=-1,
+            duration_activity_type=-1,
+            csrf_token=test_client_csrf.csrf_token)
+
+        response = test_client_csrf.post('/goal/set_goal', data=params)
+        assert response.status_code == 200
+        goal = Goal.query.filter_by(user_id=u.id).first()
+
+        assert goal is None
+        assert "Not a valid integer value" in str(response.data)
+
+
+def test_goal_invalid_distance(test_client_csrf, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        params = dict(
+            title="My Exercise",
+            motivation="Why am i motivated to do this",
+            acceptance_criteria="My acceptance criteria",
+            reward="how will i reward myself",
+            distance=2.3,  # only integers are valid
+            distance_activity_type=4,
+            frequency_activity_type=-1,
+            duration_activity_type=-1,
+            csrf_token=test_client_csrf.csrf_token)
+
+        response = test_client_csrf.post('/goal/set_goal', data=params)
+        assert response.status_code == 200
+        goal = Goal.query.filter_by(user_id=u.id).first()
+
+        assert goal is None
+        assert "Not a valid integer value" in str(response.data)
+
+
 def test_edit_goal(test_client_csrf, init_database, add_goal):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 

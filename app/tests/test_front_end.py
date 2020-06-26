@@ -6,6 +6,8 @@ from selenium.webdriver.support.ui import Select
 from app import create_app, db
 from app.models import User
 
+import time
+
 test_user_username = "my_test_user"
 test_user_email = "test@test.email"
 test_user_password = "test_pwd"
@@ -32,6 +34,14 @@ class TestBase(LiveServerTestCase):
 
     def tearDown(self):
         self.driver.quit()
+
+    def login_user(self):
+        self.driver.get(self.get_server_url() + "/auth/login")
+        self.driver.find_element_by_id("username").send_keys(test_user_username)
+        self.driver.find_element_by_id("password").send_keys(
+            test_user_password)
+        self.driver.find_element_by_id("submit").click()
+        self.driver.find_element_by_id("set_up").click()
 
 
 class TestLogin(TestBase):
@@ -61,13 +71,7 @@ class TestLogin(TestBase):
 
 class TestActivity(TestBase):
 
-    def login_user(self):
-        self.driver.get(self.get_server_url() + "/auth/login")
-        self.driver.find_element_by_id("username").send_keys(test_user_username)
-        self.driver.find_element_by_id("password").send_keys(
-            test_user_password)
-        self.driver.find_element_by_id("submit").click()
-        self.driver.find_element_by_id("set_up").click()
+
 
     def test_create_regular_activity_ok(self):
         self.login_user()
@@ -257,3 +261,74 @@ class TestActivity(TestBase):
         assert cols[2].text == "title of workout"
         assert cols[3].text == "65"
         assert cols[4].text == "10.00"
+
+
+class TestContactUs(TestBase):
+
+    def test_contact_us_not_logged_in(self):
+
+        self.driver.find_element_by_id("contact_us_link").click()
+
+        self.driver.find_element_by_id("name").send_keys(
+            "Bobby Chariot")
+        self.driver.find_element_by_id("email").send_keys(
+            "myemail@email.com")
+        self.driver.find_element_by_id("message").send_keys(
+            "I just wanted to say hello")
+
+        self.driver.find_element_by_id("send_message").click()
+        success_message = self.driver.find_element_by_class_name("alert-success").text
+
+        assert "Thank you for sending us a note" in success_message
+
+    def test_contact_us_logged_in(self):
+        self.login_user()
+        self.driver.find_element_by_id("contact_us_link").click()
+
+        assert test_user_username in self.driver.find_element_by_id("name").get_attribute("value")
+        assert test_user_email in self.driver.find_element_by_id("email").get_attribute("value")
+
+        self.driver.find_element_by_id("message").send_keys(
+            "I just wanted to say hello")
+
+        self.driver.find_element_by_id("send_message").click()
+        success_message = self.driver.find_element_by_class_name("alert-success").text
+        assert "Thank you for sending us a note" in success_message
+
+    def test_contact_us_invalid_data(self):
+
+        self.driver.find_element_by_id("contact_us_link").click()
+        self.driver.find_element_by_id("send_message").click()
+
+        error_message = self.driver.find_element_by_class_name("text-muted").text
+        assert "This field is required" in error_message
+
+
+class TestGoal(TestBase):
+
+    def test_set_goal(self):
+        self.login_user()
+        self.driver.find_element_by_id("my_log_link").click()
+        self.driver.find_element_by_id("set_goal_link").click()
+
+        self.driver.find_element_by_id("title").send_keys(
+            "My first goal")
+        self.driver.find_element_by_id("motivation").send_keys(
+            "My motivation")
+        self.driver.find_element_by_id("acceptance_criteria").send_keys(
+            "My acceptance criteria")
+        self.driver.find_element_by_id("reward").send_keys(
+            "My reward")
+        self.driver.find_element_by_id("frequency").send_keys(
+            "5")
+        self.driver.find_element_by_id("duration").send_keys(
+            "60")
+        self.driver.find_element_by_id("distance").send_keys(
+            "10")
+
+        self.driver.find_element_by_id("submit").click()
+
+        success_message = self.driver.find_element_by_class_name("alert-success").text
+
+        assert "Well done on setting yourself a goal" in success_message
+
