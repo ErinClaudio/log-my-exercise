@@ -16,7 +16,6 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_ROOT_PASSWORD: ubuntu
           MYSQL_DATABASE: circle_test
-          MYSQL_ROOT_HOST: %
           MYSQL_USER: root
     steps:
       - checkout
