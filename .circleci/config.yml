@@ -10,9 +10,10 @@ jobs:
           AUTH0_CLIENT_DOMAIN: domain
           CALL_STRAVA_API:
           CONTACT_US_FORMAT:
-          TEST_DATABASE_URL: mysql+pymysql://ubuntu@localhost/circle_test
+          TEST_DATABASE_URL: mysql+pymysql://root@localhost/circle_test
       - image: circleci/mysql:8.0.4
         environment:
+          MYSQL_ROOT_PASSWORD: ubuntu
           MYSQL_DATABASE: circle_test
           MYSQL_USER: ubuntu
           MYSQL_PASSWORD: ""
