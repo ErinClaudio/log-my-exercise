@@ -164,6 +164,7 @@ def init_database():
 
     yield db
 
+    db.session.close()
     db.drop_all()
 
 
