@@ -37,7 +37,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
-      -run:
+      - run:
           name: run tests
           command: | 
             pytest app/tests/test_activities.py
