@@ -41,7 +41,7 @@ jobs:
           name: run tests
           command: | 
             . venv/bin/activate
-            pytest app/tests/test_activities.py
+            pytest
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
