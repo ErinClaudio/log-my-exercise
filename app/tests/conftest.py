@@ -164,6 +164,7 @@ def init_database():
 
     yield db
 
+    db.session.close()
     db.drop_all()
 
 
@@ -197,7 +198,7 @@ def add_regular_activity_distance():
                                user_id=u.id,
                                description="Some description",
                                duration=23,
-                               distance=3.2)
+                               distance=3)
     db.session.add(activity)
     db.session.commit()
 

@@ -78,7 +78,7 @@ def test_log_unique_activity(test_client_csrf, init_database):
             description="A description of a cycle ride",
             activity_type=3,
             duration=33,
-            distance=5.3,
+            distance=5,
             user_tz='America/Los_Angeles',
             csrf_token=test_client_csrf.csrf_token)
 
@@ -178,7 +178,7 @@ def test_create_regular_activity_distance(test_client_csrf, init_database):
             description="A description",
             activity_type=3,
             duration=29,
-            distance=3.45,
+            distance=3,
             csrf_token=test_client_csrf.csrf_token)
 
         response = test_client_csrf.post('/add_regular_activities', data=params)
