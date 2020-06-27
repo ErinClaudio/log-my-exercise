@@ -174,7 +174,7 @@ class StravaEvent(db.Model):
     """
     id = db.Column(db.Integer, primary_key=True)
     athlete_id = db.Column(db.Integer)
-    action = db.Column(db.String(20))
+    action = db.Column(db.String(30))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
