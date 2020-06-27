@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build-and-test:
     docker:
-      - image: circleci/python:3.6.2-stretch-browsers
+      - image: circleci/python:3.7.7-stretch-browsers
         environment:
           FLASK_CONFIG: testing
           AUTH0_CLIENT_ID: 123
