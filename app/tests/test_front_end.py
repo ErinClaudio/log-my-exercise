@@ -21,7 +21,11 @@ class TestBase(LiveServerTestCase):
 
     def setUp(self):
         """Setup the test driver and create test users"""
-        self.driver = webdriver.Chrome()
+        options = webdriver.ChromeOptions()
+        options.add_argument('--disable-infobars')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--no-sandbox')
+        self.driver = webdriver.Chrome(options=options)
         self.driver.get(self.get_server_url())
 
         db.drop_all()
