@@ -47,10 +47,11 @@ jobs:
           name: run tests and calculate coverage
           command: | 
             . venv/bin/activate
-            pip install coveralls
-            coverage run -m pytest
+            coverage run -m pytest --junitxml="result.xml"
             coverage xml
             COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls
+      - store_test_results:
+          path: result.xml
       - store_artifacts:
           path: .coverage
       - store_artifacts:
