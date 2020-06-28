@@ -44,11 +44,12 @@ jobs:
             . venv/bin/activate
             pip install -r requirements.txt
       - run:
-          name: run tests
+          name: run tests and calculate coverage
           command: | 
             . venv/bin/activate
             coverage run -m pytest
             coverage xml
+            COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls
       - store_artifacts:
           path: .coverage
       - store_artifacts:
