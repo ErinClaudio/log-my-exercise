@@ -6,8 +6,6 @@ from selenium.webdriver.support.ui import Select
 from app import create_app, db
 from app.models import User
 
-import time
-
 test_user_username = "my_test_user"
 test_user_email = "test@test.email"
 test_user_password = "test_pwd"
@@ -23,8 +21,9 @@ class TestBase(LiveServerTestCase):
         """Setup the test driver and create test users"""
         options = webdriver.ChromeOptions()
         options.add_argument('--no-sandbox')
-        options.add_argument('--disable-setuid-sandbox')
-        options.add_argument("--window-size=1920,1080")
+        options.add_argument('--headless')
+        options.add_argument('--window-size=1920,1080')
+
         self.driver = webdriver.Chrome(options=options)
         self.driver.get(self.get_server_url())
 
@@ -67,15 +66,8 @@ class TestLogin(TestBase):
         no_activity_msg = self.driver.find_element_by_id("no_reg").text
         assert "No regular activities" in no_activity_msg
 
-        # try and access the login page, should remain on the index page as now logged in
-        self.driver.get(self.get_server_url() + "/auth/login")
-        no_activity_msg = self.driver.find_element_by_id("no_reg").text
-        assert "No regular activities" in no_activity_msg
-
 
 class TestActivity(TestBase):
-
-
 
     def test_create_regular_activity_ok(self):
         self.login_user()
@@ -270,7 +262,6 @@ class TestActivity(TestBase):
 class TestContactUs(TestBase):
 
     def test_contact_us_not_logged_in(self):
-
         self.driver.find_element_by_id("contact_us_link").click()
 
         self.driver.find_element_by_id("name").send_keys(
@@ -300,7 +291,6 @@ class TestContactUs(TestBase):
         assert "Thank you for sending us a note" in success_message
 
     def test_contact_us_invalid_data(self):
-
         self.driver.find_element_by_id("contact_us_link").click()
         self.driver.find_element_by_id("send_message").click()
 
@@ -335,4 +325,3 @@ class TestGoal(TestBase):
         success_message = self.driver.find_element_by_class_name("alert-success").text
 
         assert "Well done on setting yourself a goal" in success_message
-
