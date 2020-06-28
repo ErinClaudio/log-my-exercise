@@ -267,6 +267,7 @@ def test_edit_goal(test_client_csrf, init_database, add_goal):
         current_user.return_value.id = u.id
         current_user.return_value.get_id.return_value = u.id
 
+        time.sleep(1)
         params = dict(
             title="My Exercise 1",
             motivation="Why am i motivated to do this 1",

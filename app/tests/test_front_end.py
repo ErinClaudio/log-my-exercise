@@ -25,6 +25,7 @@ class TestBase(LiveServerTestCase):
         options.add_argument('--disable-infobars')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--no-sandbox')
+        options.add_argument('--disable-setuid-sandbox')
         self.driver = webdriver.Chrome(options=options)
         self.driver.get(self.get_server_url())
 
