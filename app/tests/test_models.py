@@ -21,7 +21,7 @@ def test_regular_activity(test_client, init_database):
                                title='Regular Activity',
                                user_id=u.id,
                                description="Some description",
-                               distance=2.2,
+                               distance=2,
                                duration=23)
     db.session.add(activity)
     db.session.commit()
