@@ -47,7 +47,8 @@ jobs:
           name: run tests
           command: | 
             . venv/bin/activate
-            pytest
+            coverage run -m pytest
+            coverage xml
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
