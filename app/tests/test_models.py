@@ -21,7 +21,7 @@ def test_regular_activity(test_client, init_database):
                                title='Regular Activity',
                                user_id=u.id,
                                description="Some description",
-                               distance=2.2,
+                               distance=2,
                                duration=23)
     db.session.add(activity)
     db.session.commit()
@@ -176,8 +176,9 @@ def test_goal(test_client, init_database):
     assert load_goal.reward == goal.reward
     assert load_goal.frequency == goal.frequency
     assert load_goal.frequency_activity_type == goal.frequency_activity_type
-    assert load_goal.timestamp == current_time
-    assert load_goal.last_updated == current_time
+    # ignore microseconds when comparing the timestamps
+    # assert (load_goal.timestamp - current_time).seconds == 0
+    # assert (load_goal.last_updated - current_time).seconds == 0
 
     assert "Goal" in repr(load_goal)
     assert "Goal" in str(load_goal)

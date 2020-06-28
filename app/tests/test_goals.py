@@ -1,3 +1,5 @@
+import time
+
 from unittest.mock import patch
 
 from app.models import User, Goal
@@ -265,6 +267,7 @@ def test_edit_goal(test_client_csrf, init_database, add_goal):
         current_user.return_value.id = u.id
         current_user.return_value.get_id.return_value = u.id
 
+        time.sleep(1)
         params = dict(
             title="My Exercise 1",
             motivation="Why am i motivated to do this 1",
@@ -283,6 +286,7 @@ def test_edit_goal(test_client_csrf, init_database, add_goal):
         response = test_client_csrf.get('/goal/edit_goal/{}'.format(goal.id))
         assert response.status_code == 200
         # make the changes to this goal and check the data saved is as expected
+        time.sleep(1)
         response = test_client_csrf.post('/goal/edit_goal/{}'.format(goal.id), data=params)
         assert response.status_code == 302
         goal = Goal.query.filter_by(id=goal.id).first()

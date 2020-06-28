@@ -47,7 +47,7 @@
         {% if current_user.is_anonymous %}
             <ul class="navbar-nav ml-auto">
                 {{ nav_link('main.view_about', 'About', 'about_link','') }}
-                {{ nav_link('support.contact_us', 'Contact Us', 'contact_link','fas fa-envelope') }}
+                {{ nav_link('support.contact_us', 'Contact Us', 'contact_us_link','fas fa-envelope') }}
                 {{ nav_link('auth.oauth_authorize', 'Login', 'login_link','') }}
                 {{ nav_link('auth.sign_up', 'Sign Up', 'register_link','') }}
             </ul>
@@ -59,7 +59,7 @@
             </ul>
             <ul class="navbar-nav ml-auto">
                 {{ nav_link('main.view_about', 'About', 'about_link','') }}
-                {{ nav_link('support.contact_us', 'Contact Us', 'contact_link','fas fa-envelope') }}
+                {{ nav_link('support.contact_us', 'Contact Us', 'contact_us_link','fas fa-envelope') }}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
@@ -113,7 +113,7 @@
             </div>
             <div class="col-6 col-md">
                 <ul class="list-unstyled text-small">
-                    <li><a id="contact_us_link" class="text-muted" href="{{ url_for('support.contact_us') }}">Contact Us</a></li>
+                    <li><a class="text-muted" href="{{ url_for('support.contact_us') }}">Contact Us</a></li>
                     <li><a class="text-muted" href="https://headwayapp.co/logmyexercise-changelog">Change Log</a></li>
 
                 </ul>
