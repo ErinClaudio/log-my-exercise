@@ -49,6 +49,10 @@ jobs:
             . venv/bin/activate
             coverage run -m pytest
             coverage xml
+      - store_artifacts:
+          path: .coverage
+      - store_artifacts:
+          path: coverage.xml
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
