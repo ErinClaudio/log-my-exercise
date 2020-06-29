@@ -46,7 +46,8 @@ jobs:
             pip install -r requirements.txt
       - run:
           name: run tests and calculate coverage
-          command: | 
+          command: |
+            . venv/bin/activate
             ls venv/lib/python3.7/site-packages/coverage
             coverage run -m pytest --junitxml="test-reports/results.xml"
             coverage xml
