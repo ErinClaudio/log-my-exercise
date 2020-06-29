@@ -44,12 +44,10 @@ jobs:
             . venv/bin/activate
             pip install -U pip
             pip install -r requirements.txt
-            pip install coverage
-            pip install coveralls
       - run:
           name: run tests and calculate coverage
           command: | 
-            . venv/bin/activate
+            ls venv/lib/python3.7/site-packages/coverage
             coverage run -m pytest --junitxml="test-reports/results.xml"
             coverage xml
             coveralls --help
