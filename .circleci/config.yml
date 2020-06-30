@@ -41,17 +41,16 @@ jobs:
           name: Install Python deps in a venv
           command: |
             python3 -m venv venv
-            . venv/bin/activate
+            source venv/bin/activate
             pip install -U pip
             pip install -r requirements.txt
       - run:
           name: run tests and calculate coverage
           command: |
-            . venv/bin/activate
-            ls venv/lib/python3.7/site-packages/coverage
+            source venv/bin/activate
+            coveralls --help
             coverage run -m pytest --junitxml="test-reports/results.xml"
             coverage xml
-            coveralls --help
       - store_test_results:
           path: test-reports
       - store_artifacts:
