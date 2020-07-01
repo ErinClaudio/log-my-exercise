@@ -57,10 +57,7 @@ Feedback and contributions are welcome.
 
 # To dos
 * Make the Strava API call to save an activity asynchronous
-* Improve the tests by introducing mocks
 * Improve the UI
-* Ability for a user to disable the Strava integration
-* Callback for Strava to disable the Strava integration for a user. Required to make this productionised with Strava.
 * A dedicated mobile app
 
 # License
