@@ -70,6 +70,6 @@ orbs:
 workflows:
   main:
     jobs:
-      - build-and-test
+      - build-and-test:
           context: SonarCloud
 
