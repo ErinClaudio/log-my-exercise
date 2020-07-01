@@ -26,7 +26,7 @@ jobs:
           command: |
             curl -O http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar
       - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run:
           name: Waiting for MySQL to be ready
           command: |
@@ -60,7 +60,7 @@ jobs:
       - store_artifacts:
           path: test-reports/results.xml
       - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: deps2-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
             - "venv"
 
