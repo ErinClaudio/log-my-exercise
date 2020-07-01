@@ -7,7 +7,6 @@ env.sh
 
 # sonar
 .scannerwork
-sonar-project.properties
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
