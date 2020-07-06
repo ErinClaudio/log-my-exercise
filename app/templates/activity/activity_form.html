@@ -1,4 +1,6 @@
 {% import "bootstrap/wtf.html" as wtf %}
+
+
 <form action="{{ form_url }}" method="post" name="exercise" novalidate>
     {{ form.hidden_tag() }}
     <div class="form-group">
@@ -8,8 +10,14 @@
         {% endfor %}
     </div>
     <div class="form-group">
-        {{ wtf.form_field(form.title, class="form-control") }}
+ {{ wtf.form_field(form.title, class="form-control") }}
         {% for error in form.title.errors %}
+            <small class="form-text text-muted">[{{ error }}]</small>
+        {% endfor %}
+    </div>
+    <div class="form-group">
+        {{ wtf.form_field(form.timestamp, class="form-control") }}
+        {% for error in form.timestamp.errors %}
             <small class="form-text text-muted">[{{ error }}]</small>
         {% endfor %}
     </div>
@@ -31,8 +39,8 @@
             <small class="form-text text-muted">[{{ error }}]</small>
         {% endfor %}
     </div>
-<div class="text-right">
-    <button class="btn btn-secondary" type="reset">Reset</button>
-    <button id="save_exercise" class="btn btn-primary" type="submit">Log It!</button>
-</div>
+    <div class="text-right">
+        <button class="btn btn-secondary" type="reset">Reset</button>
+        <button id="save_exercise" class="btn btn-primary" type="submit">Log It!</button>
+    </div>
 </form>

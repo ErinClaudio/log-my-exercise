@@ -23,6 +23,7 @@
         function add_tz_to_fields() {
             add_user_tz();
             add_user_tz_to_form();
+            format_exercise_date();
         }
 
         function add_user_tz() {
@@ -38,6 +39,16 @@
             const field = document.getElementById("user_tz");
             if (typeof (field) != 'undefined' && field != null) {
                 field.value = tz;
+            }
+        }
+
+        function format_exercise_date() {
+            var field = document.getElementById("timestamp");
+
+             if (typeof (field) != 'undefined' && field != null) {
+                 var m_utc = moment.utc(field.value, "DD/MM/YYYY HH:mm");
+                 var m_local = m_utc.clone().local().format("DD/MM/YYYY HH:mm");
+                 field.value = m_local;
             }
         }
     </script>
