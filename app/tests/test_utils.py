@@ -2,6 +2,7 @@ import json
 import glob
 import os
 from datetime import datetime
+import pytz
 
 
 from app.services import utils
@@ -11,7 +12,23 @@ def get_tz_hour_offset(my_date):
     return int(my_date[11:13])
 
 
-def test_utils_date_notz():
+def test_localize_local_time_badtz():
+    local_date = utils.localize_local_time(datetime.now(), 'fgfgfggf')
+    assert local_date is not None
+    assert local_date.tzinfo == pytz.utc
+
+
+def test_localize_local_time():
+    now = datetime.now()
+    assert now.tzinfo is None
+    local_date = utils.localize_local_time(now, 'America/Los_Angeles')
+    assert local_date is not None
+    assert local_date.hour == now.hour
+    assert local_date.minute == now.minute
+    assert local_date.tzinfo is not None
+
+
+def test_get_iso_from_local_time_notz():
     iso_date = '2020-06-18T21:58:33.302785-07:00'
     my_date = datetime.strptime(iso_date, '%Y-%m-%dT%H:%M:%S.%f%z')
     current_iso_date = utils.get_iso_from_local_time(my_date)
