@@ -148,7 +148,7 @@ def test_week_activity_duration_single_activity_start_week():
     activities = [activity]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week)
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [25, 0, 0, 0, 0, 0, 0]
     for i in range(2, 6):
@@ -165,7 +165,7 @@ def test_week_activity_duration_single_activity_end_week():
     activities = [activity]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week)
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [0, 0, 0, 0, 0, 0, 25]
 
@@ -180,7 +180,7 @@ def test_week_activity_duration_single_activity_day_before_start():
     activities = [activity]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week)
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [0, 0, 0, 0, 0, 0, 0]
 
@@ -197,7 +197,7 @@ def test_week_activity_duration_two_activity():
     activities = [activity, activity_1]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week)
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [25, 0, 32, 0, 0, 0, 0]
 
@@ -214,7 +214,7 @@ def test_week_activity_duration_two_activity_same_day():
     activities = [activity, activity_1]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week)
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [57, 0, 0, 0, 0, 0, 0]
 
@@ -231,7 +231,7 @@ def test_week_activity_duration_two_activity_diff_types():
     activities = [activity, activity_1]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week)
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [25, 0, 0, 0, 0, 0, 0]
     assert week_duration[2] == [0, 0, 32, 0, 0, 0, 0]
@@ -267,7 +267,7 @@ def test_week_activity_distance_two_activity_diff_types():
     activities = [activity, activity_1]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week, sum_by='distance')
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [10, 0, 0, 0, 0, 0, 0]
     assert week_duration[2] == [0, 0, 5, 0, 0, 0, 0]
@@ -288,7 +288,7 @@ def test_week_activity_distance_end_week():
     activities = [activity, activity_1]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week, end_week, sum_by='distance')
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [10.1, 0, 0, 0, 0, 0, 0]
     assert week_duration[2] == [0, 0, 0, 0, 0, 0, 5.25]
@@ -306,7 +306,7 @@ def test_week_activity_null_distance_end_week():
     activities = [activity]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week, end_week, sum_by='distance')
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [0, 0, 0, 0, 0, 0, 0]
 
@@ -326,7 +326,7 @@ def test_week_activity_distance_into_next_week():
     activities = [activity, activity_1]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week, end_week, sum_by='distance')
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [10, 0, 0, 0, 0, 0, 0]
     assert week_duration[2] == [0, 0, 0, 0, 0, 0, 0]
@@ -345,7 +345,7 @@ def test_week_activity_distance_positive_timezone():
     activities = [activity]
 
     week_duration = charting.calc_daily_duration_per_exercise_type(activities, start_week, end_week, sum_by='distance')
-    assert len(week_duration) == 5
+    assert len(week_duration) == 6
     assert len(week_duration[1]) == 7
     assert week_duration[1] == [10, 0, 0, 0, 0, 0, 0]
 
@@ -408,11 +408,11 @@ def test_calc_weekly_totals():
         charting.calc_weekly_totals(activities, start_week)
 
     assert total_count_all_activities == 4
-    assert total_count_by_exercise_type == {1: 2, 2: 0, 3: 1, 4: 1, 5: 0}
+    assert total_count_by_exercise_type == {1: 2, 2: 0, 3: 1, 4: 1, 5: 0, 6: 0}
     assert total_duration_all_activities == 94
     assert total_distance_all_activities == 10
-    assert total_duration_by_exercise_type == {1: 54, 2: 0, 3: 25, 4: 15, 5: 0}
-    assert total_distance_by_exercise_type == {1: 0, 2: 0, 3: 0, 4: 10, 5: 0}
+    assert total_duration_by_exercise_type == {1: 54, 2: 0, 3: 25, 4: 15, 5: 0, 6: 0}
+    assert total_distance_by_exercise_type == {1: 0, 2: 0, 3: 0, 4: 10, 5: 0, 6: 0}
 
 
 weekly_totals_test_data = [([Goal(title="My Exercise",
