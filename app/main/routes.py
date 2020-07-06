@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import render_template, flash, redirect, url_for, current_app
 from flask import request
@@ -9,9 +9,9 @@ from app import db
 from app.auth.forms import StravaIntegrationForm
 from app.main import ACTIVITIES_LOOKUP, ICONS_LOOKUP
 from app.main import bp
-from app.main.forms import ActivityForm
+from app.main.forms import ActivityForm, CompletedActivity
 from app.models import Activity, RegularActivity, User, StravaAthlete, Goal
-from app.services import strava, charting
+from app.services import strava, charting, utils
 from app.services.charting import ACTIVITY_COLOR_LOOKUP
 
 
@@ -49,26 +49,25 @@ def index():
     if current_user.is_authenticated:
         activities = RegularActivity.query.filter_by(user_id=current_user.get_id()).all()
 
-    form = ActivityForm()
-    # passed the id of the regular activity
-    # need to get all the details of the regular activity
-    # and use that to save the activity
+    form = CompletedActivity()
 
-    # need to pass in the URL to send the one-off activity to the template
     if form.validate_on_submit():
+        # user submits date and time in local time so need to convert to UTC
+        activity_utc_time = utils.get_utc_from_local_time(form.timestamp.data, form.user_tz.data)
         activity = Activity(title=form.title.data, description=form.description.data,
                             type=int(form.activity_type.data),
                             duration=form.duration.data,
-                            timestamp=datetime.utcnow(),
+                            timestamp=activity_utc_time,
                             distance=form.distance.data,
                             user_id=current_user.get_id())
-        activity.set_local_time('', form.user_tz.data)
+        # want to ensure local time and timezone information is saved also
+        activity.set_local_time(form.timestamp.data, form.user_tz.data)
         db.session.add(activity)
         db.session.commit()
         flash('Well done on completing {} today'.format(activity.title))
-        # need to clear the form once it's been saved successfully
         return redirect(url_for('main.index'))
 
+    form.timestamp.data = datetime.utcnow()
     return render_template('index.html', title='Home', form=form, regular_activities=activities,
                            icons=ICONS_LOOKUP, colors=ACTIVITY_COLOR_LOOKUP,
                            form_url=url_for('main.index'))
@@ -194,7 +193,7 @@ def log_activity(activity_id):
     regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
 
     activity = regular_activity.create_activity()
-    activity.set_local_time(request.args.get('local_time'), request.args.get('tz'))
+    activity.set_local_time(None, request.args.get('tz'))
     db.session.add(activity)
     db.session.commit()
 
@@ -222,14 +221,20 @@ def exercise_log(offset=0, sum_by='duration'):
     activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
     # get hold of the activities in the last week so they can be shown on the chart
     start_week_date_before, start_week_date, end_week_date = charting.get_week_bookends(None, week_offset=offset)
+    # add on 1 day to the end of week as need to take into account activities
+    # on that date
     activities_this_week = Activity.query.filter(Activity.timestamp >= start_week_date_before,
-                                                 Activity.timestamp <= end_week_date,
+                                                 Activity.timestamp <= (end_week_date + timedelta(days=2)),
                                                  Activity.user_id == current_user.get_id()).all()
+
+    print(start_week_date_before, start_week_date, end_week_date)
+    print(activities_this_week)
     # need to consider this as want the actual date for Monday when we are charting it
     # do need the UTC day before for getting the data to cover cases where the local time is ahead
     # of UTC
     chart_data = charting.get_chart_dataset(activities_this_week, start_week_date, sum_by=sum_by)
 
+    print(chart_data)
     # look at goals and whether they are met this week
     goals = Goal.query.filter_by(user_id=current_user.get_id())
     _, current_week_start_date, current_week_end_date = charting.get_week_bookends(None, 0)

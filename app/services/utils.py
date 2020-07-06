@@ -8,14 +8,15 @@ import pytz
 from app.services import aws
 
 
-def get_local_time_iso(user_tz='UTC'):
+def localize_local_time(user_datetime: datetime, user_tz='UTC'):
     """
-    converts the current time into a time local to the user's timezone
-    if the provided timezone is not valid then UTC is used
-    :param user_tz: representation of the local timezone
-    :type user_tz: string
-    :return: current datetime formatted into a ISO string
-    :rtype: string
+    localises the provided time into the provided timezone
+    :param user_datetime:datetime to localise
+    :type user_datetime: datetime
+    :param user_tz: timezone to localize into
+    :type user_tz: tiemzone
+    :return: the localized datetime
+    :rtype: datetime
     """
     local_tz = pytz.timezone('UTC')
     try:
@@ -24,7 +25,65 @@ def get_local_time_iso(user_tz='UTC'):
     except pytz.exceptions.UnknownTimeZoneError:
         pass
 
-    return datetime.now(local_tz).isoformat()
+    local_dt = local_tz.localize(user_datetime)
+    return local_dt
+
+
+def get_utc_from_local_time(user_datetime: datetime, user_tz='UTC'):
+    """
+    Converts a datetime from the user's TZ into UTC datetime
+    :param user_datetime: the datetime in the user's TZ
+    :type user_datetime: datetime
+    :param user_tz: the user's Timezone
+    :type user_tz: Timezone
+    :return: a datetime in UTC
+    :rtype: Datetime
+    """
+    local_tz = pytz.timezone('UTC')
+    try:
+        # check the timezone provided is valid
+        local_tz = pytz.timezone(user_tz)
+    except pytz.exceptions.UnknownTimeZoneError:
+        pass
+
+    local_dt = local_tz.localize(user_datetime)
+    utc_dt = local_dt.astimezone(pytz.utc)
+    return utc_dt
+
+
+def get_local_time_from_utc(user_datetime: datetime, user_tz='UTC'):
+    """
+    Converts a datetime from UTC into the user's timezone
+    :param user_datetime: the datetime in the user's TZ
+    :type user_datetime: datetime
+    :param user_tz: the user's Timezone
+    :type user_tz: Timezone
+    :return: a datetime in user's local time
+    :rtype: Datetime
+    """
+    local_tz = pytz.timezone('UTC')
+    try:
+        # check the timezone provided is valid
+        local_tz = pytz.timezone(user_tz)
+    except pytz.exceptions.UnknownTimeZoneError:
+        pass
+
+    utc_tz = pytz.timezone('UTC')
+    utc_date = utc_tz.localize(user_datetime)
+    local_dt = utc_date.astimezone(local_tz)
+
+    return local_dt
+
+
+def get_iso_from_local_time(user_datetime: datetime):
+    """
+    outputs the provided datetime into an ISO date format string
+    :param user_datetime: the datetime in the user's TZ
+    :type user_datetime: datetime
+    :return: provided datetime formatted into a ISO string
+    :rtype: string
+    """
+    return user_datetime.isoformat()
 
 
 def generate_random_filename_from_email(email):

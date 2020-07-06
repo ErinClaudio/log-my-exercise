@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from flask import url_for
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
@@ -241,6 +243,41 @@ class TestActivity(TestBase):
             "65")
         self.driver.find_element_by_id("distance").send_keys(
             "10")
+        self.driver.find_element_by_id("save_exercise").click()
+
+        success_message = self.driver.find_element_by_class_name("alert-success").text
+        assert "Well done on completing" in success_message
+
+        self.driver.find_element_by_id('my_log_link').click()
+        table = self.driver.find_element_by_id("activity_list")
+        rows = table.find_elements_by_tag_name("tr")
+
+        assert len(rows) == 2
+        cols = rows[1].find_elements_by_tag_name("td")
+        assert len(cols) == 6
+
+        assert cols[2].text == "title of workout"
+        assert cols[3].text == "65"
+        assert cols[4].text == "10.00"
+
+    def test_log_past_unique_activity(self):
+        # log a one-off activity on the home page with a previous date
+        activity_date = datetime.utcnow() - timedelta(days=1, hours=7)
+        activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
+        self.login_user()
+
+        self.driver.find_element_by_id("home_link").click()
+
+        self.driver.find_element_by_id("title").send_keys(
+            "title of workout")
+        self.driver.find_element_by_id("description").send_keys(
+            "a description")
+        self.driver.find_element_by_id("duration").send_keys(
+            "65")
+        self.driver.find_element_by_id("distance").send_keys(
+            "10")
+        self.driver.find_element_by_id("timestamp").clear()
+        self.driver.find_element_by_id("timestamp").send_keys(activity_date_str)
         self.driver.find_element_by_id("save_exercise").click()
 
         success_message = self.driver.find_element_by_class_name("alert-success").text

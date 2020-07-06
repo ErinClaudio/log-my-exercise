@@ -1,5 +1,6 @@
 
 import decimal
+from datetime import datetime, timedelta
 
 from unittest.mock import patch
 
@@ -69,7 +70,8 @@ def test_log_activity_local_time(test_client_csrf, init_database, add_regular_ac
 
 def test_log_unique_activity(test_client_csrf, init_database):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
-
+    activity_date = datetime.utcnow() - timedelta(days=1, hours=7)
+    activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
     with patch('flask_login.utils._get_user') as current_user:
         current_user.return_value.id = u.id
         current_user.return_value.get_id.return_value = u.id
@@ -80,6 +82,7 @@ def test_log_unique_activity(test_client_csrf, init_database):
             duration=33,
             distance=5,
             user_tz='America/Los_Angeles',
+            timestamp=activity_date_str,
             csrf_token=test_client_csrf.csrf_token)
 
         response = test_client_csrf.post('/index', data=params)
@@ -92,7 +95,56 @@ def test_log_unique_activity(test_client_csrf, init_database):
         assert activity.description == params['description']
         assert activity.duration == params['duration']
         assert round(activity.distance, 2) == round(decimal.Decimal(params['distance']), 2)
-        assert activity.iso_timestamp[-6:] == '-07:00'
+        assert activity.timestamp != activity.local_timestamp
+        assert activity.iso_timestamp is not None
+
+
+def test_log_unique_activity_invalid_future_date(test_client_csrf, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    activity_date = datetime.utcnow() + timedelta(days=1, hours=7)
+    activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+        params = dict(
+            title="My Exercise",
+            description="A description of a cycle ride",
+            activity_type=3,
+            duration=33,
+            distance=5,
+            user_tz='America/Los_Angeles',
+            timestamp=activity_date_str,
+            csrf_token=test_client_csrf.csrf_token)
+
+        response = test_client_csrf.post('/index', data=params)
+
+        assert response.status_code == 200
+        activity = Activity.query.filter_by(user_id=u.id).first()
+        assert activity is None
+
+
+def test_log_unique_activity_invalid_past_date(test_client_csrf, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    activity_date = datetime.utcnow() - timedelta(days=101, hours=7)
+    activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+        params = dict(
+            title="My Exercise",
+            description="A description of a cycle ride",
+            activity_type=3,
+            duration=33,
+            distance=5,
+            user_tz='America/Los_Angeles',
+            timestamp=activity_date_str,
+            csrf_token=test_client_csrf.csrf_token)
+
+        response = test_client_csrf.post('/index', data=params)
+
+        assert response.status_code == 200
+        activity = Activity.query.filter_by(user_id=u.id).first()
+        assert activity is None
 
 
 def test_log_activity_invalid_id(test_client_csrf, init_database, add_regular_activity):

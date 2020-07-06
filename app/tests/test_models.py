@@ -43,7 +43,7 @@ def test_daily_activity_local_time_present(test_client, init_database, add_regul
     regular_activity = RegularActivity.query.filter_by(user_id=u.id).first()
     activity = regular_activity.create_activity()
     local_time = datetime.utcnow() - timedelta(hours=3)
-    activity.set_local_time(local_time.timestamp(), 'America/Chicago')
+    activity.set_local_time(local_time, 'America/Chicago')
 
     db.session.add(activity)
     db.session.commit()
@@ -85,7 +85,7 @@ def test_daily_activity_no_local_time_present(test_client, init_database, add_re
     assert activity.local_timestamp == load_activity.local_timestamp
     assert load_activity.iso_timestamp is not None
     assert activity.timestamp == load_activity.timestamp
-    assert load_activity.local_timestamp == load_activity.timestamp  # timestamps are the same as none provided
+    assert load_activity.local_timestamp is not None
 
     assert "Regular Activity" in repr(activity)
     assert "Regular Activity" in str(activity)
@@ -177,8 +177,6 @@ def test_goal(test_client, init_database):
     assert load_goal.frequency == goal.frequency
     assert load_goal.frequency_activity_type == goal.frequency_activity_type
     # ignore microseconds when comparing the timestamps
-    # assert (load_goal.timestamp - current_time).seconds == 0
-    # assert (load_goal.last_updated - current_time).seconds == 0
 
     assert "Goal" in repr(load_goal)
     assert "Goal" in str(load_goal)

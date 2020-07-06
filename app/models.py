@@ -75,10 +75,11 @@ class Activity(db.Model):
         :rtype:
         """
         if local_time:
-            self.local_timestamp = datetime.fromtimestamp(int(local_time))
+            self.local_timestamp = utils.localize_local_time(local_time, tz)
         else:
-            self.local_timestamp = self.timestamp
-        self.iso_timestamp = utils.get_local_time_iso(tz)
+            self.local_timestamp = utils.get_local_time_from_utc(self.timestamp, tz)
+        print("self.local_timestamp", self.local_timestamp)
+        self.iso_timestamp = utils.get_iso_from_local_time(self.local_timestamp)
 
     def __repr__(self):
         return '<Activity {} {} {} {} {} {} {} {} {}'.format(self.id, self.type, self.title,
