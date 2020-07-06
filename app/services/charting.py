@@ -160,7 +160,7 @@ def calc_daily_duration_per_exercise_type(activities, start_date: date, end_date
     :rtype: Dictionary
     """
     exercise_dict = {1: [0, 0, 0, 0, 0, 0, 0], 2: [0, 0, 0, 0, 0, 0, 0], 3: [0, 0, 0, 0, 0, 0, 0],
-                     4: [0, 0, 0, 0, 0, 0, 0], 5: [0, 0, 0, 0, 0, 0, 0]}
+                     4: [0, 0, 0, 0, 0, 0, 0], 5: [0, 0, 0, 0, 0, 0, 0], 6: [0, 0, 0, 0, 0, 0, 0]}
 
     # need to consider this in local time to the user, not UTC time
     for activity in activities:
