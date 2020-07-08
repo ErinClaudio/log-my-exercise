@@ -495,35 +495,21 @@ def test_strava_authorize(test_client, init_database):
         assert "www.strava.com" in response.headers['Location']
 
 
-def test_strava_integration_on(test_client_csrf, init_database):
+def test_strava_integration_on_deauthorise_link_shown(test_client_csrf, init_database, add_strava_athlete):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+    assert athlete.is_active == 1
 
     with patch('flask_login.utils._get_user') as current_user:
         current_user.return_value.id = u.id
         current_user.return_value.get_id.return_value = u.id
 
-        response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
-            is_integrated=True,
-            csrf_token=test_client_csrf.csrf_token))
-        assert response.status_code == 302
-        assert "/auth/strava_authorize" in response.headers['Location']
+        response = test_client_csrf.get('/user')
+        assert response.status_code == 200
+        assert "Disable Strava" in str(response.data)
 
 
-def test_strava_integration_already_on(test_client_csrf, init_database, add_strava_athlete):
-    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
-
-    with patch('flask_login.utils._get_user') as current_user:
-        current_user.return_value.id = u.id
-        current_user.return_value.get_id.return_value = u.id
-
-        response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
-            is_integrated=True,
-            csrf_token=test_client_csrf.csrf_token))
-        assert response.status_code == 302
-        assert "/user" in response.headers['Location']
-
-
-def test_strava_integration_off(test_client_csrf, init_database, add_strava_athlete):
+def test_strava_integration_off_authorise_link_shown(test_client_csrf, init_database, add_strava_athlete):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
     athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
     athlete.is_active = 0
@@ -533,11 +519,9 @@ def test_strava_integration_off(test_client_csrf, init_database, add_strava_athl
         current_user.return_value.id = u.id
         current_user.return_value.get_id.return_value = u.id
 
-        response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
-            is_integrated=True,
-            csrf_token=test_client_csrf.csrf_token))
-        assert response.status_code == 302
-        assert "/strava_authorize" in response.headers['Location']
+        response = test_client_csrf.get('/user')
+        assert response.status_code == 200
+        assert "btn_strava_connectwith_light.png" in str(response.data)
 
 
 def test_strava_turn_integration_off(test_client_csrf, init_database, add_strava_athlete):
@@ -555,8 +539,7 @@ def test_strava_turn_integration_off(test_client_csrf, init_database, add_strava
                 current_user.return_value.id = u.id
                 current_user.return_value.get_id.return_value = u.id
 
-                response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
-                    csrf_token=test_client_csrf.csrf_token))
+                response = test_client_csrf.get('/auth/strava_deauthorize')
 
                 assert response.status_code == 302
 
@@ -584,8 +567,7 @@ def test_strava_turn_integration_off_bad_strava(test_client_csrf, init_database,
                 current_user.return_value.id = u.id
                 current_user.return_value.get_id.return_value = u.id
 
-                response = test_client_csrf.post('/auth/update_strava_integration', data=dict(
-                    csrf_token=test_client_csrf.csrf_token))
+                response = test_client_csrf.get('/auth/strava_authorize')
 
                 assert response.status_code == 302
                 athlete = StravaAthlete.query.filter_by(user_id=u.id).first()

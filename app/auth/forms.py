@@ -3,14 +3,6 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
 
 
-class StravaIntegrationForm(FlaskForm):
-    """
-    Defines the form to enable/disable strava integration for the user
-    """
-    is_integrated = BooleanField('Log to Strava')
-    submit = SubmitField('Confirm')
-
-
 class LoginForm(FlaskForm):
     """
     Defines the login form

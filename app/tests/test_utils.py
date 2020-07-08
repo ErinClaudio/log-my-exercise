@@ -90,4 +90,3 @@ def test_save_contents_as_file():
 
     # then delete the file
     os.remove(files[0])
-

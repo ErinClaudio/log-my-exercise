@@ -6,7 +6,6 @@ from flask_login import current_user, login_required
 from sqlalchemy import desc
 
 from app import db
-from app.auth.forms import StravaIntegrationForm
 from app.main import ACTIVITIES_LOOKUP, ICONS_LOOKUP
 from app.main import bp
 from app.main.forms import ActivityForm, CompletedActivity
@@ -38,6 +37,32 @@ def welcome():
     return render_template('welcome.html', title='Welcome')
 
 
+def save_completed_activity(activity, timestamp=None, tz='UTC'):
+    """
+    Saves a completed activity. Will also sync to Strava if the user is set-up for this.
+    :param activity: the activity to have taken place
+    :type activity: activity
+    :param timestamp: datetime the activity takes place
+    :type timestamp: datetime
+    :param tz: timezone for the timestamp
+    :type tz: timezone as a string
+    :return: a redirect to the main page
+    :rtype:
+    """
+    activity.set_local_time(timestamp, tz)
+    db.session.add(activity)
+    db.session.commit()
+    flash('Well done on completing {} today'.format(activity.title))
+
+    if current_app.config['CALL_STRAVA_API']:
+        # first check to see if this user is integrated with strava or not
+        strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
+        if strava_athlete:
+            strava.create_activity(activity.id)
+
+    return redirect(url_for('main.index'))
+
+
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
@@ -61,11 +86,7 @@ def index():
                             distance=form.distance.data,
                             user_id=current_user.get_id())
         # want to ensure local time and timezone information is saved also
-        activity.set_local_time(form.timestamp.data, form.user_tz.data)
-        db.session.add(activity)
-        db.session.commit()
-        flash('Well done on completing {} today'.format(activity.title))
-        return redirect(url_for('main.index'))
+        return save_completed_activity(activity, form.timestamp.data, form.user_tz.data)
 
     form.timestamp.data = datetime.utcnow()
     return render_template('index.html', title='Home', form=form, regular_activities=activities,
@@ -88,9 +109,7 @@ def user():
     if not strava_athlete:
         is_strava = False
 
-    form = StravaIntegrationForm()
-    form.is_integrated.data = is_strava
-    return render_template('auth/user.html', user=my_user, is_strava=is_strava, strava_form=form)
+    return render_template('auth/user.html', user=my_user, is_strava=is_strava)
 
 
 @bp.route('/regular_activities', methods=['GET', 'POST'])
@@ -191,20 +210,8 @@ def log_activity(activity_id):
     :rtype:
     """
     regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
-
     activity = regular_activity.create_activity()
-    activity.set_local_time(None, request.args.get('tz'))
-    db.session.add(activity)
-    db.session.commit()
-
-    if current_app.config['CALL_STRAVA_API']:
-        # first check to see if this user is integrated with strava or not
-        strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
-        if strava_athlete:
-            strava.create_activity(activity.id)
-
-    flash('Well done on completing {} today'.format(regular_activity.title))
-    return redirect(url_for('main.index'))
+    return save_completed_activity(activity, None, request.args.get('tz'))
 
 
 @bp.route('/exercise_log/', defaults={'offset': 0}, methods=['GET'])
@@ -271,12 +278,6 @@ def delete_activity(activity_id):
     flash('Deleted the activity')
 
     return redirect(url_for('main.exercise_log'))
-
-    # activities = Activity.query.filter_by(user_id=current_user.get_id()).order_by(desc(Activity.timestamp))
-
-    # return render_template('activity/view_log.html',
-    #                      user=user, activities=activities,
-    #                      activities_lookup=ACTIVITIES_LOOKUP, title="View Exercise Log")
 
 
 @bp.route('/about', methods=['GET'])
