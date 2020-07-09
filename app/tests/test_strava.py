@@ -1,14 +1,19 @@
 import json
 import os
 from unittest.mock import Mock, patch
+from datetime import datetime, timedelta
 
 from requests import Response
+
+import flask
 
 from app import db
 from app.api import strava as strava_api
 from app.models import User, StravaAthlete, Activity
 from app.services import strava as ss
 from app.tests import conftest
+from app.main import routes
+from app.services import utils
 
 
 def test_strava_athlete_create(test_client, init_database):
@@ -51,6 +56,94 @@ def test_strava_athlete_model(test_client, init_database):
     assert strava_athlete.last_updated == load_strava_athlete.last_updated
 
     assert "StravaAthlete" in repr(strava_athlete)
+
+
+def test_save_completed_activity_strava_integration_on(test_client_csrf, init_database, activate_strava_sync, add_strava_athlete):
+    """ mock the strava API and check it's called"""
+    assert flask.current_app.config["CALL_STRAVA_API"] is True
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    load_activity = Activity.query.filter_by(user_id=u.id).first()
+    assert load_activity is None
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+        with patch('app.services.strava.create_activity') as mock_strava:
+            mock_strava.return_value = True
+            activity_date = datetime.utcnow() - timedelta(days=1, hours=7)
+            activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
+            activity_utc_time = utils.get_utc_from_local_time(activity_date, 'UTC')
+            activity = Activity(type=1, title='title', duration=20,
+                               timestamp=activity_utc_time, user_id=u.id)
+            routes.save_completed_activity(activity, activity_date, 'UTC')
+
+            load_activity = Activity.query.filter_by(user_id=u.id).first()
+            assert load_activity.user_id == u.id
+            assert load_activity.type == 1
+            assert load_activity.title == 'title'
+            assert load_activity.duration == 20
+
+            assert mock_strava.called
+
+
+def test_save_completed_activity_strava_integration_off(test_client_csrf, init_database, activate_strava_sync, add_strava_athlete):
+    """ mock the strava APA and check it is not called"""
+    assert flask.current_app.config["CALL_STRAVA_API"] is True
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    load_activity = Activity.query.filter_by(user_id=u.id).first()
+    assert load_activity is None
+    strava_athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+    strava_athlete.is_active = 0
+    db.session.commit()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+        with patch('app.services.strava.create_activity') as mock_strava:
+            mock_strava.return_value = True
+            activity_date = datetime.utcnow() - timedelta(days=1, hours=7)
+            activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
+            activity_utc_time = utils.get_utc_from_local_time(activity_date, 'UTC')
+            activity = Activity(type=1, title='title', duration=20,
+                               timestamp=activity_utc_time, user_id=u.id)
+            routes.save_completed_activity(activity, activity_date, 'UTC')
+
+            load_activity = Activity.query.filter_by(user_id=u.id).first()
+            assert load_activity.user_id == u.id
+            assert load_activity.type == 1
+            assert load_activity.title == 'title'
+            assert load_activity.duration == 20
+
+            assert mock_strava.called is False
+
+
+def test_save_completed_activity_not_strava_athlete(test_client_csrf, init_database, activate_strava_sync):
+    """ athlete is not a strava athlete so API should not be called """
+    assert flask.current_app.config["CALL_STRAVA_API"] is True
+    assert flask.current_app.config["CALL_STRAVA_API"] is True
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    load_activity = Activity.query.filter_by(user_id=u.id).first()
+    assert load_activity is None
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+        with patch('app.services.strava.create_activity') as mock_strava:
+            mock_strava.return_value = True
+            activity_date = datetime.utcnow() - timedelta(days=1, hours=7)
+            activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
+            activity_utc_time = utils.get_utc_from_local_time(activity_date, 'UTC')
+            activity = Activity(type=1, title='title', duration=20,
+                                timestamp=activity_utc_time, user_id=u.id)
+            routes.save_completed_activity(activity, activity_date, 'UTC')
+
+            load_activity = Activity.query.filter_by(user_id=u.id).first()
+            assert load_activity.user_id == u.id
+            assert load_activity.type == 1
+            assert load_activity.title == 'title'
+            assert load_activity.duration == 20
+
+            assert mock_strava.called is False
 
 
 def test_refresh_access_token(test_client, init_database):
@@ -545,6 +638,52 @@ def test_strava_turn_integration_off(test_client_csrf, init_database, add_strava
 
                 athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
                 assert athlete.is_active == 0
+
+
+def test_strava_turn_integration_off_already_off(test_client_csrf, init_database, add_strava_athlete):
+    """ test nothing is done if the integration is already off """
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+    athlete.is_active = 0
+    db.session.commit()
+
+    assert athlete.is_active == 0
+    with patch('app.services.strava.requests.post') as mock_requests:
+        mock_requests.return_value.status_code = 200
+        with patch('app.services.strava.OAuth2Session') as mock_oauth:
+            new_tokens = json.loads(conftest.STRAVA_REFRESH_EXAMPLE)
+            mock_oauth.return_value = Mock()
+            mock_oauth.return_value.refresh_token.return_value = new_tokens
+            with patch('flask_login.utils._get_user') as current_user:
+                current_user.return_value.id = u.id
+                current_user.return_value.get_id.return_value = u.id
+
+                response = test_client_csrf.get('/auth/strava_deauthorize')
+
+                assert response.status_code == 302
+
+                athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+                assert athlete.is_active == 0
+
+
+def test_strava_turn_integration_off_fails(test_client_csrf, init_database, add_strava_athlete):
+    """ test a failure response, athlete is not updated """
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+
+    assert athlete.is_active == 1
+    with patch('app.services.strava.tell_strava_deauth') as mock_deauth:
+        mock_deauth.return_value = False
+        with patch('flask_login.utils._get_user') as current_user:
+            current_user.return_value.id = u.id
+            current_user.return_value.get_id.return_value = u.id
+
+            response = test_client_csrf.get('/auth/strava_deauthorize')
+
+            assert response.status_code == 302
+
+            athlete = StravaAthlete.query.filter_by(user_id=u.id).first()
+            assert athlete.is_active == 1
 
 
 def test_strava_turn_integration_off_bad_strava(test_client_csrf, init_database, add_strava_athlete, caplog):

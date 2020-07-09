@@ -250,3 +250,8 @@ def add_goal():
 
     db.session.add(goal)
     db.session.commit()
+
+
+@pytest.fixture(scope='function')
+def activate_strava_sync():
+    flask.current_app.config["CALL_STRAVA_API"] = True

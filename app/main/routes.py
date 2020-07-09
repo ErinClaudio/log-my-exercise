@@ -52,15 +52,13 @@ def save_completed_activity(activity, timestamp=None, tz='UTC'):
     activity.set_local_time(timestamp, tz)
     db.session.add(activity)
     db.session.commit()
-    flash('Well done on completing {} today'.format(activity.title))
+
 
     if current_app.config['CALL_STRAVA_API']:
         # first check to see if this user is integrated with strava or not
         strava_athlete = StravaAthlete.query.filter_by(user_id=current_user.get_id(), is_active=1).first()
         if strava_athlete:
             strava.create_activity(activity.id)
-
-    return redirect(url_for('main.index'))
 
 
 @bp.route('/index', methods=['GET', 'POST'])
@@ -86,7 +84,9 @@ def index():
                             distance=form.distance.data,
                             user_id=current_user.get_id())
         # want to ensure local time and timezone information is saved also
-        return save_completed_activity(activity, form.timestamp.data, form.user_tz.data)
+        save_completed_activity(activity, form.timestamp.data, form.user_tz.data)
+        flash('Well done on completing {} today'.format(activity.title))
+        return redirect(url_for('main.index'))
 
     form.timestamp.data = datetime.utcnow()
     return render_template('index.html', title='Home', form=form, regular_activities=activities,
@@ -211,7 +211,9 @@ def log_activity(activity_id):
     """
     regular_activity = RegularActivity.query.filter_by(user_id=current_user.get_id(), id=activity_id).first_or_404()
     activity = regular_activity.create_activity()
-    return save_completed_activity(activity, None, request.args.get('tz'))
+    save_completed_activity(activity, None, request.args.get('tz'))
+    flash('Well done on completing {} today'.format(activity.title))
+    return redirect(url_for('main.index'))
 
 
 @bp.route('/exercise_log/', defaults={'offset': 0}, methods=['GET'])
