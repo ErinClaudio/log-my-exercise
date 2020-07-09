@@ -69,8 +69,7 @@ def index():
     :return:
     :rtype:
     """
-    if current_user.is_authenticated:
-        activities = RegularActivity.query.filter_by(user_id=current_user.get_id()).all()
+    activities = RegularActivity.query.filter_by(user_id=current_user.get_id()).all()
 
     form = CompletedActivity()
 
