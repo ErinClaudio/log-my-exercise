@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from app import db
-from app.models import User, Activity, RegularActivity, StravaAthlete, Goal
+from app.models import User, Activity, RegularActivity, StravaAthlete, Goal, Inspiration
 from app.tests import conftest
 
 
@@ -180,3 +180,37 @@ def test_goal(test_client, init_database):
 
     assert "Goal" in repr(load_goal)
     assert "Goal" in str(load_goal)
+
+
+def test_inspirations(test_client, init_database):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    inspiration = Inspiration(title='My Inspiration',
+                              workout_type=1,
+                              url='http://youtube.com',
+                              instructor='Bobby Chariot',
+                              instructor_sex=0,
+                              description='My favourite workout. Brings up a sweat. Fun too as the instructor is funny and makes me smile',
+                              duration=25,
+                              why_loved='The isntructor has so much energy and enthusiasm. It lifts my spirits',
+                              likes=1,
+                              user_id=u.id)
+
+    db.session.add(inspiration)
+    db.session.commit()
+
+    load_inspiration = Inspiration.query.filter_by(user_id=u.id).first()
+    assert Inspiration.query.filter_by(user_id=u.id).count() == 1
+
+    assert load_inspiration.title == inspiration.title
+    assert load_inspiration.workout_type == inspiration.workout_type
+    assert load_inspiration.url == inspiration.url
+    assert load_inspiration.instructor == inspiration.instructor
+    assert load_inspiration.instructor_sex == inspiration.instructor_sex
+    assert load_inspiration.description == inspiration.description
+    assert load_inspiration.duration == inspiration.duration
+    assert load_inspiration.why_loved == inspiration.why_loved
+    assert load_inspiration.likes == inspiration.likes
+
+    assert "Inspiration" in repr(load_inspiration)
+    assert "Inspiration" in str(load_inspiration)
