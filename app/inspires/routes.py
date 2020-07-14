@@ -31,7 +31,7 @@ def detail_inspiration(inspiration_id):
     :return:
     :rtype:
     """
-    inspiration = Inspiration.query.filter_by(inspiration_id=inspiration_id).first_or_404()
+    inspiration = Inspiration.query.filter_by(id=inspiration_id).first_or_404()
     return render_template('inspires/detail_inspiration.html', title='Inspire others', inspiration=inspiration)
 
 

@@ -240,3 +240,37 @@ def test_likes_inspiration_invalid_id(test_client_csrf, init_database, add_inspi
 
         response = test_client_csrf.get('/inspires/like_inspiration/{}'.format(123))
         assert response.status_code == 404
+
+
+def test_inspires_list(test_client_csrf, init_database, add_inspiration):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client_csrf.get('/inspires/inspires_list')
+        assert response.status_code == 200
+
+
+def test_detailed_inspiration_valid(test_client_csrf, init_database, add_inspiration):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+    inspiration = Inspiration.query.filter_by(user_id=u.id).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client_csrf.get('/inspires/detail_inspiration/{}'.format(inspiration.id))
+        assert response.status_code == 200
+
+
+def test_detailed_inspiration_invalid(test_client_csrf, init_database, add_inspiration):
+    u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
+
+    with patch('flask_login.utils._get_user') as current_user:
+        current_user.return_value.id = u.id
+        current_user.return_value.get_id.return_value = u.id
+
+        response = test_client_csrf.get('/inspires/detail_inspiration/{}'.format(123))
+        assert response.status_code == 404
