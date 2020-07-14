@@ -7,6 +7,8 @@ from app import db
 from app.inspires import bp
 from app.inspires.forms import InspiresForm
 from app.models import Inspiration, MyInspirationLikes
+from app.main import ICONS_LOOKUP
+from app.services.charting import ACTIVITY_COLOR_LOOKUP
 
 
 @bp.route('/inspires_list', methods=['GET'])
@@ -18,7 +20,7 @@ def view_inspirations():
     :rtype:
     """
     inspirations = Inspiration.query.all()
-    return render_template('inspires/inspirations.html', title='Inspire others', inspirations=inspirations)
+    return render_template('inspires/inspirations.html', title='Inspire others', inspirations=inspirations, icons=ICONS_LOOKUP, colors=ACTIVITY_COLOR_LOOKUP)
 
 
 @bp.route('/detail_inspiration/<int:inspiration_id>', methods=['GET'])
