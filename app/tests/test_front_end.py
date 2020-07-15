@@ -362,3 +362,52 @@ class TestGoal(TestBase):
         success_message = self.driver.find_element_by_class_name("alert-success").text
 
         assert "Well done on setting yourself a goal" in success_message
+
+
+class TestInspiration(TestBase):
+
+    def test_add_inspiration(self):
+        self.login_user()
+        self.driver.find_element_by_id("inspires_link").click()
+        self.driver.find_element_by_id("set_up").click()
+
+        self.driver.find_element_by_id("title").send_keys(
+            "A workout to inspire")
+        self.driver.find_element_by_id("url").send_keys(
+            "http://youtube.com")
+        self.driver.find_element_by_id("instructor").send_keys(
+            "A cheery instructor")
+        self.driver.find_element_by_id("duration").send_keys(
+            "25")
+        self.driver.find_element_by_id("description").send_keys(
+            "A fair but hard workout. Will bring you out in a sweat. A variety of upper, core and lower body exercises")
+        self.driver.find_element_by_id("why_inspires").send_keys(
+            "An engaging and motivating instructor who brings a smile to my face")
+
+        self.driver.find_element_by_id("submit").click()
+
+        success_message = self.driver.find_element_by_class_name("alert-success").text
+
+        assert "Thank you for sharing your inspiration" in success_message
+
+    def test_add_inspiration_missing_field(self):
+        self.login_user()
+        self.driver.find_element_by_id("inspires_link").click()
+        self.driver.find_element_by_id("set_up").click()
+
+        self.driver.find_element_by_id("url").send_keys(
+             "http://youtube.com")
+        self.driver.find_element_by_id("instructor").send_keys(
+           "A cheery instructor")
+        self.driver.find_element_by_id("duration").send_keys(
+              "25")
+        self.driver.find_element_by_id("description").send_keys(
+            "A fair but hard workout. Will bring you out in a sweat. A variety of upper, core and lower body exercises")
+        self.driver.find_element_by_id("why_inspires").send_keys(
+            "An engaging and motivating instructor who brings a smile to my face")
+
+        self.driver.find_element_by_id("submit").click()
+
+        # Error message is shown
+        error_message = self.driver.find_element_by_class_name("text-muted").text
+        assert "This field is required" in error_message
