@@ -22,7 +22,7 @@
                             <div class="card-footer">
                                 {{ inspiration.duration }} mins.
                                 <a id="detail_link" href="{{ url_for('inspires.detail_inspiration',inspiration_id=inspiration.id) }}"><i
-                                        class="fas fa-info-circle"></i></a>
+                                        class="fas fa-info-circle" aria-hidden="true"></i></a>
                                 <a href="{{ inspiration.url }}" target="_blank">View&nbsp;<i
                                         class="fas fa-external-link-alt" aria-hidden=true></i></a>
                             </div>
