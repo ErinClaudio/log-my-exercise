@@ -88,6 +88,8 @@ def create_app(config_name='default'):
     app.register_blueprint(support_bp, url_prefix='/support')
     from app.goal import bp as goal_bp
     app.register_blueprint(goal_bp, url_prefix='/goal')
+    from app.inspires import bp as inspires_bp
+    app.register_blueprint(inspires_bp, url_prefix='/inspires')
 
     return app
 

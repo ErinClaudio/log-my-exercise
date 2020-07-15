@@ -1,15 +1,14 @@
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
 
 import flask
 import pytest
-
 from flask import abort
 from flask.testing import FlaskClient as BaseFlaskClient
 from flask_wtf.csrf import generate_csrf
 
 from app import create_app, db
-from app.models import User, RegularActivity, Goal
+from app.models import User, RegularActivity, Goal, Inspiration, MyInspirationLikes
 from app.services import strava as ss
 
 # define some test data to be used in tests
@@ -26,23 +25,25 @@ TEST_REGULAR_ACTIVITY1 = RegularActivity(
 EXPIRES_AT_DATE = datetime.utcnow() + timedelta(hours=8)
 EXPIRES_AT_SECS = int(EXPIRES_AT_DATE.timestamp())
 
-STRAVA_RESPONSE_EXAMPLE = '{"token_type": "Bearer", "expires_at":' + '"' + str(EXPIRES_AT_SECS) + '"' + ', "expires_in": "21390", ' \
-                   '"refresh_token": "767bdc6899", "access_token": "d188074a", ' \
-                   '"athlete": {"id": "123456", "name":"my name"}}'
+STRAVA_RESPONSE_EXAMPLE = '{"token_type": "Bearer", "expires_at":' + '"' + str(
+    EXPIRES_AT_SECS) + '"' + ', "expires_in": "21390", ' \
+                             '"refresh_token": "767bdc6899", "access_token": "d188074a", ' \
+                             '"athlete": {"id": "123456", "name":"my name"}}'
 
 STRAVA_RESPONSE_EXAMPLE_AS_DICT = {"token_type": "Bearer", "expires_at": EXPIRES_AT_SECS, "expires_in": "21390", \
-                   "refresh_token": "767bdc6899", "access_token": "d188074a", \
-                   "athlete": {"id": "123456", "name":"my name"}}
+                                   "refresh_token": "767bdc6899", "access_token": "d188074a", \
+                                   "athlete": {"id": "123456", "name": "my name"}}
 
-
-STRAVA_REFRESH_EXAMPLE = '{"token_type": "Bearer", "expires_at":' + '"' + str(EXPIRES_AT_SECS) + '"' + ', "expires_in": "21390", ' \
-                   '"refresh_token": "867bdc6899", "access_token": "e188074a"}'
+STRAVA_REFRESH_EXAMPLE = '{"token_type": "Bearer", "expires_at":' + '"' + str(
+    EXPIRES_AT_SECS) + '"' + ', "expires_in": "21390", ' \
+                             '"refresh_token": "867bdc6899", "access_token": "e188074a"}'
 
 
 class RequestShim():
     """
     A fake request that proxies cookie-related methods to a Flask test client.
     """
+
     def __init__(self, client):
         self.vary = set({})
         self.client = client
@@ -61,6 +62,7 @@ class RequestShim():
             server_name, key=key, *args, **kwargs
         )
 
+
 # We're going to extend Flask's built-in test client class, so that it knows
 # how to look up CSRF tokens for you!
 class FlaskClient(BaseFlaskClient):
@@ -76,7 +78,7 @@ class FlaskClient(BaseFlaskClient):
         self.cookie_jar.inject_wsgi(environ_overrides)
         with flask.current_app.test_request_context(
                 "/login", environ_overrides=environ_overrides,
-            ):
+        ):
             # Now, we call Flask-WTF's method of generating a CSRF token...
             csrf_token = generate_csrf()
             # ...which also sets a value in `flask.session`, so we need to
@@ -147,6 +149,7 @@ def test_client_csrf():
 
     ctx.pop()
 
+
 @pytest.fixture(scope='function')
 def init_database():
     """
@@ -205,7 +208,6 @@ def add_regular_activity_distance():
 
 @pytest.fixture(scope='function')
 def add_activity():
-
     u = User.query.filter_by(username='test_user').first()
     activity = RegularActivity(type=1,
                                title='Regular Activity',
@@ -255,3 +257,24 @@ def add_goal():
 @pytest.fixture(scope='function')
 def activate_strava_sync():
     flask.current_app.config["CALL_STRAVA_API"] = True
+
+
+@pytest.fixture(scope='function')
+def add_inspiration():
+    u = User.query.filter_by(username=TEST_USER_USERNAME).first()
+
+    inspiration = Inspiration(title='My Inspiration',
+                              workout_type=1,
+                              url='http://youtube.com',
+                              instructor='Bobby Chariot',
+                              instructor_sex=0,
+                              description='My favourite workout. Brings up a sweat. Fun too as the instructor is funny and makes me smile',
+                              duration=25,
+                              why_loved='The isntructor has so much energy and enthusiasm. It lifts my spirits',
+                              likes=1,
+                              user_id=u.id)
+
+    db.session.add(inspiration)
+    likes_inspiration = MyInspirationLikes(user_id=u.id, inspiration_id=inspiration.id)
+    db.session.add(likes_inspiration)
+    db.session.commit()

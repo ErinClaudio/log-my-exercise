@@ -218,6 +218,21 @@ class Inspiration(db.Model):
                                                                           self.timestamp, self.last_updated)
 
 
+class MyInspirationLikes(db.Model):
+    """
+    Stores the inspirations a user has liked
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    inspiration_id = db.Column(db.Integer, db.ForeignKey('inspiration.id'))
+
+    def __repr__(self):
+        return '<MyInspirationLikes: {} {} {}'.format(self.id, self.user_id, self.inspiration_id)
+
+    def __str__(self):
+        return '<MyInspirationLikes: {} {} {}'.format(self.id, self.user_id, self.inspiration_id)
+
+
 class Goal(db.Model):
     """
     An exercise goal set by a user

@@ -1,5 +1,3 @@
-
-
 def test_homepage_view(test_client):
     response = test_client.get('/')
     assert response.status_code == 200
@@ -107,4 +105,34 @@ def test_view_about(test_client):
 
 def test_view_set_goal(test_client):
     response = test_client.get('/goal/set_goal')
+    assert response.status_code == 302
+
+
+def test_view_add_inspiration(test_client):
+    response = test_client.get('/inspires/add_inspiration')
+    assert response.status_code == 302
+
+
+def test_view_all_inspirations(test_client):
+    response = test_client.get('/inspires/inspires_list')
+    assert response.status_code == 302
+
+
+def test_view_edit_inspiration(test_client):
+    response = test_client.get('/inspires/edit_inspiration/1')
+    assert response.status_code == 302
+
+
+def test_view_delete_inspiration(test_client):
+    response = test_client.get('/inspires/delete_inspiration/1')
+    assert response.status_code == 302
+
+
+def test_view_likes_inspiration(test_client):
+    response = test_client.get('/inspires/like_inspiration/1')
+    assert response.status_code == 302
+
+
+def test_view_detailed_inspiration(test_client):
+    response = test_client.get('/inspires/detail_inspiration/1')
     assert response.status_code == 302

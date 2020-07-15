@@ -25,10 +25,13 @@ The requirements.txt file has further information on the dependent packages
 This app contains the following features:
 * ability to create a regular exercise routine which you'd perform repeatedly e.g. a YouTube workout
 * log that you've performed this exercise
-* view a history of all activities performed
+* log a one-off exercise
+* capture your exercise goals and view progress against them
+* view a history of all activities performed including a chart
 * enables a user to give permission to upload their exercises to Strava
 * send the exercise to Strava
 * authenticate users using the Auth0 website
+* contact us capabilities where the queries are saved to a json file
 
 # Installation
 It's a standard Flask app with a database backend. To install and run locally:
@@ -42,10 +45,19 @@ It's a standard Flask app with a database backend. To install and run locally:
 * Install the database tables. This can be done via `flask db upgrade`. It's dependent on the environment variables used to store the path to the database being configured correctly.
 * To run, execute `flask run` and you should see flask starting and giving the URL to access
 
+# Running in the cloud
+I am running this application in AWS. I've used:
+* Elastic Beanstalk to run the Flask application
+* RMS with a mysql database
+* S3 to store the Contact Us queries as json files
+* Route 53 to route requests to a load balancer in front of Elastic Beanstalk 
+
 # Tests
-The tests folder contains some tests. These are not complete and require enhancements.
+The tests folder contains some tests.
 To run them execute `Make test` on the command line.
 You can also run various linters by entering `Make lint`. These will provide some errors due to the way Flask works.
+I've leveraged CircleCI for Continuous Integration where it automatically runs the tests against a mysql database.
+I've also used SonarSource to highlight code coverage or code quality issues.
 
 # How to use?
 You can take this code and run on a server via mechanisms such as Docker or AWS Elastic Beanstalk. 
@@ -56,6 +68,8 @@ The Makefile contains a `deploy` command that deploys the application to Elastic
 Feedback and contributions are welcome. 
 
 # To dos
+* Allow users to share the routines they love
+* Add a community forum where users can share questions and answers
 * Make the Strava API call to save an activity asynchronous
 * Improve the UI
 * A dedicated mobile app
