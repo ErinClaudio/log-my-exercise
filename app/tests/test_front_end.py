@@ -4,6 +4,7 @@ from flask import url_for
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import NoSuchElementException
 
 from app import create_app, db
 from app.models import User
@@ -366,6 +367,26 @@ class TestGoal(TestBase):
 
 class TestInspiration(TestBase):
 
+    def add_inspiration(self):
+        self.login_user()
+        self.driver.find_element_by_id("inspires_link").click()
+        self.driver.find_element_by_id("set_up").click()
+
+        self.driver.find_element_by_id("title").send_keys(
+            "A workout to inspire")
+        self.driver.find_element_by_id("url").send_keys(
+            "http://youtube.com")
+        self.driver.find_element_by_id("instructor").send_keys(
+            "A cheery instructor")
+        self.driver.find_element_by_id("duration").send_keys(
+            "25")
+        self.driver.find_element_by_id("description").send_keys(
+            "A fair but hard workout. Will bring you out in a sweat. A variety of upper, core and lower body exercises")
+        self.driver.find_element_by_id("why_inspires").send_keys(
+            "An engaging and motivating instructor who brings a smile to my face")
+
+        self.driver.find_element_by_id("submit").click()
+
     def test_add_inspiration(self):
         self.login_user()
         self.driver.find_element_by_id("inspires_link").click()
@@ -411,3 +432,52 @@ class TestInspiration(TestBase):
         # Error message is shown
         error_message = self.driver.find_element_by_class_name("text-muted").text
         assert "This field is required" in error_message
+
+    def test_view_detailed_inspiration(self):
+        self.add_inspiration()
+        self.driver.find_element_by_id("detail_link").click()
+
+        # check there is an edit and delete link
+        edit_link = self.driver.find_element_by_id("edit_inspiration_link")
+        assert edit_link is not None
+
+        delete_link = self.driver.find_element_by_id("delete_inspiration_link")
+        assert delete_link is not None
+
+    def test_delete_inspiration(self):
+        self.add_inspiration()
+        self.driver.find_element_by_id("detail_link").click()
+
+
+        self.driver.find_element_by_id("delete_inspiration_link").click()
+        success_message = self.driver.find_element_by_class_name("alert-success").text
+
+        assert "Deleted inspiration" in success_message
+        try:
+            assert self.driver.find_element_by_id("detail_link")
+            assert False
+        except NoSuchElementException:
+            assert True
+
+    def test_edit_inspiration(self):
+        self.add_inspiration()
+        self.driver.find_element_by_id("detail_link").click()
+
+
+        self.driver.find_element_by_id("edit_inspiration_link").click()
+        self.driver.find_element_by_id("title").clear()
+        self.driver.find_element_by_id("title").send_keys(
+            "A new title")
+        self.driver.find_element_by_id("submit").click()
+
+        success_message = self.driver.find_element_by_class_name("alert-success").text
+        assert "Saved changes to the inspiration" in success_message
+
+        title = self.driver.find_element_by_class_name("card-text").text
+        assert "A new title" in title
+
+
+
+
+
+

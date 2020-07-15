@@ -264,6 +264,12 @@ def test_detailed_inspiration_valid(test_client_csrf, init_database, add_inspira
         response = test_client_csrf.get('/inspires/detail_inspiration/{}'.format(inspiration.id))
         assert response.status_code == 200
 
+        assert inspiration.description in str(response.data)
+        assert inspiration.url in str(response.data)
+        assert str(inspiration.duration) in str(response.data)
+        assert "edit_inspiration_link" in str(response.data)
+        assert "delete_inspiration_link" in str(response.data)
+
 
 def test_detailed_inspiration_invalid(test_client_csrf, init_database, add_inspiration):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()

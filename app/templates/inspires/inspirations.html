@@ -3,36 +3,41 @@
 {% block content %}
 
 
-        <div class="row">
-            <div class="col-md-8 mx-auto">
-                <h4 class="h4 mb-3 font-weight-normal">Be inspired</h4>
-                <p>Here are some online videos and classes that our community recommends.</p>
-            </div>
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h4 class="h4 mb-3 font-weight-normal">Be inspired</h4>
+            <p>Here are some online workouts and guided exercises that our community recommends.</p>
         </div>
-{% if inspirations %}
+    </div>
+    {% if inspirations %}
         <div class="row">
             <div class="col-md-8 mx-auto">
                 <div class="card-columns">
                     {% for inspiration in inspirations %}
                         <div class="card mb-3" style="background-color: {{ colors[inspiration.workout_type] }}">
                             <div class="card-body">
-                                <h5 class="card-text"><i class="{{ icons[inspiration.workout_type] }}" aria-hidden=true></i>&nbsp;{{ inspiration.title }}</h5>
+                                <h5 class="card-text"><i class="{{ icons[inspiration.workout_type] }}"
+                                                         aria-hidden=true></i>&nbsp;{{ inspiration.title }}</h5>
                             </div>
                             <div class="card-footer">
                                 {{ inspiration.duration }} mins.
-                                <a href="{{ inspiration.url }}" target="_blank">View</a>
+                                <a id="detail_link" href="{{ url_for('inspires.detail_inspiration',inspiration_id=inspiration.id) }}"><i
+                                        class="fas fa-info-circle"></i></a>
+                                <a href="{{ inspiration.url }}" target="_blank">View&nbsp;<i
+                                        class="fas fa-external-link-alt" aria-hidden=true></i></a>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
             </div>
         </div>
-{% endif %}
-        <div class="row">
-            <div class="col-md-8 mx-auto">
-                <p id="no_reg"> Have an exercise that inspires you. Please <a id="set_up"
-                                                                 href="{{ url_for('inspires.add_inspiration') }}" >share with our community</a>.</p>
-            </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <p id="no_reg"> Have an exercise that inspires you. Please <a id="set_up"
+                                                                          href="{{ url_for('inspires.add_inspiration') }}">share
+                with our community</a>.</p>
         </div>
+    </div>
 
 {% endblock %}
