@@ -6,8 +6,8 @@ from flask_login import current_user, login_required
 from app import db
 from app.inspires import bp
 from app.inspires.forms import InspiresForm
-from app.models import Inspiration, MyInspirationLikes
 from app.main import ICONS_LOOKUP
+from app.models import Inspiration, MyInspirationLikes
 from app.services.charting import ACTIVITY_COLOR_LOOKUP
 
 
@@ -20,7 +20,8 @@ def view_inspirations():
     :rtype:
     """
     inspirations = Inspiration.query.all()
-    return render_template('inspires/inspirations.html', title='Inspire others', inspirations=inspirations, icons=ICONS_LOOKUP, colors=ACTIVITY_COLOR_LOOKUP)
+    return render_template('inspires/inspirations.html', title='Inspire others', inspirations=inspirations,
+                           icons=ICONS_LOOKUP, colors=ACTIVITY_COLOR_LOOKUP)
 
 
 @bp.route('/detail_inspiration/<int:inspiration_id>', methods=['GET'])
@@ -34,7 +35,8 @@ def detail_inspiration(inspiration_id):
     :rtype:
     """
     inspiration = Inspiration.query.filter_by(id=inspiration_id).first_or_404()
-    return render_template('inspires/detail_inspiration.html', title='Inspire others', inspiration=inspiration)
+    return render_template('inspires/detail_inspiration.html', title='Inspire others', inspiration=inspiration,
+                           icons=ICONS_LOOKUP,  colors=ACTIVITY_COLOR_LOOKUP)
 
 
 @bp.route('/add_inspiration', methods=['GET', 'POST'])

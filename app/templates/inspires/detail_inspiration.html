@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h4 class="h4 mb-3 font-weight-normal">Be inspired</h4>
+            <p>This is what our community says about this workout.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 mx-auto" style="background-color: {{ colors[inspiration.workout_type] }}">
+            <h5 class="h5 mb-3 font-weight-normal"><i class="{{ icons[inspiration.workout_type] }}"
+                                                      aria-hidden=true></i>&nbsp;{{ inspiration.title }}
+                lasts {{ inspiration.duration }} mins.
+                {% if inspiration.instructor %}
+                    &nbsp;with
+                    instructor {{ inspiration.instructor }}
+                {% endif %}
+            </h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <blockquote><p class="mb-0">{{ inspiration.description }}</p>
+                <footer class="blockquote-footer">Check it out at <a href="{{ inspiration.url }}"
+                                                                     target="_blank">{{ inspiration.url }}</a></footer>
+            </blockquote>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            Why does it inspire?
+            {{ inspiration.why_loved }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            {% if inspiration.user_id == current_user.id %}
+                <a id="edit_inspiration_link"
+                   href="{{ url_for('inspires.edit_inspiration',inspiration_id=inspiration.id) }}"><i
+                        class="fas fa-edit" aria-hidden="true"></i></a>
+                &nbsp;&nbsp;&nbsp;
+                <a id="delete_inspiration_link"
+                   href="{{ url_for('inspires.delete_inspiration',inspiration_id=inspiration.id) }}"><i
+                        class="fas fa-trash" aria-hidden="true"></i></a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
