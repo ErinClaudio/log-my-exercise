@@ -9,6 +9,7 @@ from app.inspires.forms import InspiresForm
 from app.main import ICONS_LOOKUP
 from app.models import Inspiration, MyInspirationLikes
 from app.services.charting import ACTIVITY_COLOR_LOOKUP
+from app.main import ACTIVITIES_LOOKUP
 
 
 @bp.route('/inspires_list', methods=['GET'])
@@ -36,7 +37,7 @@ def detail_inspiration(inspiration_id):
     """
     inspiration = Inspiration.query.filter_by(id=inspiration_id).first_or_404()
     return render_template('inspires/detail_inspiration.html', title='Inspire others', inspiration=inspiration,
-                           icons=ICONS_LOOKUP,  colors=ACTIVITY_COLOR_LOOKUP)
+                           icons=ICONS_LOOKUP,  colors=ACTIVITY_COLOR_LOOKUP, activity_map=ACTIVITIES_LOOKUP)
 
 
 @bp.route('/add_inspiration', methods=['GET', 'POST'])
