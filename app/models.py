@@ -202,6 +202,10 @@ class Inspiration(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    meta_og_image = db.Column(db.String(200))
+    meta_og_height = db.Column(db.Integer)
+    meta_og_width = db.Column(db.Integer)
+    meta_og_description = db.Column(db.String(200))
 
     def __repr__(self):
         return '<Inspiration: {} {} {} {} {} {} {} {} {} {}'.format(self.title, self.workout_type, self.url,
