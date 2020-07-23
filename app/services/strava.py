@@ -10,6 +10,7 @@ from app.main import routes
 from app.models import StravaAthlete, Activity, StravaEvent
 from config import app_config
 
+STRAVA_ACTIVITIES_LOOKUP = {1: 'Workout', 2: 'Yoga', 3: 'Ride', 4: 'Run', 5: 'Walk', 6: 'Swim'}
 
 def create_strava_athlete(authorize_details, user_id, scope):
     """
@@ -127,7 +128,7 @@ def create_activity(activity_id):
             local_time = activity.local_timestamp.isoformat()
 
         data = {'name': activity.title,
-                'type': routes.ACTIVITIES_LOOKUP[activity.type],
+                'type': STRAVA_ACTIVITIES_LOOKUP[activity.type],
                 'start_date_local': local_time,
                 'elapsed_time': activity.duration * 60,  # need to convert to seconds, stored in db as minutes
                 'description': activity.description}
