@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
     activities = db.relationship('Activity', backref='athlete', lazy='dynamic')
     regular_activities = db.relationship('RegularActivity', backref='regular_athlete', lazy='dynamic')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    picture_url = db.Column(db.String(100), nullable=True)
+    picture_url = db.Column(db.String(200), nullable=True)
 
     def avatar(self, size):
         if self.picture_url:
@@ -58,7 +58,7 @@ class Activity(db.Model):
     title = db.Column(db.String(50))
     description = db.Column(db.String(300))
     duration = db.Column(db.Integer)
-    distance = db.Column(db.Numeric)
+    distance = db.Column(db.Numeric(10, 2))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     local_timestamp = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -103,7 +103,7 @@ class RegularActivity(db.Model):
     title = db.Column(db.String(50))
     description = db.Column(db.String(300))
     duration = db.Column(db.Integer)
-    distance = db.Column(db.Numeric)
+    distance = db.Column(db.Numeric(10, 2))
     time = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
