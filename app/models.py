@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
     activities = db.relationship('Activity', backref='athlete', lazy='dynamic')
     regular_activities = db.relationship('RegularActivity', backref='regular_athlete', lazy='dynamic')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    picture_url = db.Column(db.String(100), nullable=True)
+    picture_url = db.Column(db.String(200), nullable=True)
 
     def avatar(self, size):
         if self.picture_url:
