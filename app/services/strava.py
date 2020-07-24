@@ -96,6 +96,33 @@ def refresh_access_token(user_id):
     return None
 
 
+def construct_strava_activity_data(activity):
+    """
+    constructs the dictionary of data fields to send to strava when creating an activity
+    :param activity: the activity to be sent to Strava
+    :type activity: Activity
+    :return: a Dictionary containing the data formatted to the Strava API
+    :rtype:
+    """
+    # if the timestamp has been saved then use this over converting the other one
+    # issues with server tz so better to use the timestamp at the point the activity record was created
+    if activity.iso_timestamp:
+        local_time = activity.iso_timestamp
+    else:
+        local_time = activity.local_timestamp.isoformat()
+
+    data = {'name': activity.title,
+            'type': STRAVA_ACTIVITIES_LOOKUP[activity.type],
+            'start_date_local': local_time,
+            'elapsed_time': activity.duration * 60,  # need to convert to seconds, stored in db as minutes
+            'description': activity.description}
+
+    if activity.distance is not None and activity.distance > 0:
+        data['distance'] = activity.distance * 1000  # Strava API requires distance in m, stored in db as km
+
+    return data
+
+
 def create_activity(activity_id):
     """
     creates an activity in Strava
@@ -120,19 +147,7 @@ def create_activity(activity_id):
         url = 'https://www.strava.com/api/v3/activities'
         headers = {'Authorization': 'Bearer {}'.format(access_token)}
 
-        # if the timestamp has been saved then use this over converting the other one
-        # issues with server tz so better to use the timestamp at the point the activity record was created
-        if activity.iso_timestamp:
-            local_time = activity.iso_timestamp
-        else:
-            local_time = activity.local_timestamp.isoformat()
-
-        data = {'name': activity.title,
-                'type': STRAVA_ACTIVITIES_LOOKUP[activity.type],
-                'start_date_local': local_time,
-                'elapsed_time': activity.duration * 60,  # need to convert to seconds, stored in db as minutes
-                'description': activity.description}
-
+        data = construct_strava_activity_data(activity)
         response = requests.post(url, headers=headers, data=data)
         strava_athlete = StravaAthlete.query.filter_by(user_id=activity.user_id).first()
         log_strava_event(strava_athlete.athlete_id, "Activity")

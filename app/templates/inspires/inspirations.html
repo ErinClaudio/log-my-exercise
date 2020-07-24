@@ -14,7 +14,7 @@
             <div class="col-md-8 mx-auto">
                 <div class="card-columns">
                     {% for inspiration in inspirations %}
-                        <div class="card mb-3" style="background-color: {{ colors[inspiration.workout_type] }}">
+                        <div class="card mb-3 border-0" style="background-color: {{ colors[inspiration.workout_type] }}">
                         {% if inspiration.meta_og_image %}
                             <img class="card-img-top" src="{{ inspiration.meta_og_image }}" alt="Image from workout">
                         {%  endif %}
