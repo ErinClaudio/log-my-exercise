@@ -199,7 +199,7 @@ def test_construct_strava_activity_data_zero_distance(test_client, init_database
     assert strava_data['start_date_local'] == activity.local_timestamp.isoformat()
     assert strava_data['elapsed_time'] == activity.duration * 60
     assert strava_data['description'] == activity.description
-   
+
 
 
 def test_refresh_access_token(test_client, init_database):
