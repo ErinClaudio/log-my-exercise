@@ -146,6 +146,62 @@ def test_save_completed_activity_not_strava_athlete(test_client_csrf, init_datab
             assert mock_strava.called is False
 
 
+def test_construct_strava_activity_data_no_distance(test_client, init_database):
+    activity_date = datetime.utcnow() - timedelta(days=1, hours=7)
+    activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
+    activity_utc_time = utils.get_utc_from_local_time(activity_date, 'UTC')
+
+    activity = Activity(id=1, type=3, title='some title', description='a description',
+                        duration=35, local_timestamp=activity_utc_time)
+    strava_data = ss.construct_strava_activity_data(activity)
+
+    assert strava_data is not None
+    assert len(strava_data) == 5
+    assert strava_data['name'] == 'some title'
+    assert strava_data['type'] == 'Ride'
+    assert strava_data['start_date_local'] == activity.local_timestamp.isoformat()
+    assert strava_data['elapsed_time'] == activity.duration * 60
+    assert strava_data['description'] == activity.description
+
+
+def test_construct_strava_activity_data_distance(test_client, init_database):
+    activity_date = datetime.utcnow() - timedelta(days=1, hours=7)
+    activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
+    activity_utc_time = utils.get_utc_from_local_time(activity_date, 'UTC')
+
+    activity = Activity(id=1, type=3, title='some title', description='a description',
+                        duration=35, distance=1.2, local_timestamp=activity_utc_time)
+    strava_data = ss.construct_strava_activity_data(activity)
+
+    assert strava_data is not None
+    assert len(strava_data) == 6
+    assert strava_data['name'] == 'some title'
+    assert strava_data['type'] == 'Ride'
+    assert strava_data['start_date_local'] == activity.local_timestamp.isoformat()
+    assert strava_data['elapsed_time'] == activity.duration * 60
+    assert strava_data['description'] == activity.description
+    assert strava_data['distance'] == activity.distance * 1000
+
+
+def test_construct_strava_activity_data_zero_distance(test_client, init_database):
+    activity_date = datetime.utcnow() - timedelta(days=1, hours=7)
+    activity_date_str = activity_date.strftime('%d/%m/%Y %H:%M')
+    activity_utc_time = utils.get_utc_from_local_time(activity_date, 'UTC')
+
+    activity = Activity(id=1, type=3, title='some title', description='a description',
+                        duration=35, distance=0, local_timestamp=activity_utc_time)
+    strava_data = ss.construct_strava_activity_data(activity)
+
+    assert strava_data is not None
+    assert len(strava_data) == 5
+    assert strava_data['name'] == 'some title'
+    assert strava_data['type'] == 'Ride'
+    assert strava_data['start_date_local'] == activity.local_timestamp.isoformat()
+    assert strava_data['elapsed_time'] == activity.duration * 60
+    assert strava_data['description'] == activity.description
+   
+
+
 def test_refresh_access_token(test_client, init_database):
     u = User.query.filter_by(username=conftest.TEST_USER_USERNAME).first()
 

@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta, date
+from typing import List, Dict
 
 from pytz import timezone
 
+from app.models import Activity, Goal
 from app.main import ACTIVITIES_LOOKUP
 
 # use this  color map to display the different types of activities
@@ -11,7 +13,7 @@ from app.main import ACTIVITIES_LOOKUP
 ACTIVITY_COLOR_LOOKUP = {1: '#7fc97f', 2: '#beaed4', 3: '#fdc086', 4: '#ffff99', 5: '#386cb0', 6: '#f0027f'}
 
 
-def get_start_week_date(input_date: datetime, week_offset: int = 0) -> date:
+def get_start_week_date(input_date: date, week_offset: int = 0) -> date:
     """
     calculates the date at the start of the week based on the provided date
     :param input_date: date to base the start of week on, defaults to current date if None
@@ -29,7 +31,7 @@ def get_start_week_date(input_date: datetime, week_offset: int = 0) -> date:
     return date_start_week
 
 
-def get_start_week_date_before(input_date: datetime, week_offset: int = 0) -> date:
+def get_start_week_date_before(input_date: date, week_offset: int = 0) -> date:
     """
     calculates the date at the day before the start of the week based on the provided date
     :param input_date: date to base the start of week on, defaults to current date if None
@@ -45,7 +47,7 @@ def get_start_week_date_before(input_date: datetime, week_offset: int = 0) -> da
     return date_start_week
 
 
-def get_week_bookends(input_date: datetime, week_offset: int = 0) -> (date, date, date):
+def get_week_bookends(input_date: date, week_offset: int = 0) -> (date, date, date):
     """
     returns a tuple representing the start of the week -1, start of week and end of week
     :param input_date: the date used to determine the start and end of the week
@@ -65,7 +67,7 @@ def get_week_bookends(input_date: datetime, week_offset: int = 0) -> (date, date
             date_end_week)
 
 
-def get_12_week_bookends(input_date: datetime) -> (date, date, date):
+def get_12_week_bookends(input_date: date) -> (date, date, date):
     """
     Calculates a 12 week window using the input_date as a start point.
     Calculates the date for the Monday of the current week,
@@ -83,7 +85,7 @@ def get_12_week_bookends(input_date: datetime) -> (date, date, date):
     return start_historic_week_date_day_before, start_historic_week_date, start_current_week_date
 
 
-def get_date_from_isotimestamp(iso_timestamp, timestamp):
+def get_date_from_isotimestamp(iso_timestamp: str, timestamp: timezone) -> date:
     """
     Returns a date based on the provided iso_timestamp
     :param iso_timestamp: timestamp to convert to date
@@ -103,8 +105,8 @@ def get_date_from_isotimestamp(iso_timestamp, timestamp):
     return local_date
 
 
-def determine_value_to_add(activity, local_date: date, start_date: date, end_date: date = None,
-                           sum_by: str = 'duration'):
+def determine_value_to_add(activity: Activity, local_date: date, start_date: date, end_date: date = None,
+                           sum_by: str = 'duration') -> (bool, int):
     """
     Determines whether the activity falls in the date range indicated by [start_date, end_date].
     If it does, then determines how much activity to count and whether it is duration or distance being measured.
@@ -138,7 +140,7 @@ def determine_value_to_add(activity, local_date: date, start_date: date, end_dat
     return add_it, to_add
 
 
-def calc_daily_duration_per_exercise_type(activities, start_date: date, end_date: date = None,
+def calc_daily_duration_per_exercise_type(activities: List[Activity], start_date: date, end_date: date = None,
                                           sum_by: str = 'duration'):
     """
     Given a list of activities for the last week, will put them into a dictionary of arrays.
@@ -175,7 +177,7 @@ def calc_daily_duration_per_exercise_type(activities, start_date: date, end_date
     return exercise_dict
 
 
-def get_chart_dataset(activities, start_date: date, end_date: date = None, sum_by: str = 'duration'):
+def get_chart_dataset(activities: List[Activity], start_date: date, end_date: date = None, sum_by: str = 'duration'):
     """
     returns an array of tuples with each tuple representing a data set to
     be visualised in chart.js
@@ -203,12 +205,12 @@ def get_chart_dataset(activities, start_date: date, end_date: date = None, sum_b
     return display_data
 
 
-def calc_week_totals_by_exercise_type(exercise_dict):
+def calc_week_totals_by_exercise_type(exercise_dict: Dict[int, List[int]]):
     """
     calculates the total number of exercises performed irrespective of exercise_type in a week,
     the total number for each exercise_type in a week and the total weekly minutes/kms per exercise_type
     total
-    :param exercise_dict:a dictionary where key is exerise_type and value is a list
+    :param exercise_dict:a dictionary where key is exercise_type and value is a list
     representing minutes/kms spent on that exercise_type on that day
     :type exercise_dict:
     :return: total number of activities performed in the week, a dict with total number of activities per activity type,
@@ -230,7 +232,7 @@ def calc_week_totals_by_exercise_type(exercise_dict):
     return activities_grand_total, dict_number_activities, grand_total, dict_totals
 
 
-def calc_weekly_totals(activities, start_date: date, end_date: date = None):
+def calc_weekly_totals(activities: List[Activity], start_date: date, end_date: date = None):
     """
     Calculates the weekly grand totals for duration and distance and number of exercises performed
     :param activities: list of activities to count
@@ -257,7 +259,7 @@ def calc_weekly_totals(activities, start_date: date, end_date: date = None):
         total_duration_by_exercise_type, total_distance_all_activities, total_distance_by_exercise_type
 
 
-def compare_weekly_totals_to_goals(goals, activities, start_date: date, end_date: date = None):
+def compare_weekly_totals_to_goals(goals: List[Goal], activities: List[Activity], start_date: date, end_date: date = None):
     """
     Compares the weekly frequency, duration, distance figrues against goals in order to calculate %age of the goal
     :param goals: a list of user Goal
