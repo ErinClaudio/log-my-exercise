@@ -44,3 +44,18 @@
         </div>
     {% endif %}
 {% endmacro %}
+{% macro add_google_analytics() %}
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ 'code'|get_os_env('GA_CODE') }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', '{{ 'code'|get_os_env('GA_CODE') }}');
+    </script>
+{% endmacro %}

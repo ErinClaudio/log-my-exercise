@@ -1,5 +1,6 @@
 from logging import config
 import yaml
+from app.services import utils
 
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -21,6 +22,9 @@ bootstrap = Bootstrap()
 csrf = CSRFProtect()
 
 oauth = OAuth()
+
+
+
 
 
 def create_app(config_name='default'):
@@ -90,6 +94,9 @@ def create_app(config_name='default'):
     app.register_blueprint(goal_bp, url_prefix='/goal')
     from app.inspires import bp as inspires_bp
     app.register_blueprint(inspires_bp, url_prefix='/inspires')
+
+    # this filter allows environment variables to be read inside the jinja templates
+    app.jinja_env.filters['get_os_env'] = utils.get_os_env
 
     return app
 
