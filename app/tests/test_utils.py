@@ -61,6 +61,12 @@ def test_get_utc_from_local_time():
     # won't assert on hour due to DST
 
 
+def test_get_utc_from_local_time_badtz():
+    my_date_utc = utils.localize_local_time(datetime.now(), 'fgfgfggf')
+    assert my_date_utc is not None
+    assert my_date_utc.tzinfo == pytz.utc
+
+
 def test_generate_random_filename_from_email():
     email = "bobby@chariot.net"
     assert "bobby" in utils.generate_random_filename_from_email(email)
