@@ -125,3 +125,16 @@ def save_contents_file(email, contents):
     with open(filename, 'w') as outfile:
         json.dump(contents, outfile)
         return True
+
+
+def get_os_env(default, key):
+    """
+
+    :param default: the default value if the key does not exist
+    :type default: str
+    :param key: the environment variable to look for
+    :type key: str
+    :return: the value of the environment variable if it exists, otherwise the provided default value
+    :rtype:
+    """
+    return os.getenv(key, default)

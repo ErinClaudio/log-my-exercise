@@ -90,3 +90,9 @@ def test_save_contents_as_file():
 
     # then delete the file
     os.remove(files[0])
+
+
+def test_get_os_env():
+    assert utils.get_os_env("default", "no_key") == "default"
+    os.environ["no_key"] = "123"
+    assert utils.get_os_env("default", "no_key") == "123"
