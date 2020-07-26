@@ -33,8 +33,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
-
-    {{ add_google_analytics() }}
+    {% set code | get_os_env('GA_CODE') %}
+    {% endset %}
+    {{ add_google_analytics(code) }}
 
 </head>
 <body>
