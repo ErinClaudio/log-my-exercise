@@ -18,6 +18,7 @@ I've been using Python 3.7.7 and have tested it under Chrome, Brave and Safari o
 It requires a database backend. For development, I've been using sqlite and I've tested it under MySQL.
 The Auth0 website is used for authentication. I use the Authlib package to assist with the authentication.
 Strava APIs are used for integration with Strava.
+Google Analytics tracking is provided in all of the HTML pages.
 
 The requirements.txt file has further information on the dependent packages
 
@@ -32,6 +33,7 @@ This app contains the following features:
 * send the exercise to Strava
 * authenticate users using the Auth0 website
 * contact us capabilities where the queries are saved to a json file
+* share workouts that inspire so others in the user community can view and comment on these
 
 # Installation
 It's a standard Flask app with a database backend. To install and run locally:
@@ -39,6 +41,7 @@ It's a standard Flask app with a database backend. To install and run locally:
 * Fork this repo
 * Register an app with Auth0
 * Register an app with Strava if you'd like Strava integration
+* Register with Google Analytics if you'd like to use Google Analytics to track website activity
 * Set-up the required environment variables on your machine or server. These are listed in the config.py file. These are used to manage secrets and other runtime configurations.
 * Install the necessary Python packages described in requirements.txt. Best if you create a virtual environment and activate it.
 * The environment variable FLASK_CONFIG controls which configuration in config.py will be used.
@@ -50,14 +53,14 @@ I am running this application in AWS. I've used:
 * Elastic Beanstalk to run the Flask application
 * RMS with a mysql database
 * S3 to store the Contact Us queries as json files
-* Route 53 to route requests to a load balancer in front of Elastic Beanstalk 
+* Route 53 to route requests to a load-balancer in front of Elastic Beanstalk 
 
 # Tests
-The tests folder contains some tests.
+The tests folder contains all of the application tests.
 To run them execute `Make test` on the command line.
 You can also run various linters by entering `Make lint`. These will provide some errors due to the way Flask works.
 I've leveraged CircleCI for Continuous Integration where it automatically runs the tests against a mysql database.
-I've also used SonarSource to highlight code coverage or code quality issues.
+I've also used SonarSource to highlight code coverage and code quality issues.
 
 # How to use?
 You can take this code and run on a server via mechanisms such as Docker or AWS Elastic Beanstalk. 
@@ -68,7 +71,6 @@ The Makefile contains a `deploy` command that deploys the application to Elastic
 Feedback and contributions are welcome. 
 
 # To dos
-* Allow users to share the routines they love
 * Add a community forum where users can share questions and answers
 * Make the Strava API call to save an activity asynchronous
 * Improve the UI

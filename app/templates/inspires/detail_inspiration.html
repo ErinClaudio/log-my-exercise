@@ -1,3 +1,4 @@
+{% from "macros.html" import add_disqus with context %}
 {% extends "base.html" %}
 
 {% block content %}
@@ -65,26 +66,15 @@
     <div class="row">
         <div class="col-md-8 mx-auto">
             <div id="disqus_thread"></div>
-            <script>
-
-                /**
-                 *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-                 *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
-
-                var disqus_config = function () {
-                    this.page.url = '{{ request.url }}';  // Replace PAGE_URL with your page's canonical URL variable
-                    this.page.identifier = '{{ "{}_{}".format('inspires', inspiration.id) }}'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-                    this.page.title = '{{ "{} a {}-{}".format('be inspired by ', activity_map[inspiration.workout_type], inspiration.title) }}';
-                };
-                (function () { // DON'T EDIT BELOW THIS LINE
-                    var d = document, s = d.createElement('script');
-                    s.src = 'https://logmyexercise-fit.disqus.com/embed.js';
-                    s.setAttribute('data-timestamp', +new Date());
-                    (d.head || d.body).appendChild(s);
-                })();
-            </script>
-            <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered
-                by Disqus.</a></noscript>
+            {%- set disqus_identifier -%}
+            {{ "{}_{}".format('inspires', inspiration.id) }}
+            {%- endset -%}
+            {%- set disqus_title -%}
+            {{ "{} a {}-{}".format('be inspired by ', activity_map[inspiration.workout_type], inspiration.title) }}
+            {%- endset -%}
+            {% set disqus_url | get_os_env('DISQUS_URL') %}
+            {% endset %}
+            {{ add_disqus(disqus_identifier, disqus_title, disqus_url) }}
         </div>
     </div>
 {% endblock %}

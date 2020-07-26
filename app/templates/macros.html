@@ -34,19 +34,19 @@
                     {{ measure_value }} {{ measure_unit }} {{ exercise_icon(measure_activity_type) }}
                 </div>
             </div>
-            <div class="progress" >
+            <div class="progress">
                 <div class="progress-bar" role="progressbar" style="width: {{ goal_percentage }}%"
                      aria-valuenow="{{ goal_percentage }}"
                      aria-valuemin="0"
-                     aria-valuemax="100"> <span class="small">{{ goal_percentage }}%</span>
+                     aria-valuemax="100"><span class="small">{{ goal_percentage }}%</span>
                 </div>
             </div>
         </div>
     {% endif %}
 {% endmacro %}
-{% macro add_google_analytics() %}
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ 'code'|get_os_env('GA_CODE') }}"></script>
+{% macro add_google_analytics(ga_code) %}
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_code }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
 
@@ -56,6 +56,28 @@
 
         gtag('js', new Date());
 
-        gtag('config', '{{ 'code'|get_os_env('GA_CODE') }}');
+        gtag('config', '{{ ga_code }}');
     </script>
+{% endmacro %}
+{% macro add_disqus(page_identifier, page_title, disqus_url) %}
+    <script>
+
+        /**
+         *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+         *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+
+        var disqus_config = function () {
+            this.page.url = '{{ request.url }}';  // Replace PAGE_URL with your page's canonical URL variable
+            this.page.identifier = '{{ page_identifier }}'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+            this.page.title = '{{ page_title }}';
+        };
+        (function () { // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            s.src = '{{ "{}/embed.js".format(disqus_url) }}';
+            s.setAttribute('data-timestamp', + new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered
+        by Disqus.</a></noscript>
 {% endmacro %}
